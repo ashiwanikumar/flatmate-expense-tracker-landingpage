@@ -8,7 +8,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6">
-              Campaign Manager
+              Email Campaign Manager
             </h1>
             <p className="text-xl text-gray-600 mb-12">
               Automate your email campaigns with intelligent scheduling and progress tracking

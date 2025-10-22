@@ -67,6 +67,9 @@ export default function RegisterPage() {
       <div className="flex-grow flex items-center justify-center px-4 py-12">
         <div className="max-w-md w-full">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-16 w-16" />
+          </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
             Create Account
           </h1>
