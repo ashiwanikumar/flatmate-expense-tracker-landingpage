@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { campaignAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
+import Footer from '@/components/Footer';
 
 export default function CampaignsPage() {
   const router = useRouter();
@@ -214,6 +215,7 @@ export default function CampaignsPage() {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

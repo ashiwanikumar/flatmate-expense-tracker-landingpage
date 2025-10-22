@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dashboardAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
+import Footer from '@/components/Footer';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -208,19 +209,19 @@ export default function DashboardPage() {
                 href="/csv"
                 className="block w-full px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition text-center font-medium"
               >
-                📤 Upload CSV File
+                Upload CSV File
               </Link>
               <Link
                 href="/campaigns/create"
                 className="block w-full px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-center font-medium"
               >
-                🚀 Create Campaign
+                Create Campaign
               </Link>
               <Link
                 href="/campaigns"
                 className="block w-full px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition text-center font-medium"
               >
-                📊 View All Campaigns
+                View All Campaigns
               </Link>
             </div>
           </div>
@@ -264,6 +265,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

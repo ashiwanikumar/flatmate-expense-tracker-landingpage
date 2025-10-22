@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useDropzone } from 'react-dropzone';
 import { csvAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
+import Footer from '@/components/Footer';
 
 export default function CSVPage() {
   const router = useRouter();
@@ -258,6 +259,7 @@ export default function CSVPage() {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
