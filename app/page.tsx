@@ -3,8 +3,8 @@ import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
-    <>
-      <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex flex-col">
+      <main className="flex-grow">
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6">
@@ -107,6 +107,6 @@ export default function Home() {
       </div>
     </main>
     <Footer />
-    </>
+    </div>
   );
 }
