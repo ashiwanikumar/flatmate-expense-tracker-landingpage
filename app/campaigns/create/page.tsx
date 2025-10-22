@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { csvAPI, campaignAPI } from '@/lib/api';
+import { csvAPI, campaignAPI, companyAccountAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 
@@ -13,7 +13,9 @@ function CreateCampaignForm() {
   const csvId = searchParams.get('csvId');
 
   const [csvFiles, setCsvFiles] = useState<any[]>([]);
+  const [companyAccounts, setCompanyAccounts] = useState<any[]>([]);
   const [selectedCsv, setSelectedCsv] = useState(csvId || '');
+  const [selectedCompanyAccount, setSelectedCompanyAccount] = useState('');
   const [campaignPlan, setCampaignPlan] = useState<any>(null);
   const [formData, setFormData] = useState({
     batchSize: 1500,
@@ -30,6 +32,7 @@ function CreateCampaignForm() {
       return;
     }
     fetchCsvFiles();
+    fetchCompanyAccounts();
   }, []);
 
   useEffect(() => {
@@ -44,6 +47,15 @@ function CreateCampaignForm() {
       setCsvFiles(response.data.data.filter((file: any) => file.status === 'active'));
     } catch (error) {
       toast.error('Failed to load CSV files');
+    }
+  };
+
+  const fetchCompanyAccounts = async () => {
+    try {
+      const response = await companyAccountAPI.getAll();
+      setCompanyAccounts(response.data.data.filter((acc: any) => acc.status === 'active'));
+    } catch (error) {
+      toast.error('Failed to load company accounts');
     }
   };
 
@@ -73,6 +85,11 @@ function CreateCampaignForm() {
       return;
     }
 
+    if (!selectedCompanyAccount) {
+      toast.error('Please select a company account');
+      return;
+    }
+
     if (!formData.scheduledDate) {
       toast.error('Please select a scheduled date');
       return;
@@ -83,6 +100,7 @@ function CreateCampaignForm() {
     try {
       await campaignAPI.create({
         csvFileId: selectedCsv,
+        companyAccountId: selectedCompanyAccount,
         batchSize: parseInt(formData.batchSize.toString()),
         scheduledDate: formData.scheduledDate,
         campaignName: formData.campaignName || undefined,
@@ -145,6 +163,12 @@ function CreateCampaignForm() {
             >
               Campaigns
             </Link>
+            <Link
+              href="/company-accounts"
+              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+            >
+              Company Accounts
+            </Link>
           </div>
         </div>
       </nav>
@@ -179,6 +203,24 @@ function CreateCampaignForm() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Company Account *</label>
+                <select
+                  value={selectedCompanyAccount}
+                  onChange={(e) => setSelectedCompanyAccount(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                >
+                  <option value="">Choose a company account...</option>
+                  {companyAccounts.map((account) => (
+                    <option key={account._id} value={account._id}>
+                      {account.companyName} ({account.email})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">The API account to use for sending emails</p>
               </div>
 
               <div>
@@ -220,7 +262,7 @@ function CreateCampaignForm() {
 
               <button
                 type="submit"
-                disabled={loading || !selectedCsv}
+                disabled={loading || !selectedCsv || !selectedCompanyAccount}
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Creating Campaign...' : 'Create Campaign'}

@@ -84,4 +84,14 @@ export const dashboardAPI = {
   getAnalytics: (csvFileId?: string) => api.get('/dashboard/analytics', { params: { csvFileId } }),
 };
 
+// Company Account API
+export const companyAccountAPI = {
+  getAll: () => api.get('/company-accounts'),
+  getOne: (id: string) => api.get(`/company-accounts/${id}`),
+  create: (data: any) => api.post('/company-accounts', data),
+  update: (id: string, data: any) => api.put(`/company-accounts/${id}`, data),
+  delete: (id: string) => api.delete(`/company-accounts/${id}`),
+  testConnection: (id: string) => api.post(`/company-accounts/${id}/test`),
+};
+
 export default api;

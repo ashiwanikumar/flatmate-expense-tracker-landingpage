@@ -110,6 +110,12 @@ export default function CampaignsPage() {
             >
               Campaigns
             </Link>
+            <Link
+              href="/company-accounts"
+              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+            >
+              Company Accounts
+            </Link>
           </div>
         </div>
       </nav>
@@ -167,9 +173,14 @@ export default function CampaignsPage() {
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-4">
-                      CSV: {campaign.csvFile?.originalName || 'N/A'}
-                    </p>
+                    <div className="space-y-1 mb-4">
+                      <p className="text-sm text-gray-600">
+                        CSV: <span className="font-medium text-gray-900">{campaign.csvFile?.originalName || 'N/A'}</span>
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Company: <span className="font-medium text-gray-900">{campaign.companyAccount?.companyName || 'N/A'}</span>
+                      </p>
+                    </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                       <div>

@@ -122,6 +122,12 @@ export default function CampaignDetailsPage() {
             >
               Campaigns
             </Link>
+            <Link
+              href="/company-accounts"
+              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+            >
+              Company Accounts
+            </Link>
           </div>
         </div>
       </nav>
@@ -170,6 +176,10 @@ export default function CampaignDetailsPage() {
             <div className="flex justify-between">
               <span className="text-gray-600">CSV File:</span>
               <span className="font-medium">{campaign.csvFile?.originalName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Company Account:</span>
+              <span className="font-medium">{campaign.companyAccount?.companyName || 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Scheduled Date:</span>

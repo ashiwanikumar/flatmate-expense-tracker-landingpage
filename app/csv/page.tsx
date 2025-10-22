@@ -146,6 +146,12 @@ export default function CSVPage() {
             >
               Campaigns
             </Link>
+            <Link
+              href="/company-accounts"
+              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+            >
+              Company Accounts
+            </Link>
           </div>
         </div>
       </nav>
