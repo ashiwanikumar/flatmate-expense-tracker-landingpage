@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { csvAPI, campaignAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 
-export default function CreateCampaignPage() {
+function CreateCampaignForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const csvId = searchParams.get('csvId');
@@ -294,5 +294,20 @@ export default function CreateCampaignPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function CreateCampaignPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <CreateCampaignForm />
+    </Suspense>
   );
 }
