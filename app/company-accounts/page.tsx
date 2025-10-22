@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { companyAccountAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import moment from 'moment-timezone';
 
 export default function CompanyAccountsPage() {
   const router = useRouter();
@@ -23,6 +24,26 @@ export default function CompanyAccountsPage() {
     defaultBatchPattern: '1500,1600,1700,1800,1900,2000',
   });
   const [testingId, setTestingId] = useState<string | null>(null);
+  const [timezoneSearch, setTimezoneSearch] = useState('');
+
+  // Get all timezones and format them with GMT offset
+  const timezones = moment.tz.names();
+
+  const formatTimezone = (tz: string) => {
+    const offset = moment.tz(tz).utcOffset();
+    const hours = Math.floor(Math.abs(offset) / 60);
+    const minutes = Math.abs(offset) % 60;
+    const sign = offset >= 0 ? '+' : '-';
+    const formattedOffset = `GMT${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    return `${tz} (${formattedOffset})`;
+  };
+
+  const filteredTimezones = timezoneSearch
+    ? timezones.filter(tz =>
+        tz.toLowerCase().includes(timezoneSearch.toLowerCase()) ||
+        formatTimezone(tz).toLowerCase().includes(timezoneSearch.toLowerCase())
+      )
+    : timezones;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -129,6 +150,7 @@ export default function CompanyAccountsPage() {
       timezone: 'Asia/Dubai',
       defaultBatchPattern: '1500,1600,1700,1800,1900,2000',
     });
+    setTimezoneSearch('');
   };
 
   const handleLogout = () => {
@@ -299,13 +321,37 @@ export default function CompanyAccountsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
-                <input
-                  type="text"
-                  value={formData.timezone}
-                  onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
-                  placeholder="Asia/Dubai"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search timezone..."
+                    value={timezoneSearch}
+                    onChange={(e) => setTimezoneSearch(e.target.value)}
+                    onFocus={() => setTimezoneSearch('')}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  />
+                  {timezoneSearch && (
+                    <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-lg shadow-lg">
+                      {filteredTimezones.slice(0, 50).map((tz) => (
+                        <button
+                          key={tz}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, timezone: tz });
+                            setTimezoneSearch('');
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-purple-50 text-sm text-gray-900 border-b border-gray-100 last:border-b-0"
+                        >
+                          {formatTimezone(tz)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="mt-2 px-4 py-2 bg-gray-50 rounded border border-gray-200">
+                  <p className="text-xs text-gray-500">Selected:</p>
+                  <p className="text-sm font-medium text-gray-900">{formatTimezone(formData.timezone)}</p>
+                </div>
               </div>
 
               <div className="md:col-span-2">
