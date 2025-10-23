@@ -226,6 +226,57 @@ export default function CompanyAccountsPage() {
       </nav>
 
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {/* AWS Configuration Info */}
+        <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">AWS Configuration Required for CSV Uploads</h3>
+              <p className="text-sm text-blue-800 mb-3">
+                To enable CSV file uploads and storage for each company, the following AWS credentials must be configured in the backend .env file:
+              </p>
+              <div className="bg-white rounded-lg p-4 text-sm">
+                <div className="space-y-2">
+                  <div className="flex items-start">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs font-bold mr-3 mt-0.5">1</span>
+                    <div>
+                      <p className="font-semibold text-gray-900">AWS S3 Configuration</p>
+                      <ul className="text-gray-700 mt-1 ml-4 list-disc space-y-1">
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">AWS_BUCKET_NAME</code> - S3 bucket name</li>
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">AWS_BUCKET_REGION</code> - AWS region (e.g., ap-south-1)</li>
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">AWS_ACCESS_KEY_ID</code> - IAM user access key</li>
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">AWS_SECRET_KEY</code> - IAM user secret key</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs font-bold mr-3 mt-0.5">2</span>
+                    <div>
+                      <p className="font-semibold text-gray-900">AWS CloudFront Configuration (for secure URLs)</p>
+                      <ul className="text-gray-700 mt-1 ml-4 list-disc space-y-1">
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">CLOUDFRONT_DOMAIN</code> - CloudFront distribution domain</li>
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">CLOUDFRONT_DISTRIBUTION_ID</code> - Distribution ID</li>
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">CLOUDFRONT_KEY_PAIR_ID</code> - Key pair ID for signing</li>
+                        <li><code className="text-xs bg-gray-100 px-2 py-0.5 rounded">CLOUDFRONT_PRIVATE_KEY</code> - Private key for signed URLs</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-600">
+                    <strong>Note:</strong> These credentials enable secure file storage and time-limited access URLs.
+                    CSV files are uploaded to S3 and accessed via CloudFront signed URLs that expire after 15 minutes for security.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Company Accounts</h2>
           <button
