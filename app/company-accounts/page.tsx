@@ -285,6 +285,19 @@ export default function CompanyAccountsPage() {
                 />
               </div>
 
+              <div className="md:col-span-2">
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-white px-4 text-sm font-medium text-gray-700">
+                      Enter account login credentials
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                 <input
