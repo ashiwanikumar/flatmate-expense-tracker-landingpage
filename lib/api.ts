@@ -60,6 +60,7 @@ export const csvAPI = {
   getAll: () => api.get('/csv'),
   getOne: (id: string) => api.get(`/csv/${id}`),
   getStats: (id: string) => api.get(`/csv/${id}/stats`),
+  getData: (id: string) => api.get(`/csv/${id}/data`),
   reset: (id: string) => api.post(`/csv/${id}/reset`),
   delete: (id: string) => api.delete(`/csv/${id}`),
 };

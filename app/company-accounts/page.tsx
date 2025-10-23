@@ -22,9 +22,12 @@ export default function CompanyAccountsPage() {
     campaignPrefix: 'WU',
     timezone: 'Asia/Dubai',
     defaultBatchPattern: '1500,1600,1700,1800,1900,2000',
+    notificationEmails: [] as string[],
   });
   const [testingId, setTestingId] = useState<string | null>(null);
   const [timezoneSearch, setTimezoneSearch] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   // Get all timezones and format them with GMT offset
   const timezones = moment.tz.names();
@@ -78,6 +81,7 @@ export default function CompanyAccountsPage() {
       const payload = {
         ...formData,
         defaultBatchPattern: formData.defaultBatchPattern.split(',').map(Number),
+        notificationEmails: formData.notificationEmails,
       };
 
       if (editingAccount) {
@@ -108,6 +112,7 @@ export default function CompanyAccountsPage() {
       campaignPrefix: account.campaignPrefix,
       timezone: account.timezone,
       defaultBatchPattern: account.defaultBatchPattern.join(','),
+      notificationEmails: account.notificationEmails || [],
     });
     setShowForm(true);
   };
@@ -152,8 +157,49 @@ export default function CompanyAccountsPage() {
       campaignPrefix: 'WU',
       timezone: 'Asia/Dubai',
       defaultBatchPattern: '1500,1600,1700,1800,1900,2000',
+      notificationEmails: [],
     });
     setTimezoneSearch('');
+    setNewEmail('');
+    setEmailError('');
+  };
+
+  const handleAddEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!newEmail.trim()) {
+      setEmailError('Please enter an email address');
+      return;
+    }
+
+    if (!emailRegex.test(newEmail)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    if (formData.notificationEmails.includes(newEmail)) {
+      setEmailError('This email is already added');
+      return;
+    }
+
+    if (formData.notificationEmails.length >= 10) {
+      setEmailError('Maximum 10 emails allowed');
+      return;
+    }
+
+    setFormData({
+      ...formData,
+      notificationEmails: [...formData.notificationEmails, newEmail],
+    });
+    setNewEmail('');
+    setEmailError('');
+  };
+
+  const handleRemoveEmail = (emailToRemove: string) => {
+    setFormData({
+      ...formData,
+      notificationEmails: formData.notificationEmails.filter(email => email !== emailToRemove),
+    });
   };
 
   const handleLogout = () => {
@@ -424,6 +470,87 @@ export default function CompanyAccountsPage() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notification Emails
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  Add email addresses to receive campaign notifications. Maximum 10 emails allowed.
+                </p>
+
+                <div className="flex gap-2 mb-3">
+                  <div className="flex-1">
+                    <input
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => {
+                        setNewEmail(e.target.value);
+                        setEmailError('');
+                      }}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddEmail();
+                        }
+                      }}
+                      placeholder="Enter email address"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                      disabled={formData.notificationEmails.length >= 10}
+                    />
+                    {emailError && (
+                      <p className="mt-1 text-xs text-red-600">{emailError}</p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddEmail}
+                    disabled={formData.notificationEmails.length >= 10}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium"
+                  >
+                    Add Email
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-gray-600">
+                    {formData.notificationEmails.length}/10 emails added
+                  </p>
+                </div>
+
+                {formData.notificationEmails.length > 0 && (
+                  <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    {formData.notificationEmails.map((email, index) => (
+                      <div
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-sm"
+                      >
+                        <span>{email}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEmail(email)}
+                          className="ml-1 hover:bg-purple-200 rounded-full p-0.5 transition"
+                          title="Remove email"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Default Batch Pattern (comma-separated)
                 </label>
                 <input
@@ -514,6 +641,22 @@ export default function CompanyAccountsPage() {
                         </p>
                       </div>
                     </div>
+
+                    {account.notificationEmails && account.notificationEmails.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm text-gray-600 mb-2">Notification Emails</p>
+                        <div className="flex flex-wrap gap-2">
+                          {account.notificationEmails.map((email: string, index: number) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs"
+                            >
+                              {email}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {account.lastSyncedAt && (
                       <p className="text-xs text-gray-500 mt-3">

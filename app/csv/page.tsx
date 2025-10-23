@@ -13,6 +13,11 @@ export default function CSVPage() {
   const [csvFiles, setCsvFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [viewModal, setViewModal] = useState<{ open: boolean; data: any | null }>({
+    open: false,
+    data: null,
+  });
+  const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -88,6 +93,19 @@ export default function CSVPage() {
       fetchCsvFiles();
     } catch (error) {
       toast.error('Failed to reset progress');
+    }
+  };
+
+  const handleView = async (id: string) => {
+    setLoadingData(true);
+    try {
+      const response = await csvAPI.getData(id);
+      setViewModal({ open: true, data: response.data.data });
+    } catch (error: any) {
+      console.error('Error fetching CSV data:', error);
+      toast.error('Failed to load CSV data');
+    } finally {
+      setLoadingData(false);
     }
   };
 
@@ -245,6 +263,13 @@ export default function CSVPage() {
                       </p>
                     </div>
                     <div className="ml-4 flex gap-2">
+                      <button
+                        onClick={() => handleView(file._id)}
+                        disabled={loadingData}
+                        className="px-4 py-2 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition disabled:opacity-50"
+                      >
+                        View Data
+                      </button>
                       <Link
                         href={`/campaigns/create?csvId=${file._id}`}
                         className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition"
@@ -287,6 +312,84 @@ export default function CSVPage() {
                 <div className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full animate-pulse"></div>
               </div>
               <p className="text-sm text-gray-500 mt-4">This may take a few moments</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CSV Data Viewer Modal */}
+      {viewModal.open && viewModal.data && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-7xl w-full max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{viewModal.data.fileName}</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Total Records: {viewModal.data.totalEmails.toLocaleString()} • Columns: {viewModal.data.columns.length}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewModal({ open: false, data: null })}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body - Scrollable Table */}
+            <div className="flex-1 overflow-auto p-6">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 border border-gray-200">
+                  <thead className="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r bg-gray-100">
+                        #
+                      </th>
+                      {viewModal.data.columns.map((column: string, index: number) => (
+                        <th
+                          key={index}
+                          className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r last:border-r-0 bg-gray-100"
+                        >
+                          {column}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {viewModal.data.rows.map((row: any, rowIndex: number) => (
+                      <tr key={rowIndex} className="hover:bg-gray-50 transition">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 border-r font-medium bg-gray-50">
+                          {rowIndex + 1}
+                        </td>
+                        {viewModal.data.columns.map((column: string, colIndex: number) => (
+                          <td
+                            key={colIndex}
+                            className="px-4 py-3 text-sm text-gray-900 border-r last:border-r-0"
+                          >
+                            {row[column] || '-'}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+              <p className="text-sm text-gray-600">
+                Showing {viewModal.data.rows.length.toLocaleString()} records
+              </p>
+              <button
+                onClick={() => setViewModal({ open: false, data: null })}
+                className="px-6 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
