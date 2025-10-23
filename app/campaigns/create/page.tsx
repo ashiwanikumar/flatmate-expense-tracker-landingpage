@@ -235,11 +235,11 @@ function CreateCampaignForm() {
                   value={formData.batchSize}
                   onChange={(e) => setFormData({ ...formData, batchSize: parseInt(e.target.value) })}
                   required
-                  min="100"
+                  min="1"
                   max="5000"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                 />
-                <p className="text-xs text-gray-500 mt-1">Number of emails to send (100-5000)</p>
+                <p className="text-xs text-gray-500 mt-1">Number of emails to send (1-5000)</p>
               </div>
 
               <div>
