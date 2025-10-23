@@ -281,8 +281,9 @@ export default function CompanyAccountsPage() {
                   onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
-                  placeholder="https://api.example.com"
+                  placeholder="http://localhost:8000/api/v1"
                 />
+                <p className="mt-1 text-xs text-gray-500">Enter full API URL including version (e.g., /api/v1)</p>
               </div>
 
               <div className="md:col-span-2">
