@@ -66,7 +66,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-4">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
               <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Email Campaign Manager
+                Campaign Manager
               </h1>
             </div>
             <div className="flex items-center gap-4">

@@ -131,7 +131,7 @@ function CreateCampaignForm() {
             <div className="flex items-center gap-4">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
               <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Email Campaign Manager
+                Campaign Manager
               </h1>
             </div>
             <button
@@ -197,7 +197,7 @@ function CreateCampaignForm() {
                   value={selectedCsv}
                   onChange={(e) => setSelectedCsv(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                 >
                   <option value="">Choose a CSV file...</option>
                   {csvFiles.map((file) => (
@@ -214,7 +214,7 @@ function CreateCampaignForm() {
                   value={selectedCompanyAccount}
                   onChange={(e) => setSelectedCompanyAccount(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                 >
                   <option value="">Choose a company account...</option>
                   {companyAccounts.map((account) => (
@@ -235,7 +235,7 @@ function CreateCampaignForm() {
                   required
                   min="100"
                   max="5000"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                 />
                 <p className="text-xs text-gray-500 mt-1">Number of emails to send (100-5000)</p>
               </div>
@@ -247,7 +247,7 @@ function CreateCampaignForm() {
                   value={formData.scheduledDate}
                   onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                 />
               </div>
 
@@ -258,7 +258,7 @@ function CreateCampaignForm() {
                   value={formData.campaignName}
                   onChange={(e) => setFormData({ ...formData, campaignName: e.target.value })}
                   placeholder="Leave empty for auto-generated name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                 />
                 <p className="text-xs text-gray-500 mt-1">Format: WU{'{DD}{MM}{YYYY}'}</p>
               </div>

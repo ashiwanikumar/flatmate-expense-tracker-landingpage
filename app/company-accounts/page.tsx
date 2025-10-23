@@ -131,7 +131,10 @@ export default function CompanyAccountsPage() {
       if (response.data.success) {
         toast.success('Connection successful!');
       } else {
-        toast.error(response.data.message || 'Connection failed');
+        // Show detailed error with URL if available
+        const errorMsg = response.data.message || 'Connection failed';
+        const url = response.data.data?.url;
+        toast.error(url ? `${errorMsg}\nURL: ${url}` : errorMsg, { duration: 6000 });
       }
     } catch (error: any) {
       toast.error('Connection test failed');
@@ -178,7 +181,7 @@ export default function CompanyAccountsPage() {
             <div className="flex items-center gap-4">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
               <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Email Campaign Manager
+                Campaign Manager
               </h1>
             </div>
             <button
