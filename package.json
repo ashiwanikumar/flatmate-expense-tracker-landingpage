@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 3004",
     "build": "next build",
-    "start": "next start",
+    "postbuild": "next-sitemap",
+    "start": "next start -p $PORT",
+    "heroku-postbuild": "npm run build",
     "lint": "next lint"
   },
   "dependencies": {
