@@ -24,6 +24,7 @@ function CreateCampaignForm() {
   });
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
+  const [showAllCampaigns, setShowAllCampaigns] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,7 +40,7 @@ function CreateCampaignForm() {
     if (selectedCsv) {
       calculatePlan();
     }
-  }, [selectedCsv]);
+  }, [selectedCsv, formData.batchSize]);
 
   const fetchCsvFiles = async () => {
     try {
@@ -60,13 +61,14 @@ function CreateCampaignForm() {
   };
 
   const calculatePlan = async () => {
-    if (!selectedCsv) return;
+    if (!selectedCsv || !formData.batchSize) return;
 
     setCalculating(true);
     try {
+      const batchSize = parseInt(formData.batchSize.toString());
       const response = await campaignAPI.calculatePlan({
         csvFileId: selectedCsv,
-        batchPattern: [1500, 1600, 1700, 1800, 1900, 2000],
+        batchPattern: [batchSize],
         startDate: new Date(),
       });
       setCampaignPlan(response.data.data);
@@ -123,7 +125,7 @@ function CreateCampaignForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -288,15 +290,15 @@ function CreateCampaignForm() {
                   <h4 className="font-semibold text-purple-900 mb-2">Overview</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total Emails:</span>
-                      <span className="font-semibold">{campaignPlan.csvFile.totalEmails.toLocaleString()}</span>
+                      <span className="text-gray-700">Total Emails:</span>
+                      <span className="font-semibold text-gray-900">{campaignPlan.csvFile.totalEmails.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Already Sent:</span>
+                      <span className="text-gray-700">Already Sent:</span>
                       <span className="font-semibold text-green-600">{campaignPlan.csvFile.sentCount.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Remaining:</span>
+                      <span className="text-gray-700">Remaining:</span>
                       <span className="font-semibold text-blue-600">{campaignPlan.csvFile.remainingCount.toLocaleString()}</span>
                     </div>
                   </div>
@@ -306,26 +308,49 @@ function CreateCampaignForm() {
                   <h4 className="font-semibold text-blue-900 mb-2">Plan Summary</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total Days:</span>
-                      <span className="font-semibold">{campaignPlan.totalDays}</span>
+                      <span className="text-gray-700">Total Days:</span>
+                      <span className="font-semibold text-gray-900">{campaignPlan.totalDays}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Avg. per Day:</span>
-                      <span className="font-semibold">{campaignPlan.averagePerDay.toLocaleString()}</span>
+                      <span className="text-gray-700">Avg. per Day:</span>
+                      <span className="font-semibold text-gray-900">{campaignPlan.averagePerDay.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Upcoming Campaigns</h4>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {campaignPlan.campaigns.slice(0, 7).map((camp: any) => (
-                      <div key={camp.day} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
-                        <span className="text-gray-600">Day {camp.day}</span>
-                        <span className="font-medium">{camp.campaignName}</span>
-                        <span className="text-purple-600 font-semibold">{camp.batchSize.toLocaleString()}</span>
-                      </div>
-                    ))}
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-semibold text-gray-900">Upcoming Campaigns</h4>
+                    {campaignPlan.campaigns.length > 10 && (
+                      <button
+                        onClick={() => setShowAllCampaigns(!showAllCampaigns)}
+                        className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                      >
+                        {showAllCampaigns ? 'View Less' : `View All (${campaignPlan.campaigns.length})`}
+                      </button>
+                    )}
+                  </div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="max-h-96 overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50 sticky top-0">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-gray-700 font-semibold">Day</th>
+                            <th className="px-4 py-2 text-left text-gray-700 font-semibold">Campaign</th>
+                            <th className="px-4 py-2 text-right text-gray-700 font-semibold">Emails</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {(showAllCampaigns ? campaignPlan.campaigns : campaignPlan.campaigns.slice(0, 10)).map((camp: any, index: number) => (
+                            <tr key={camp.day} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <td className="px-4 py-2 text-gray-900">{camp.day}</td>
+                              <td className="px-4 py-2 text-gray-700">{camp.campaignName}</td>
+                              <td className="px-4 py-2 text-right text-purple-600 font-semibold">{camp.batchSize.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
