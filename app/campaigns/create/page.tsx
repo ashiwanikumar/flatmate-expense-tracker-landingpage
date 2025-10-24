@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { csvAPI, campaignAPI, companyAccountAPI } from '@/lib/api';
+import { csvAPI, campaignAPI, companyAccountAPI, campaignTemplateAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 
@@ -16,6 +16,9 @@ function CreateCampaignForm() {
   const [companyAccounts, setCompanyAccounts] = useState<any[]>([]);
   const [selectedCsv, setSelectedCsv] = useState(csvId || '');
   const [selectedCompanyAccount, setSelectedCompanyAccount] = useState('');
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [campaignPlan, setCampaignPlan] = useState<any>(null);
   const [formData, setFormData] = useState({
     batchSize: 1500,
@@ -42,6 +45,15 @@ function CreateCampaignForm() {
     }
   }, [selectedCsv, formData.batchSize]);
 
+  useEffect(() => {
+    if (selectedCompanyAccount) {
+      fetchTemplates();
+    } else {
+      setTemplates([]);
+      setSelectedTemplates([]);
+    }
+  }, [selectedCompanyAccount]);
+
   const fetchCsvFiles = async () => {
     try {
       const response = await csvAPI.getAll();
@@ -58,6 +70,35 @@ function CreateCampaignForm() {
     } catch (error) {
       toast.error('Failed to load company accounts');
     }
+  };
+
+  const fetchTemplates = async () => {
+    if (!selectedCompanyAccount) return;
+
+    setLoadingTemplates(true);
+    try {
+      const response = await campaignTemplateAPI.getAll(selectedCompanyAccount);
+      setTemplates(response.data.data);
+
+      // Auto-select default template if exists
+      const defaultTemplate = response.data.data.find((t: any) => t.isDefault);
+      if (defaultTemplate) {
+        setSelectedTemplates([defaultTemplate._id]);
+      }
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      toast.error('Failed to load templates');
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const handleTemplateToggle = (templateId: string) => {
+    setSelectedTemplates(prev =>
+      prev.includes(templateId)
+        ? prev.filter(id => id !== templateId)
+        : [...prev, templateId]
+    );
   };
 
   const calculatePlan = async () => {
@@ -92,6 +133,11 @@ function CreateCampaignForm() {
       return;
     }
 
+    if (selectedTemplates.length === 0) {
+      toast.error('Please select at least one template');
+      return;
+    }
+
     if (!formData.scheduledDate) {
       toast.error('Please select a scheduled date');
       return;
@@ -100,19 +146,36 @@ function CreateCampaignForm() {
     setLoading(true);
 
     try {
-      await campaignAPI.create({
-        csvFileId: selectedCsv,
-        companyAccountId: selectedCompanyAccount,
-        batchSize: parseInt(formData.batchSize.toString()),
-        scheduledDate: formData.scheduledDate,
-        campaignName: formData.campaignName || undefined,
-      });
+      let successCount = 0;
+      let failCount = 0;
 
-      toast.success('Campaign created successfully!');
-      router.push('/campaigns');
+      // Create one campaign for each selected template
+      for (const templateId of selectedTemplates) {
+        try {
+          await campaignAPI.create({
+            csvFileId: selectedCsv,
+            companyAccountId: selectedCompanyAccount,
+            templateId: templateId,
+            batchSize: parseInt(formData.batchSize.toString()),
+            scheduledDate: formData.scheduledDate,
+            campaignName: formData.campaignName || undefined,
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to create campaign for template ${templateId}:`, error);
+          failCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`${successCount} campaign${successCount > 1 ? 's' : ''} created successfully!`);
+        router.push('/campaigns');
+      } else {
+        toast.error('Failed to create any campaigns');
+      }
     } catch (error: any) {
       console.error('Create campaign error:', error);
-      toast.error(error.response?.data?.message || 'Failed to create campaign');
+      toast.error(error.response?.data?.message || 'Failed to create campaigns');
     } finally {
       setLoading(false);
     }
@@ -174,6 +237,12 @@ function CreateCampaignForm() {
             >
               Company Accounts
             </Link>
+            <Link
+              href="/calendar"
+              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+            >
+              📅 Calendar
+            </Link>
           </div>
         </div>
       </nav>
@@ -228,6 +297,59 @@ function CreateCampaignForm() {
                 <p className="text-xs text-gray-500 mt-1">The API account to use for sending emails</p>
               </div>
 
+              {/* Template Selection */}
+              {selectedCompanyAccount && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Templates * ({selectedTemplates.length} selected)
+                  </label>
+                  {loadingTemplates ? (
+                    <div className="text-center py-6">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                      <p className="mt-2 text-sm text-gray-600">Loading templates...</p>
+                    </div>
+                  ) : templates.length === 0 ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p className="text-sm text-yellow-800">
+                        ⚠️ No templates found for this company account. Please create templates first.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-white">
+                      <div className="space-y-2">
+                        {templates.map((template) => (
+                          <label
+                            key={template._id}
+                            className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedTemplates.includes(template._id)}
+                              onChange={() => handleTemplateToggle(template._id)}
+                              className="mt-1 rounded text-purple-600 focus:ring-purple-500"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-900">{template.templateName}</span>
+                                {template.isDefault && (
+                                  <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                                    Default
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-600 mt-0.5">{template.subject}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Select one or more templates. One campaign will be created for each selected template.
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Batch Size *</label>
                 <input
@@ -267,10 +389,13 @@ function CreateCampaignForm() {
 
               <button
                 type="submit"
-                disabled={loading || !selectedCsv || !selectedCompanyAccount}
+                disabled={loading || !selectedCsv || !selectedCompanyAccount || selectedTemplates.length === 0}
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating Campaign...' : 'Create Campaign'}
+                {loading
+                  ? `Creating ${selectedTemplates.length} Campaign${selectedTemplates.length > 1 ? 's' : ''}...`
+                  : `Create ${selectedTemplates.length > 0 ? selectedTemplates.length : ''} Campaign${selectedTemplates.length > 1 ? 's' : ''}`
+                }
               </button>
             </form>
           </div>
