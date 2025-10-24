@@ -8,6 +8,7 @@ import { csvAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import LoadingModal from '@/components/LoadingModal';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function CSVPage() {
   const router = useRouter();
@@ -20,6 +21,10 @@ export default function CSVPage() {
   });
   const [loadingData, setLoadingData] = useState(false);
   const [resetModal, setResetModal] = useState<{ open: boolean; fileId: string | null }>({
+    open: false,
+    fileId: null,
+  });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; fileId: string | null }>({
     open: false,
     fileId: null,
   });
@@ -77,12 +82,13 @@ export default function CSVPage() {
     maxSize: 31457280, // 30MB
   });
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this file?')) return;
+  const handleDelete = async () => {
+    if (!deleteModal.fileId) return;
 
     try {
-      await csvAPI.delete(id);
+      await csvAPI.delete(deleteModal.fileId);
       toast.success('File deleted successfully');
+      setDeleteModal({ open: false, fileId: null });
       fetchCsvFiles();
     } catch (error) {
       toast.error('Failed to delete file');
@@ -306,7 +312,7 @@ export default function CSVPage() {
                         Reset
                       </button>
                       <button
-                        onClick={() => handleDelete(file._id)}
+                        onClick={() => setDeleteModal({ open: true, fileId: file._id })}
                         className="px-4 py-2 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
                       >
                         Delete
@@ -436,6 +442,18 @@ export default function CSVPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteModal.open}
+        title="localhost:3004 says"
+        message="Are you sure you want to delete this file?"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteModal({ open: false, fileId: null })}
+        confirmText="OK"
+        cancelText="Cancel"
+        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+      />
     </div>
   );
 }

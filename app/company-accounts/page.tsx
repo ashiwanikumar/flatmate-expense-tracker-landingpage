@@ -7,6 +7,7 @@ import { companyAccountAPI, campaignTemplateAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import moment from 'moment-timezone';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function CompanyAccountsPage() {
   const router = useRouter();
@@ -31,6 +32,14 @@ export default function CompanyAccountsPage() {
   const [timezoneSearch, setTimezoneSearch] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; accountId: string | null }>({
+    open: false,
+    accountId: null,
+  });
+  const [deleteTemplateModal, setDeleteTemplateModal] = useState<{ open: boolean; templateId: string | null }>({
+    open: false,
+    templateId: null,
+  });
 
   // Conferbot templates state
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
@@ -144,12 +153,13 @@ export default function CompanyAccountsPage() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this company account?')) return;
+  const handleDelete = async () => {
+    if (!deleteModal.accountId) return;
 
     try {
-      await companyAccountAPI.delete(id);
+      await companyAccountAPI.delete(deleteModal.accountId);
       toast.success('Company account deleted successfully');
+      setDeleteModal({ open: false, accountId: null });
       fetchAccounts();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to delete account');
@@ -329,12 +339,13 @@ export default function CompanyAccountsPage() {
     }
   };
 
-  const handleDeleteTemplate = async (templateId: string) => {
-    if (!confirm('Are you sure you want to delete this template?')) return;
+  const handleDeleteTemplate = async () => {
+    if (!deleteTemplateModal.templateId) return;
 
     try {
-      await campaignTemplateAPI.delete(templateId);
+      await campaignTemplateAPI.delete(deleteTemplateModal.templateId);
       toast.success('Template deleted successfully');
+      setDeleteTemplateModal({ open: false, templateId: null });
       await fetchTemplates(selectedCompanyForTemplates._id);
     } catch (error: any) {
       console.error('Error deleting template:', error);
@@ -854,7 +865,7 @@ export default function CompanyAccountsPage() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(account._id)}
+                      onClick={() => setDeleteModal({ open: true, accountId: account._id })}
                       className="px-4 py-2 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
                     >
                       Delete
@@ -974,7 +985,7 @@ export default function CompanyAccountsPage() {
                                 Edit
                               </button>
                               <button
-                                onClick={() => handleDeleteTemplate(template._id)}
+                                onClick={() => setDeleteTemplateModal({ open: true, templateId: template._id })}
                                 className="px-3 py-2 bg-red-50 text-red-700 text-sm rounded-lg hover:bg-red-100 transition font-medium"
                               >
                                 Delete
@@ -1303,6 +1314,30 @@ export default function CompanyAccountsPage() {
           </div>
         )}
       </main>
+
+      {/* Delete Company Account Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteModal.open}
+        title="localhost:3004 says"
+        message="Are you sure you want to delete this company account?"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteModal({ open: false, accountId: null })}
+        confirmText="OK"
+        cancelText="Cancel"
+        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+      />
+
+      {/* Delete Template Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteTemplateModal.open}
+        title="localhost:3004 says"
+        message="Are you sure you want to delete this template?"
+        onConfirm={handleDeleteTemplate}
+        onCancel={() => setDeleteTemplateModal({ open: false, templateId: null })}
+        confirmText="OK"
+        cancelText="Cancel"
+        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+      />
 
       {/* Connection Test Modal */}
       {showConnectionModal && (

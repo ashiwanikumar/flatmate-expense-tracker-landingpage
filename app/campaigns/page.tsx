@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { campaignAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function CampaignsPage() {
   const router = useRouter();
@@ -15,6 +16,12 @@ export default function CampaignsPage() {
   const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
+  const [deleteSingleModal, setDeleteSingleModal] = useState<{ open: boolean; campaignId: string | null; campaignName: string }>({
+    open: false,
+    campaignId: null,
+    campaignName: '',
+  });
+  const [deleteBulkModal, setDeleteBulkModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -60,17 +67,16 @@ export default function CampaignsPage() {
     }
   };
 
-  const handleDeleteSingle = async (campaignId: string, campaignName: string) => {
-    if (!confirm(`Are you sure you want to delete "${campaignName}"?`)) {
-      return;
-    }
+  const handleDeleteSingle = async () => {
+    if (!deleteSingleModal.campaignId) return;
 
     setDeleting(true);
     try {
-      await campaignAPI.delete(campaignId);
+      await campaignAPI.delete(deleteSingleModal.campaignId);
       toast.success('Campaign deleted successfully');
+      setDeleteSingleModal({ open: false, campaignId: null, campaignName: '' });
       fetchCampaigns();
-      setSelectedCampaigns(prev => prev.filter(id => id !== campaignId));
+      setSelectedCampaigns(prev => prev.filter(id => id !== deleteSingleModal.campaignId));
     } catch (error: any) {
       console.error('Error deleting campaign:', error);
       toast.error(error.response?.data?.message || 'Failed to delete campaign');
@@ -80,16 +86,8 @@ export default function CampaignsPage() {
   };
 
   const handleBulkDelete = async () => {
-    if (selectedCampaigns.length === 0) {
-      toast.error('Please select campaigns to delete');
-      return;
-    }
-
-    if (!confirm(`Are you sure you want to delete ${selectedCampaigns.length} campaign(s)?`)) {
-      return;
-    }
-
     setDeleting(true);
+    setDeleteBulkModal(false);
     let successCount = 0;
     let failCount = 0;
 
@@ -113,6 +111,14 @@ export default function CampaignsPage() {
     setSelectedCampaigns([]);
     fetchCampaigns();
     setDeleting(false);
+  };
+
+  const handleBulkDeleteClick = () => {
+    if (selectedCampaigns.length === 0) {
+      toast.error('Please select campaigns to delete');
+      return;
+    }
+    setDeleteBulkModal(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -221,7 +227,7 @@ export default function CampaignsPage() {
             <h2 className="text-2xl font-bold text-gray-900">All Campaigns</h2>
             {selectedCampaigns.length > 0 && (
               <button
-                onClick={handleBulkDelete}
+                onClick={handleBulkDeleteClick}
                 disabled={deleting}
                 className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -382,7 +388,7 @@ export default function CampaignsPage() {
                       View Details
                     </Link>
                     <button
-                      onClick={() => handleDeleteSingle(campaign._id, campaign.campaignName)}
+                      onClick={() => setDeleteSingleModal({ open: true, campaignId: campaign._id, campaignName: campaign.campaignName })}
                       disabled={deleting}
                       className="px-4 py-2 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -474,7 +480,7 @@ export default function CampaignsPage() {
                     View
                   </Link>
                   <button
-                    onClick={() => handleDeleteSingle(campaign._id, campaign.campaignName)}
+                    onClick={() => setDeleteSingleModal({ open: true, campaignId: campaign._id, campaignName: campaign.campaignName })}
                     disabled={deleting}
                     className="flex-1 px-3 py-2 bg-red-100 text-red-700 text-xs font-medium rounded-lg hover:bg-red-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -487,6 +493,30 @@ export default function CampaignsPage() {
         )}
       </main>
       <Footer />
+
+      {/* Delete Single Campaign Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteSingleModal.open}
+        title="localhost:3004 says"
+        message={`Are you sure you want to delete "${deleteSingleModal.campaignName}"?`}
+        onConfirm={handleDeleteSingle}
+        onCancel={() => setDeleteSingleModal({ open: false, campaignId: null, campaignName: '' })}
+        confirmText="OK"
+        cancelText="Cancel"
+        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+      />
+
+      {/* Delete Multiple Campaigns Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteBulkModal}
+        title="localhost:3004 says"
+        message={`Are you sure you want to delete ${selectedCampaigns.length} campaign(s)?`}
+        onConfirm={handleBulkDelete}
+        onCancel={() => setDeleteBulkModal(false)}
+        confirmText="OK"
+        cancelText="Cancel"
+        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+      />
     </div>
   );
 }
