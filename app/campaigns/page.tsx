@@ -14,6 +14,7 @@ export default function CampaignsPage() {
   const [filter, setFilter] = useState('all');
   const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -225,7 +226,7 @@ export default function CampaignsPage() {
           </Link>
         </div>
 
-        {/* Filters */}
+        {/* Filters and View Toggle */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-2">
             {['all', 'scheduled', 'in_progress', 'completed', 'failed'].map((status) => (
@@ -242,20 +243,53 @@ export default function CampaignsPage() {
               </button>
             ))}
           </div>
-          {campaigns.length > 0 && (
-            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedCampaigns.length === campaigns.length}
-                onChange={handleSelectAll}
-                className="rounded text-purple-600 focus:ring-purple-500"
-              />
-              Select All
-            </label>
-          )}
+
+          <div className="flex items-center gap-4">
+            {/* View Mode Toggle */}
+            <div className="flex bg-white rounded-lg border border-gray-300 overflow-hidden">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 text-sm font-medium transition flex items-center gap-2 ${
+                  viewMode === 'list'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                List
+              </button>
+              <button
+                onClick={() => setViewMode('card')}
+                className={`px-4 py-2 text-sm font-medium transition flex items-center gap-2 ${
+                  viewMode === 'card'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                Card
+              </button>
+            </div>
+
+            {campaigns.length > 0 && (
+              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedCampaigns.length === campaigns.length}
+                  onChange={handleSelectAll}
+                  className="rounded text-purple-600 focus:ring-purple-500"
+                />
+                Select All
+              </label>
+            )}
+          </div>
         </div>
 
-        {/* Campaigns List */}
+        {/* Campaigns Display */}
         {campaigns.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <p className="text-gray-500 mb-4">No campaigns found.</p>
@@ -266,7 +300,8 @@ export default function CampaignsPage() {
               Create Your First Campaign
             </Link>
           </div>
-        ) : (
+        ) : viewMode === 'list' ? (
+          /* List View */
           <div className="grid grid-cols-1 gap-6">
             {campaigns.map((campaign) => (
               <div key={campaign._id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
@@ -343,6 +378,97 @@ export default function CampaignsPage() {
                       Delete
                     </button>
                   </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Card View */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {campaigns.map((campaign) => (
+              <div key={campaign._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col">
+                {/* Checkbox */}
+                <div className="p-4 border-b flex items-center justify-between">
+                  <input
+                    type="checkbox"
+                    checked={selectedCampaigns.includes(campaign._id)}
+                    onChange={() => handleSelectCampaign(campaign._id)}
+                    className="rounded text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(campaign.status)}`}>
+                    {campaign.status}
+                  </span>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-4 flex-grow">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3 truncate" title={campaign.campaignName}>
+                    {campaign.campaignName}
+                  </h3>
+
+                  <div className="space-y-2 mb-4">
+                    <div>
+                      <p className="text-xs text-gray-500">CSV File</p>
+                      <p className="text-sm font-medium text-gray-900 truncate" title={campaign.csvFile?.originalName}>
+                        {campaign.csvFile?.originalName || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Company</p>
+                      <p className="text-sm font-medium text-gray-900 truncate" title={campaign.companyAccount?.companyName}>
+                        {campaign.companyAccount?.companyName || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                      <p className="text-xs text-gray-500">Batch Size</p>
+                      <p className="text-base font-semibold">{campaign.batchSize.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Sent</p>
+                      <p className="text-base font-semibold text-green-600">{campaign.emailsSent || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Failed</p>
+                      <p className="text-base font-semibold text-red-600">{campaign.emailsFailed || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Progress</p>
+                      <p className="text-base font-semibold text-purple-600">
+                        {campaign.batchSize > 0 ? Math.round((campaign.emailsSent || 0) / campaign.batchSize * 100) : 0}%
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 text-xs text-gray-500">
+                    <p>
+                      <span className="font-medium">Scheduled:</span>{' '}
+                      {new Date(campaign.scheduledDate).toLocaleDateString()}
+                    </p>
+                    <p>
+                      <span className="font-medium">Created:</span>{' '}
+                      {new Date(campaign.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card Actions */}
+                <div className="p-4 bg-gray-50 border-t flex gap-2">
+                  <Link
+                    href={`/campaigns/${campaign._id}`}
+                    className="flex-1 px-3 py-2 bg-purple-100 text-purple-700 text-xs font-medium rounded-lg hover:bg-purple-200 transition text-center"
+                  >
+                    View
+                  </Link>
+                  <button
+                    onClick={() => handleDeleteSingle(campaign._id, campaign.campaignName)}
+                    disabled={deleting}
+                    className="flex-1 px-3 py-2 bg-red-100 text-red-700 text-xs font-medium rounded-lg hover:bg-red-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
