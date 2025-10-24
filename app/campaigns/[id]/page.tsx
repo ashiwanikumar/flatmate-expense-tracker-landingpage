@@ -14,6 +14,10 @@ export default function CampaignDetailsPage() {
 
   const [campaign, setCampaign] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionMessage, setActionMessage] = useState('');
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [newScheduledDate, setNewScheduledDate] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -36,6 +40,85 @@ export default function CampaignDetailsPage() {
     }
   };
 
+  const handleCancelCampaign = async () => {
+    if (!confirm('Are you sure you want to cancel this campaign? This action cannot be undone.')) {
+      return;
+    }
+
+    setActionLoading(true);
+    setActionMessage('Cancelling campaign...');
+
+    try {
+      await campaignAPI.cancel(id);
+      toast.success('Campaign cancelled successfully');
+      await fetchCampaign();
+    } catch (error: any) {
+      console.error('Error cancelling campaign:', error);
+      toast.error(error.response?.data?.message || 'Failed to cancel campaign');
+    } finally {
+      setActionLoading(false);
+      setActionMessage('');
+    }
+  };
+
+  const handlePauseCampaign = async () => {
+    setActionLoading(true);
+    setActionMessage('Pausing campaign...');
+
+    try {
+      await campaignAPI.pause(id);
+      toast.success('Campaign paused successfully');
+      await fetchCampaign();
+    } catch (error: any) {
+      console.error('Error pausing campaign:', error);
+      toast.error(error.response?.data?.message || 'Failed to pause campaign');
+    } finally {
+      setActionLoading(false);
+      setActionMessage('');
+    }
+  };
+
+  const handleResumeCampaign = async () => {
+    setActionLoading(true);
+    setActionMessage('Resuming campaign...');
+
+    try {
+      await campaignAPI.resume(id);
+      toast.success('Campaign resumed successfully');
+      await fetchCampaign();
+    } catch (error: any) {
+      console.error('Error resuming campaign:', error);
+      toast.error(error.response?.data?.message || 'Failed to resume campaign');
+    } finally {
+      setActionLoading(false);
+      setActionMessage('');
+    }
+  };
+
+  const handleRescheduleCampaign = async () => {
+    if (!newScheduledDate) {
+      toast.error('Please select a new date');
+      return;
+    }
+
+    setActionLoading(true);
+    setActionMessage('Rescheduling campaign...');
+
+    try {
+      await campaignAPI.reschedule(id, { scheduledDate: newScheduledDate });
+      toast.success('Campaign rescheduled successfully');
+      setShowRescheduleModal(false);
+      setNewScheduledDate('');
+      await fetchCampaign();
+    } catch (error: any) {
+      console.error('Error rescheduling campaign:', error);
+      toast.error(error.response?.data?.message || 'Failed to reschedule campaign');
+    } finally {
+      setActionLoading(false);
+      setActionMessage('');
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -52,6 +135,10 @@ export default function CampaignDetailsPage() {
         return 'bg-red-100 text-red-800';
       case 'scheduled':
         return 'bg-yellow-100 text-yellow-800';
+      case 'paused':
+        return 'bg-orange-100 text-orange-800';
+      case 'cancelled':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -154,6 +241,49 @@ export default function CampaignDetailsPage() {
               {campaign.status}
             </span>
           </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
+            {/* Pause button - only for scheduled campaigns */}
+            {campaign.status === 'scheduled' && (
+              <button
+                onClick={handlePauseCampaign}
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium"
+              >
+                Pause Campaign
+              </button>
+            )}
+
+            {/* Resume button - only for paused campaigns */}
+            {campaign.status === 'paused' && (
+              <button
+                onClick={handleResumeCampaign}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+              >
+                Resume Campaign
+              </button>
+            )}
+
+            {/* Reschedule button - for scheduled or paused campaigns */}
+            {(campaign.status === 'scheduled' || campaign.status === 'paused') && (
+              <button
+                onClick={() => setShowRescheduleModal(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                Reschedule
+              </button>
+            )}
+
+            {/* Cancel button - for scheduled or paused campaigns */}
+            {(campaign.status === 'scheduled' || campaign.status === 'paused') && (
+              <button
+                onClick={handleCancelCampaign}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+              >
+                Cancel Campaign
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Campaign Stats */}
@@ -232,6 +362,66 @@ export default function CampaignDetailsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Loading Modal */}
+        {actionLoading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mx-auto mb-4"></div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Processing...
+                </h3>
+                <p className="text-gray-600">{actionMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reschedule Modal */}
+        {showRescheduleModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Reschedule Campaign
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Select a new date and time for this campaign
+              </p>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New Scheduled Date
+                </label>
+                <input
+                  type="datetime-local"
+                  value={newScheduledDate}
+                  onChange={(e) => setNewScheduledDate(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleRescheduleCampaign}
+                  disabled={!newScheduledDate}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Reschedule
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRescheduleModal(false);
+                    setNewScheduledDate('');
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}

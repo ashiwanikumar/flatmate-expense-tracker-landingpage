@@ -76,6 +76,10 @@ export const campaignAPI = {
   getStats: (params?: any) => api.get('/campaigns/stats', { params }),
   getConfig: () => api.get('/campaigns/config'),
   updateConfig: (data: any) => api.put('/campaigns/config', data),
+  cancel: (id: string) => api.post(`/campaigns/${id}/cancel`),
+  pause: (id: string) => api.post(`/campaigns/${id}/pause`),
+  resume: (id: string) => api.post(`/campaigns/${id}/resume`),
+  reschedule: (id: string, data: { scheduledDate: string }) => api.patch(`/campaigns/${id}/reschedule`, data),
 };
 
 // Dashboard API
