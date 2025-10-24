@@ -19,7 +19,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         {children}
-        <Toaster position="top-right" />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              marginTop: '50vh',
+              transform: 'translateY(-50%)',
+            },
+          }}
+        />
       </body>
     </html>
   );

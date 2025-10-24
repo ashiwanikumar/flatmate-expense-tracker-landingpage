@@ -25,6 +25,9 @@ export default function CompanyAccountsPage() {
     notificationEmails: [] as string[],
   });
   const [testingId, setTestingId] = useState<string | null>(null);
+  const [showConnectionModal, setShowConnectionModal] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'testing' | 'success' | 'error'>('testing');
+  const [connectionMessage, setConnectionMessage] = useState('');
   const [timezoneSearch, setTimezoneSearch] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -155,20 +158,29 @@ export default function CompanyAccountsPage() {
 
   const handleTestConnection = async (id: string) => {
     setTestingId(id);
+    setShowConnectionModal(true);
+    setConnectionStatus('testing');
+    setConnectionMessage('');
+
     try {
       const response = await companyAccountAPI.testConnection(id);
       if (response.data.success) {
-        toast.success('Connection successful!');
+        setConnectionStatus('success');
+        setConnectionMessage('Connection successful!');
+        // Auto close modal after 2 seconds
+        setTimeout(() => {
+          setShowConnectionModal(false);
+          setTestingId(null);
+        }, 2000);
       } else {
-        // Show detailed error with URL if available
+        setConnectionStatus('error');
         const errorMsg = response.data.message || 'Connection failed';
         const url = response.data.data?.url;
-        toast.error(url ? `${errorMsg}\nURL: ${url}` : errorMsg, { duration: 6000 });
+        setConnectionMessage(url ? `${errorMsg}\nURL: ${url}` : errorMsg);
       }
     } catch (error: any) {
-      toast.error('Connection test failed');
-    } finally {
-      setTestingId(null);
+      setConnectionStatus('error');
+      setConnectionMessage(error.response?.data?.message || 'Connection test failed');
     }
   };
 
@@ -1291,6 +1303,55 @@ export default function CompanyAccountsPage() {
           </div>
         )}
       </main>
+
+      {/* Connection Test Modal */}
+      {showConnectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
+            {connectionStatus === 'testing' && (
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mx-auto mb-4"></div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Testing Connection...</h3>
+                <p className="text-gray-600">Please wait while we verify the connection</p>
+              </div>
+            )}
+
+            {connectionStatus === 'success' && (
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                  <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Connection Successful!</h3>
+                <p className="text-gray-600">{connectionMessage}</p>
+              </div>
+            )}
+
+            {connectionStatus === 'error' && (
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                  <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Connection Failed</h3>
+                <p className="text-gray-600 whitespace-pre-line">{connectionMessage}</p>
+                <button
+                  onClick={() => {
+                    setShowConnectionModal(false);
+                    setTestingId(null);
+                  }}
+                  className="mt-6 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                >
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
