@@ -29,6 +29,23 @@ export default function CompanyAccountsPage() {
   const [newEmail, setNewEmail] = useState('');
   const [emailError, setEmailError] = useState('');
 
+  // Conferbot config state
+  const [configuringAccount, setConfiguringAccount] = useState<any>(null);
+  const [conferbotConfig, setConferbotConfig] = useState({
+    fromName: 'Anna from Conferbot',
+    subject: '',
+    htmlTemplate: '',
+    replyTo: '',
+    cc: [] as string[],
+    bcc: [] as string[],
+    templateVariables: [] as Array<{key: string, defaultValue: string, description: string}>,
+    emailAccounts: [] as Array<{id: string, useAlias: boolean, selectedAlias: string}>,
+    emailSendingConfig: {
+      minutesBetweenEmails: 5,
+      emailsPerHour: 12,
+    }
+  });
+
   // Get all timezones and format them with GMT offset
   const timezones = moment.tz.names();
 
@@ -200,6 +217,43 @@ export default function CompanyAccountsPage() {
       ...formData,
       notificationEmails: formData.notificationEmails.filter(email => email !== emailToRemove),
     });
+  };
+
+  const handleConfigureConferbot = (account: any) => {
+    setConfiguringAccount(account);
+    // Load existing config if available
+    if (account.conferbotConfig) {
+      setConferbotConfig({
+        fromName: account.conferbotConfig.fromName || 'Anna from Conferbot',
+        subject: account.conferbotConfig.subject || '',
+        htmlTemplate: account.conferbotConfig.htmlTemplate || '',
+        replyTo: account.conferbotConfig.replyTo || '',
+        cc: account.conferbotConfig.cc || [],
+        bcc: account.conferbotConfig.bcc || [],
+        templateVariables: account.conferbotConfig.templateVariables || [],
+        emailAccounts: account.conferbotConfig.emailAccounts || [],
+        emailSendingConfig: account.conferbotConfig.emailSendingConfig || {
+          minutesBetweenEmails: 5,
+          emailsPerHour: 12,
+        }
+      });
+    }
+  };
+
+  const handleSaveConferbotConfig = async () => {
+    if (!configuringAccount) return;
+
+    try {
+      await companyAccountAPI.update(configuringAccount._id, {
+        conferbotConfig
+      });
+      toast.success('Conferbot configuration saved successfully');
+      setConfiguringAccount(null);
+      fetchAccounts();
+    } catch (error: any) {
+      console.error('Error saving Conferbot config:', error);
+      toast.error(error.response?.data?.message || 'Failed to save configuration');
+    }
   };
 
   const handleLogout = () => {
@@ -667,6 +721,12 @@ export default function CompanyAccountsPage() {
 
                   <div className="ml-4 flex flex-col gap-2">
                     <button
+                      onClick={() => handleConfigureConferbot(account)}
+                      className="px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 text-sm rounded-lg hover:from-purple-200 hover:to-blue-200 transition font-medium"
+                    >
+                      ⚙️ Configure Conferbot
+                    </button>
+                    <button
                       onClick={() => handleTestConnection(account._id)}
                       disabled={testingId === account._id}
                       className="px-4 py-2 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition disabled:opacity-50"
@@ -689,6 +749,317 @@ export default function CompanyAccountsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Conferbot Configuration Modal */}
+        {configuringAccount && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8">
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-6 z-10">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Configure Conferbot - {configuringAccount.companyName}
+                  </h2>
+                  <button
+                    onClick={() => setConfiguringAccount(null)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  Configure email campaign settings for {configuringAccount.companyName}
+                </p>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Basic Campaign Settings */}
+                <div className="border border-gray-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Campaign Settings</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">From Name *</label>
+                      <input
+                        type="text"
+                        value={conferbotConfig.fromName}
+                        onChange={(e) => setConferbotConfig({...conferbotConfig, fromName: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                        placeholder="Anna from Conferbot"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                      <input
+                        type="text"
+                        value={conferbotConfig.subject}
+                        onChange={(e) => setConferbotConfig({...conferbotConfig, subject: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                        placeholder="Email subject line"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">HTML Template ID *</label>
+                      <input
+                        type="text"
+                        value={conferbotConfig.htmlTemplate}
+                        onChange={(e) => setConferbotConfig({...conferbotConfig, htmlTemplate: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                        placeholder="675f6480744324008c6535ac"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Conferbot template ID</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Reply-To Email</label>
+                      <input
+                        type="email"
+                        value={conferbotConfig.replyTo}
+                        onChange={(e) => setConferbotConfig({...conferbotConfig, replyTo: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                        placeholder="reply@example.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email Sending Configuration */}
+                <div className="border border-gray-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Sending Configuration</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Minutes Between Emails</label>
+                      <input
+                        type="number"
+                        value={conferbotConfig.emailSendingConfig.minutesBetweenEmails}
+                        onChange={(e) => setConferbotConfig({
+                          ...conferbotConfig,
+                          emailSendingConfig: {
+                            ...conferbotConfig.emailSendingConfig,
+                            minutesBetweenEmails: Number(e.target.value)
+                          }
+                        })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                        min="1"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Time interval between each email</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Emails Per Hour</label>
+                      <input
+                        type="number"
+                        value={conferbotConfig.emailSendingConfig.emailsPerHour}
+                        onChange={(e) => setConferbotConfig({
+                          ...conferbotConfig,
+                          emailSendingConfig: {
+                            ...conferbotConfig.emailSendingConfig,
+                            emailsPerHour: Number(e.target.value)
+                          }
+                        })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                        min="1"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Maximum emails sent per hour</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Template Variables */}
+                <div className="border border-gray-200 rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Template Variables</h3>
+                      <p className="text-sm text-gray-600">Variables for email personalization (e.g., {`{{domain}}`})</p>
+                    </div>
+                    <button
+                      onClick={() => setConferbotConfig({
+                        ...conferbotConfig,
+                        templateVariables: [
+                          ...conferbotConfig.templateVariables,
+                          {key: '', defaultValue: '', description: ''}
+                        ]
+                      })}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium"
+                    >
+                      + Add Variable
+                    </button>
+                  </div>
+
+                  {conferbotConfig.templateVariables.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No template variables configured</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {conferbotConfig.templateVariables.map((variable, index) => (
+                        <div key={index} className="grid grid-cols-12 gap-3 items-start p-3 bg-gray-50 rounded-lg">
+                          <div className="col-span-3">
+                            <input
+                              type="text"
+                              value={variable.key}
+                              onChange={(e) => {
+                                const newVars = [...conferbotConfig.templateVariables];
+                                newVars[index].key = e.target.value;
+                                setConferbotConfig({...conferbotConfig, templateVariables: newVars});
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                              placeholder="Variable key"
+                            />
+                          </div>
+                          <div className="col-span-3">
+                            <input
+                              type="text"
+                              value={variable.defaultValue}
+                              onChange={(e) => {
+                                const newVars = [...conferbotConfig.templateVariables];
+                                newVars[index].defaultValue = e.target.value;
+                                setConferbotConfig({...conferbotConfig, templateVariables: newVars});
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                              placeholder="Default value"
+                            />
+                          </div>
+                          <div className="col-span-5">
+                            <input
+                              type="text"
+                              value={variable.description}
+                              onChange={(e) => {
+                                const newVars = [...conferbotConfig.templateVariables];
+                                newVars[index].description = e.target.value;
+                                setConferbotConfig({...conferbotConfig, templateVariables: newVars});
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                              placeholder="Description"
+                            />
+                          </div>
+                          <div className="col-span-1 flex justify-end">
+                            <button
+                              onClick={() => {
+                                const newVars = conferbotConfig.templateVariables.filter((_, i) => i !== index);
+                                setConferbotConfig({...conferbotConfig, templateVariables: newVars});
+                              }}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Email Accounts */}
+                <div className="border border-gray-200 rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Email Sending Accounts *</h3>
+                      <p className="text-sm text-gray-600">Conferbot email accounts to send from</p>
+                    </div>
+                    <button
+                      onClick={() => setConferbotConfig({
+                        ...conferbotConfig,
+                        emailAccounts: [
+                          ...conferbotConfig.emailAccounts,
+                          {id: '', useAlias: false, selectedAlias: ''}
+                        ]
+                      })}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium"
+                    >
+                      + Add Email Account
+                    </button>
+                  </div>
+
+                  {conferbotConfig.emailAccounts.length === 0 ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p className="text-yellow-800 text-sm">⚠️ At least one email account is required</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {conferbotConfig.emailAccounts.map((account, index) => (
+                        <div key={index} className="grid grid-cols-12 gap-3 items-center p-3 bg-gray-50 rounded-lg">
+                          <div className="col-span-5">
+                            <input
+                              type="text"
+                              value={account.id}
+                              onChange={(e) => {
+                                const newAccounts = [...conferbotConfig.emailAccounts];
+                                newAccounts[index].id = e.target.value;
+                                setConferbotConfig({...conferbotConfig, emailAccounts: newAccounts});
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                              placeholder="Email account ID"
+                            />
+                          </div>
+                          <div className="col-span-2">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={account.useAlias}
+                                onChange={(e) => {
+                                  const newAccounts = [...conferbotConfig.emailAccounts];
+                                  newAccounts[index].useAlias = e.target.checked;
+                                  setConferbotConfig({...conferbotConfig, emailAccounts: newAccounts});
+                                }}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <span className="text-sm text-gray-700">Use Alias</span>
+                            </label>
+                          </div>
+                          <div className="col-span-4">
+                            <input
+                              type="text"
+                              value={account.selectedAlias}
+                              onChange={(e) => {
+                                const newAccounts = [...conferbotConfig.emailAccounts];
+                                newAccounts[index].selectedAlias = e.target.value;
+                                setConferbotConfig({...conferbotConfig, emailAccounts: newAccounts});
+                              }}
+                              disabled={!account.useAlias}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                              placeholder="Alias email"
+                            />
+                          </div>
+                          <div className="col-span-1 flex justify-end">
+                            <button
+                              onClick={() => {
+                                const newAccounts = conferbotConfig.emailAccounts.filter((_, i) => i !== index);
+                                setConferbotConfig({...conferbotConfig, emailAccounts: newAccounts});
+                              }}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex gap-3">
+                <button
+                  onClick={handleSaveConferbotConfig}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                >
+                  Save Configuration
+                </button>
+                <button
+                  onClick={() => setConfiguringAccount(null)}
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>
