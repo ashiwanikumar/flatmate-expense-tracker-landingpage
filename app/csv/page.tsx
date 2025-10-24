@@ -19,6 +19,10 @@ export default function CSVPage() {
     data: null,
   });
   const [loadingData, setLoadingData] = useState(false);
+  const [resetModal, setResetModal] = useState<{ open: boolean; fileId: string | null }>({
+    open: false,
+    fileId: null,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -85,12 +89,13 @@ export default function CSVPage() {
     }
   };
 
-  const handleReset = async (id: string) => {
-    if (!confirm('Are you sure you want to reset progress for this file?')) return;
+  const handleReset = async () => {
+    if (!resetModal.fileId) return;
 
     try {
-      await csvAPI.reset(id);
+      await csvAPI.reset(resetModal.fileId);
       toast.success('Progress reset successfully');
+      setResetModal({ open: false, fileId: null });
       fetchCsvFiles();
     } catch (error) {
       toast.error('Failed to reset progress');
@@ -295,7 +300,7 @@ export default function CSVPage() {
                         Create Campaign
                       </Link>
                       <button
-                        onClick={() => handleReset(file._id)}
+                        onClick={() => setResetModal({ open: true, fileId: file._id })}
                         className="px-4 py-2 bg-yellow-100 text-yellow-700 text-sm rounded-lg hover:bg-yellow-200 transition"
                       >
                         Reset
@@ -402,7 +407,35 @@ export default function CSVPage() {
       )}
 
       {/* Loading Modal for View Data */}
-      <LoadingModal isOpen={loadingData} message="Loading CSV data..." />
+      <LoadingModal isOpen={loadingData} title="Loading CSV Data" subtitle="Please wait while we fetch your data..." />
+
+      {/* Reset Confirmation Modal */}
+      {resetModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              Reset CSV Progress
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to reset progress for this file? This will reset the sent count to 0 and allow you to reuse all emails.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleReset}
+                className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition font-medium"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => setResetModal({ open: false, fileId: null })}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

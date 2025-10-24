@@ -173,6 +173,7 @@ function CreateCampaignForm() {
           const campaignDate = new Date(baseDate);
           campaignDate.setHours(campaignDate.getHours() + (i * intervalHours));
 
+          // Backend will handle suffix logic for duplicate names
           await campaignAPI.create({
             csvFileId: selectedCsv,
             companyAccountId: selectedCompanyAccount,
