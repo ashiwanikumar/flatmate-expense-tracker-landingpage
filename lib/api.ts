@@ -99,4 +99,14 @@ export const companyAccountAPI = {
   testConnection: (id: string) => api.post(`/company-accounts/${id}/test`),
 };
 
+// Campaign Template API
+export const campaignTemplateAPI = {
+  getAll: (companyAccountId: string) => api.get(`/campaign-templates/company/${companyAccountId}`),
+  getOne: (templateId: string) => api.get(`/campaign-templates/${templateId}`),
+  create: (companyAccountId: string, data: any) => api.post(`/campaign-templates/company/${companyAccountId}`, data),
+  update: (templateId: string, data: any) => api.put(`/campaign-templates/${templateId}`, data),
+  delete: (templateId: string) => api.delete(`/campaign-templates/${templateId}`),
+  setDefault: (templateId: string) => api.patch(`/campaign-templates/${templateId}/set-default`),
+};
+
 export default api;

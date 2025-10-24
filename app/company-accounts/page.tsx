@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { companyAccountAPI } from '@/lib/api';
+import { companyAccountAPI, campaignTemplateAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import moment from 'moment-timezone';
@@ -29,9 +29,16 @@ export default function CompanyAccountsPage() {
   const [newEmail, setNewEmail] = useState('');
   const [emailError, setEmailError] = useState('');
 
-  // Conferbot config state
-  const [configuringAccount, setConfiguringAccount] = useState<any>(null);
-  const [conferbotConfig, setConferbotConfig] = useState({
+  // Conferbot templates state
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [selectedCompanyForTemplates, setSelectedCompanyForTemplates] = useState<any>(null);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [templateFormData, setTemplateFormData] = useState({
+    templateName: '',
+    isDefault: false,
     fromName: 'Anna from Conferbot',
     subject: '',
     htmlTemplate: '',
@@ -219,40 +226,118 @@ export default function CompanyAccountsPage() {
     });
   };
 
-  const handleConfigureConferbot = (account: any) => {
-    setConfiguringAccount(account);
-    // Load existing config if available
-    if (account.conferbotConfig) {
-      setConferbotConfig({
-        fromName: account.conferbotConfig.fromName || 'Anna from Conferbot',
-        subject: account.conferbotConfig.subject || '',
-        htmlTemplate: account.conferbotConfig.htmlTemplate || '',
-        replyTo: account.conferbotConfig.replyTo || '',
-        cc: account.conferbotConfig.cc || [],
-        bcc: account.conferbotConfig.bcc || [],
-        templateVariables: account.conferbotConfig.templateVariables || [],
-        emailAccounts: account.conferbotConfig.emailAccounts || [],
-        emailSendingConfig: account.conferbotConfig.emailSendingConfig || {
-          minutesBetweenEmails: 5,
-          emailsPerHour: 12,
-        }
-      });
+  const fetchTemplates = async (companyAccountId: string) => {
+    setLoadingTemplates(true);
+    try {
+      const response = await campaignTemplateAPI.getAll(companyAccountId);
+      setTemplates(response.data.data);
+    } catch (error: any) {
+      console.error('Error fetching templates:', error);
+      toast.error('Failed to load templates');
+    } finally {
+      setLoadingTemplates(false);
     }
   };
 
-  const handleSaveConferbotConfig = async () => {
-    if (!configuringAccount) return;
+  const handleManageTemplates = async (account: any) => {
+    setSelectedCompanyForTemplates(account);
+    setShowTemplatesModal(true);
+    await fetchTemplates(account._id);
+  };
+
+  const handleCreateNewTemplate = () => {
+    setEditingTemplate(null);
+    setTemplateFormData({
+      templateName: '',
+      isDefault: templates.length === 0, // First template is default
+      fromName: 'Anna from Conferbot',
+      subject: '',
+      htmlTemplate: '',
+      replyTo: '',
+      cc: [],
+      bcc: [],
+      templateVariables: [],
+      emailAccounts: [],
+      emailSendingConfig: {
+        minutesBetweenEmails: 5,
+        emailsPerHour: 12,
+      }
+    });
+    setShowTemplateForm(true);
+  };
+
+  const handleEditTemplate = (template: any) => {
+    setEditingTemplate(template);
+    setTemplateFormData({
+      templateName: template.templateName,
+      isDefault: template.isDefault,
+      fromName: template.fromName,
+      subject: template.subject,
+      htmlTemplate: template.htmlTemplate,
+      replyTo: template.replyTo || '',
+      cc: template.cc || [],
+      bcc: template.bcc || [],
+      templateVariables: template.templateVariables || [],
+      emailAccounts: template.emailAccounts || [],
+      emailSendingConfig: template.emailSendingConfig || {
+        minutesBetweenEmails: 5,
+        emailsPerHour: 12,
+      }
+    });
+    setShowTemplateForm(true);
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!selectedCompanyForTemplates) return;
+
+    // Validation
+    if (!templateFormData.templateName || !templateFormData.subject || !templateFormData.htmlTemplate) {
+      toast.error('Template name, subject, and HTML template are required');
+      return;
+    }
+
+    if (templateFormData.emailAccounts.length === 0) {
+      toast.error('At least one email account is required');
+      return;
+    }
 
     try {
-      await companyAccountAPI.update(configuringAccount._id, {
-        conferbotConfig
-      });
-      toast.success('Conferbot configuration saved successfully');
-      setConfiguringAccount(null);
-      fetchAccounts();
+      if (editingTemplate) {
+        await campaignTemplateAPI.update(editingTemplate._id, templateFormData);
+        toast.success('Template updated successfully');
+      } else {
+        await campaignTemplateAPI.create(selectedCompanyForTemplates._id, templateFormData);
+        toast.success('Template created successfully');
+      }
+      setShowTemplateForm(false);
+      await fetchTemplates(selectedCompanyForTemplates._id);
     } catch (error: any) {
-      console.error('Error saving Conferbot config:', error);
-      toast.error(error.response?.data?.message || 'Failed to save configuration');
+      console.error('Error saving template:', error);
+      toast.error(error.response?.data?.message || 'Failed to save template');
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    if (!confirm('Are you sure you want to delete this template?')) return;
+
+    try {
+      await campaignTemplateAPI.delete(templateId);
+      toast.success('Template deleted successfully');
+      await fetchTemplates(selectedCompanyForTemplates._id);
+    } catch (error: any) {
+      console.error('Error deleting template:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete template');
+    }
+  };
+
+  const handleSetDefaultTemplate = async (templateId: string) => {
+    try {
+      await campaignTemplateAPI.setDefault(templateId);
+      toast.success('Default template updated');
+      await fetchTemplates(selectedCompanyForTemplates._id);
+    } catch (error: any) {
+      console.error('Error setting default template:', error);
+      toast.error(error.response?.data?.message || 'Failed to set default template');
     }
   };
 
@@ -721,10 +806,10 @@ export default function CompanyAccountsPage() {
 
                   <div className="ml-4 flex flex-col gap-2">
                     <button
-                      onClick={() => handleConfigureConferbot(account)}
+                      onClick={() => handleManageTemplates(account)}
                       className="px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 text-sm rounded-lg hover:from-purple-200 hover:to-blue-200 transition font-medium"
                     >
-                      ⚙️ Configure Conferbot
+                      📋 Manage Templates
                     </button>
                     <button
                       onClick={() => handleTestConnection(account._id)}
