@@ -308,7 +308,7 @@ export default function CampaignDetailsPage() {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600">CSV File:</span>
-              <span className="font-medium">{campaign.csvFile?.originalName}</span>
+              <span className="font-medium">{campaign.csvFile?.originalName || 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Company Account:</span>
@@ -316,15 +316,15 @@ export default function CampaignDetailsPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Scheduled Date:</span>
-              <span className="font-medium">{new Date(campaign.scheduledDate).toLocaleString()}</span>
+              <span className="font-medium">{campaign.scheduledDate ? new Date(campaign.scheduledDate).toLocaleString() : 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Created At:</span>
-              <span className="font-medium">{new Date(campaign.createdAt).toLocaleString()}</span>
+              <span className="font-medium">{campaign.createdAt ? new Date(campaign.createdAt).toLocaleString() : 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Batch Range:</span>
-              <span className="font-medium">{campaign.startIndex} - {campaign.endIndex}</span>
+              <span className="font-medium">{campaign.startIndex !== undefined && campaign.endIndex !== undefined ? `${campaign.startIndex} - ${campaign.endIndex}` : 'N/A'}</span>
             </div>
             {campaign.conFerbotCampaignId && (
               <div className="flex justify-between">

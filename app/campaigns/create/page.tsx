@@ -25,6 +25,7 @@ function CreateCampaignForm() {
     batchSize: 1500,
     scheduledDate: '',
     campaignName: '',
+    timeInterval: 24, // hours between campaigns
   });
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
@@ -44,7 +45,7 @@ function CreateCampaignForm() {
     if (selectedCsv) {
       calculatePlan();
     }
-  }, [selectedCsv, formData.batchSize]);
+  }, [selectedCsv, formData.batchSize, formData.scheduledDate]);
 
   useEffect(() => {
     if (selectedCompanyAccount) {
@@ -108,10 +109,11 @@ function CreateCampaignForm() {
     setCalculating(true);
     try {
       const batchSize = parseInt(formData.batchSize.toString());
+      const startDate = formData.scheduledDate ? new Date(formData.scheduledDate) : new Date();
       const response = await campaignAPI.calculatePlan({
         csvFileId: selectedCsv,
         batchPattern: [batchSize],
-        startDate: new Date(),
+        startDate: startDate,
       });
       setCampaignPlan(response.data.data);
     } catch (error) {
@@ -144,26 +146,44 @@ function CreateCampaignForm() {
       return;
     }
 
+    if (!campaignPlan || !campaignPlan.campaigns || campaignPlan.campaigns.length === 0) {
+      toast.error('No campaigns to create. Please check your batch size and CSV file.');
+      return;
+    }
+
     setLoading(true);
 
     try {
       let successCount = 0;
       let failCount = 0;
 
-      // Create one campaign for each selected template
-      for (const templateId of selectedTemplates) {
+      // Calculate how many campaigns to create based on the plan
+      const numberOfCampaigns = campaignPlan.campaigns.length;
+
+      // Get the first selected template (or use default logic)
+      const templateId = selectedTemplates.length > 0 ? selectedTemplates[0] : null;
+
+      // Create campaigns based on the plan with time intervals
+      const baseDate = new Date(formData.scheduledDate);
+      const intervalHours = parseInt(formData.timeInterval.toString());
+
+      for (let i = 0; i < numberOfCampaigns; i++) {
         try {
+          // Calculate scheduled date for each campaign with interval
+          const campaignDate = new Date(baseDate);
+          campaignDate.setHours(campaignDate.getHours() + (i * intervalHours));
+
           await campaignAPI.create({
             csvFileId: selectedCsv,
             companyAccountId: selectedCompanyAccount,
             templateId: templateId,
             batchSize: parseInt(formData.batchSize.toString()),
-            scheduledDate: formData.scheduledDate,
+            scheduledDate: campaignDate.toISOString(),
             campaignName: formData.campaignName || undefined,
           });
           successCount++;
         } catch (error) {
-          console.error(`Failed to create campaign for template ${templateId}:`, error);
+          console.error(`Failed to create campaign ${i + 1}:`, error);
           failCount++;
         }
       }
@@ -379,6 +399,30 @@ function CreateCampaignForm() {
                 />
               </div>
 
+              {/* Time Interval - Only show when multiple campaigns will be created */}
+              {campaignPlan && campaignPlan.campaigns && campaignPlan.campaigns.length > 1 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Time Interval Between Campaigns *
+                  </label>
+                  <select
+                    value={formData.timeInterval}
+                    onChange={(e) => setFormData({ ...formData, timeInterval: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  >
+                    <option value={1}>1 Hour</option>
+                    <option value={6}>6 Hours</option>
+                    <option value={12}>12 Hours</option>
+                    <option value={24}>24 Hours (Recommended)</option>
+                    <option value={48}>48 Hours (2 Days)</option>
+                    <option value={72}>72 Hours (3 Days)</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {campaignPlan.campaigns.length} campaigns will be created with {formData.timeInterval} hour{formData.timeInterval > 1 ? 's' : ''} gap between each
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Campaign Name (Optional)</label>
                 <input
@@ -397,8 +441,8 @@ function CreateCampaignForm() {
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading
-                  ? `Creating ${selectedTemplates.length} Campaign${selectedTemplates.length > 1 ? 's' : ''}...`
-                  : `Create ${selectedTemplates.length > 0 ? selectedTemplates.length : ''} Campaign${selectedTemplates.length > 1 ? 's' : ''}`
+                  ? `Creating ${campaignPlan?.campaigns?.length || 0} Campaign${(campaignPlan?.campaigns?.length || 0) > 1 ? 's' : ''}...`
+                  : `Create ${campaignPlan?.campaigns?.length || 0} Campaign${(campaignPlan?.campaigns?.length || 0) > 1 ? 's' : ''}`
                 }
               </button>
             </form>
