@@ -108,10 +108,7 @@ export default function LoginPage() {
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h2>
             <p className="text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/auth/register" className="text-purple-600 font-semibold hover:text-purple-700">
-                Create an account
-              </Link>
+              Welcome to Campaign Manager
             </p>
           </div>
 
