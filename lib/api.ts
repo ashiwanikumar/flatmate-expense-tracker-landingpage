@@ -109,4 +109,12 @@ export const campaignTemplateAPI = {
   setDefault: (templateId: string) => api.patch(`/campaign-templates/${templateId}/set-default`),
 };
 
+// Activity Log API
+export const activityLogAPI = {
+  getAll: (params?: any) => api.get('/activity-logs', { params }),
+  getMyActivity: (params?: any) => api.get('/activity-logs/my-activity', { params }),
+  getRecent: (limit?: number) => api.get('/activity-logs/recent', { params: { limit } }),
+  getStats: (params?: any) => api.get('/activity-logs/stats', { params }),
+};
+
 export default api;
