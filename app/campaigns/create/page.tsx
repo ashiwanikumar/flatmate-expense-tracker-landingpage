@@ -355,7 +355,10 @@ function CreateCampaignForm() {
                 <input
                   type="number"
                   value={formData.batchSize}
-                  onChange={(e) => setFormData({ ...formData, batchSize: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? 1500 : parseInt(e.target.value) || 1500;
+                    setFormData({ ...formData, batchSize: value });
+                  }}
                   required
                   min="1"
                   max="5000"
