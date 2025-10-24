@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8004/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8004/api/v1';
 
 // Create axios instance
 const api = axios.create({
@@ -97,6 +97,16 @@ export const companyAccountAPI = {
   update: (id: string, data: any) => api.put(`/company-accounts/${id}`, data),
   delete: (id: string) => api.delete(`/company-accounts/${id}`),
   testConnection: (id: string) => api.post(`/company-accounts/${id}/test`),
+};
+
+// Campaign Template API
+export const campaignTemplateAPI = {
+  getAll: (companyAccountId: string) => api.get(`/campaign-templates/company/${companyAccountId}`),
+  getOne: (templateId: string) => api.get(`/campaign-templates/${templateId}`),
+  create: (companyAccountId: string, data: any) => api.post(`/campaign-templates/company/${companyAccountId}`, data),
+  update: (templateId: string, data: any) => api.put(`/campaign-templates/${templateId}`, data),
+  delete: (templateId: string) => api.delete(`/campaign-templates/${templateId}`),
+  setDefault: (templateId: string) => api.patch(`/campaign-templates/${templateId}/set-default`),
 };
 
 export default api;

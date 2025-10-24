@@ -110,6 +110,12 @@ export default function DashboardPage() {
             >
               Company Accounts
             </Link>
+            <Link
+              href="/calendar"
+              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+            >
+              📅 Calendar
+            </Link>
           </div>
         </div>
       </nav>
