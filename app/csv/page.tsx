@@ -7,6 +7,7 @@ import { useDropzone } from 'react-dropzone';
 import { csvAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import LoadingModal from '@/components/LoadingModal';
 
 export default function CSVPage() {
   const router = useRouter();
@@ -305,23 +306,11 @@ export default function CSVPage() {
       <Footer />
 
       {/* Upload Loading Modal */}
-      {uploading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
-            <div className="text-center">
-              <div className="mb-4">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mx-auto"></div>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploading CSV File</h3>
-              <p className="text-gray-600 mb-4">Please wait while we process your file...</p>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full animate-pulse"></div>
-              </div>
-              <p className="text-sm text-gray-500 mt-4">This may take a few moments</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <LoadingModal
+        isOpen={uploading}
+        title="Uploading CSV File"
+        subtitle="Please wait while we process your file..."
+      />
 
       {/* CSV Data Viewer Modal */}
       {viewModal.open && viewModal.data && (

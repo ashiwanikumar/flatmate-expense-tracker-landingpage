@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { csvAPI, campaignAPI, companyAccountAPI, campaignTemplateAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import LoadingModal from '@/components/LoadingModal';
 
 function CreateCampaignForm() {
   const router = useRouter();
@@ -491,6 +492,13 @@ function CreateCampaignForm() {
         </div>
       </main>
       <Footer />
+
+      {/* Loading Modal */}
+      <LoadingModal
+        isOpen={loading}
+        title={`Creating ${selectedTemplates.length} Campaign${selectedTemplates.length > 1 ? 's' : ''}`}
+        subtitle="Please wait while we process your request..."
+      />
     </div>
   );
 }

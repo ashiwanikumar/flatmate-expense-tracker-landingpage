@@ -12,6 +12,8 @@ export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,6 +41,77 @@ export default function CampaignsPage() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     router.push('/');
+  };
+
+  const handleSelectCampaign = (campaignId: string) => {
+    setSelectedCampaigns(prev =>
+      prev.includes(campaignId)
+        ? prev.filter(id => id !== campaignId)
+        : [...prev, campaignId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedCampaigns.length === campaigns.length) {
+      setSelectedCampaigns([]);
+    } else {
+      setSelectedCampaigns(campaigns.map(c => c._id));
+    }
+  };
+
+  const handleDeleteSingle = async (campaignId: string, campaignName: string) => {
+    if (!confirm(`Are you sure you want to delete "${campaignName}"?`)) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await campaignAPI.delete(campaignId);
+      toast.success('Campaign deleted successfully');
+      fetchCampaigns();
+      setSelectedCampaigns(prev => prev.filter(id => id !== campaignId));
+    } catch (error: any) {
+      console.error('Error deleting campaign:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete campaign');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedCampaigns.length === 0) {
+      toast.error('Please select campaigns to delete');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete ${selectedCampaigns.length} campaign(s)?`)) {
+      return;
+    }
+
+    setDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const campaignId of selectedCampaigns) {
+      try {
+        await campaignAPI.delete(campaignId);
+        successCount++;
+      } catch (error) {
+        console.error(`Failed to delete campaign ${campaignId}:`, error);
+        failCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      toast.success(`${successCount} campaign(s) deleted successfully`);
+    }
+    if (failCount > 0) {
+      toast.error(`Failed to delete ${failCount} campaign(s)`);
+    }
+
+    setSelectedCampaigns([]);
+    fetchCampaigns();
+    setDeleting(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -132,7 +205,18 @@ export default function CampaignsPage() {
       {/* Main Content */}
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">All Campaigns</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold text-gray-900">All Campaigns</h2>
+            {selectedCampaigns.length > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Deleting...' : `Delete Selected (${selectedCampaigns.length})`}
+              </button>
+            )}
+          </div>
           <Link
             href="/campaigns/create"
             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
@@ -142,20 +226,33 @@ export default function CampaignsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex gap-2 mb-6">
-          {['all', 'scheduled', 'in_progress', 'completed', 'failed'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                filter === status
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {status === 'all' ? 'All' : status.replace('_', ' ').charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
-            </button>
-          ))}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex gap-2">
+            {['all', 'scheduled', 'in_progress', 'completed', 'failed'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  filter === status
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {status === 'all' ? 'All' : status.replace('_', ' ').charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+          {campaigns.length > 0 && (
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedCampaigns.length === campaigns.length}
+                onChange={handleSelectAll}
+                className="rounded text-purple-600 focus:ring-purple-500"
+              />
+              Select All
+            </label>
+          )}
         </div>
 
         {/* Campaigns List */}
@@ -173,7 +270,16 @@ export default function CampaignsPage() {
           <div className="grid grid-cols-1 gap-6">
             {campaigns.map((campaign) => (
               <div key={campaign._id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start gap-4">
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={selectedCampaigns.includes(campaign._id)}
+                    onChange={() => handleSelectCampaign(campaign._id)}
+                    className="mt-1 rounded text-purple-600 focus:ring-purple-500"
+                  />
+
+                  {/* Campaign Details */}
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-bold text-gray-900">{campaign.campaignName}</h3>
@@ -221,13 +327,21 @@ export default function CampaignsPage() {
                     )}
                   </div>
 
-                  <div className="ml-4">
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-2">
                     <Link
                       href={`/campaigns/${campaign._id}`}
-                      className="px-4 py-2 bg-purple-100 text-purple-700 text-sm rounded-lg hover:bg-purple-200 transition"
+                      className="px-4 py-2 bg-purple-100 text-purple-700 text-sm rounded-lg hover:bg-purple-200 transition text-center"
                     >
                       View Details
                     </Link>
+                    <button
+                      onClick={() => handleDeleteSingle(campaign._id, campaign.campaignName)}
+                      disabled={deleting}
+                      className="px-4 py-2 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>
