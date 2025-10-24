@@ -192,7 +192,7 @@ function CreateCampaignForm() {
     <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       {/* Header */}
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
@@ -212,7 +212,7 @@ function CreateCampaignForm() {
 
       {/* Navigation */}
       <nav className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <Link
               href="/dashboard"
@@ -249,7 +249,7 @@ function CreateCampaignForm() {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="mb-6">
           <Link href="/campaigns" className="text-purple-600 hover:text-purple-700 flex items-center gap-2">
             ← Back to campaigns

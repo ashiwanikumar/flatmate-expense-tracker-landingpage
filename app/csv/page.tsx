@@ -131,7 +131,7 @@ export default function CSVPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       {/* Header */}
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
@@ -151,7 +151,7 @@ export default function CSVPage() {
 
       {/* Navigation */}
       <nav className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <Link
               href="/dashboard"
@@ -188,7 +188,7 @@ export default function CSVPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Upload Area */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Upload CSV File</h2>

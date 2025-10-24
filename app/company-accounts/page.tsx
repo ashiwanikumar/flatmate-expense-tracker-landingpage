@@ -361,7 +361,7 @@ export default function CompanyAccountsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
@@ -380,7 +380,7 @@ export default function CompanyAccountsPage() {
       </header>
 
       <nav className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <Link
               href="/dashboard"
@@ -416,7 +416,7 @@ export default function CompanyAccountsPage() {
         </div>
       </nav>
 
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* AWS Configuration Info */}
         <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6">
           <div className="flex items-start">
