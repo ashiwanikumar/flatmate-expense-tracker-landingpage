@@ -400,6 +400,9 @@ export default function CSVPage() {
           </div>
         </div>
       )}
+
+      {/* Loading Modal for View Data */}
+      <LoadingModal isOpen={loadingData} message="Loading CSV data..." />
     </div>
   );
 }
