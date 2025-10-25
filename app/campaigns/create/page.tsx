@@ -30,6 +30,7 @@ function CreateCampaignForm() {
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [showAllCampaigns, setShowAllCampaigns] = useState(false);
+  const [showCampaignsModal, setShowCampaignsModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -497,10 +498,10 @@ function CreateCampaignForm() {
                     <h4 className="font-semibold text-gray-900">Upcoming Campaigns</h4>
                     {campaignPlan.campaigns.length > 10 && (
                       <button
-                        onClick={() => setShowAllCampaigns(!showAllCampaigns)}
+                        onClick={() => setShowCampaignsModal(true)}
                         className="text-sm text-purple-600 hover:text-purple-700 font-medium"
                       >
-                        {showAllCampaigns ? 'View Less' : `View All (${campaignPlan.campaigns.length})`}
+                        View All ({campaignPlan.campaigns.length})
                       </button>
                     )}
                   </div>
@@ -544,6 +545,67 @@ function CreateCampaignForm() {
         title={`Creating ${selectedTemplates.length} Campaign${selectedTemplates.length > 1 ? 's' : ''}`}
         subtitle="Please wait while we process your request..."
       />
+
+      {/* All Campaigns Modal */}
+      {showCampaignsModal && campaignPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">All Campaigns</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Total: {campaignPlan.campaigns.length} campaigns
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCampaignsModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body - Scrollable Table */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-gray-700 font-semibold">Day</th>
+                      <th className="px-4 py-3 text-left text-gray-700 font-semibold">Campaign Name</th>
+                      <th className="px-4 py-3 text-right text-gray-700 font-semibold">Emails</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {campaignPlan.campaigns.map((camp: any, index: number) => (
+                      <tr key={camp.day} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-4 py-3 text-gray-900 font-medium">{camp.day}</td>
+                        <td className="px-4 py-3 text-gray-700">{camp.campaignName}</td>
+                        <td className="px-4 py-3 text-right text-purple-600 font-semibold">
+                          {camp.batchSize.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowCampaignsModal(false)}
+                className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
