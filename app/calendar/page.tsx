@@ -187,54 +187,79 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 pb-24">
-      {/* Navigation */}
-      <nav className="bg-white border-b">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <Link
-              href="/dashboard"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+      {/* Header with Navigation */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            {/* Left side: Logo, Title, and Navigation */}
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-3">
+                <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10" />
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent whitespace-nowrap">
+                  Campaign Manager
+                </h1>
+              </div>
+
+              {/* Navigation */}
+              <nav className="flex space-x-6">
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/csv"
+                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                >
+                  CSV Files
+                </Link>
+                <Link
+                  href="/campaigns"
+                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                >
+                  Campaigns
+                </Link>
+                <Link
+                  href="/company-accounts"
+                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                >
+                  Company Accounts
+                </Link>
+                <Link
+                  href="/calendar"
+                  className="text-sm font-medium text-purple-600 border-b-2 border-purple-600 pb-1"
+                >
+                  📅 Calendar
+                </Link>
+                <Link
+                  href="/activity-logs"
+                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                >
+                  <span className="flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Activity Logs
+                  </span>
+                </Link>
+              </nav>
+            </div>
+
+            {/* Right side: Logout button */}
+            <button
+              onClick={() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+              }}
+              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
             >
-              Dashboard
-            </Link>
-            <Link
-              href="/csv"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
-            >
-              CSV Files
-            </Link>
-            <Link
-              href="/campaigns"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
-            >
-              Campaigns
-            </Link>
-            <Link
-              href="/company-accounts"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
-            >
-              Company Accounts
-            </Link>
-            <Link
-              href="/calendar"
-              className="px-3 py-4 text-sm font-medium text-purple-600 border-b-2 border-purple-600"
-            >
-              📅 Calendar
-            </Link>
-            <Link
-              href="/activity-logs"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
-            >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Activity Logs
-              </span>
-            </Link>
+              Logout
+            </button>
           </div>
         </div>
-      </nav>
+      </header>
 
       <div className="flex-grow p-8">
         <div className="px-4 sm:px-6 lg:px-8">
