@@ -45,6 +45,8 @@ export const authAPI = {
   getMe: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
   changePassword: (data: any) => api.put('/auth/change-password', data),
+  forgotPassword: (data: any) => api.post('/auth/forgot-password', data),
+  resetPassword: (token: string, data: any) => api.put(`/auth/reset-password/${token}`, data),
 };
 
 // CSV API
