@@ -15,6 +15,7 @@ export default function CSVPage() {
   const [csvFiles, setCsvFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [tag, setTag] = useState('');
   const [viewModal, setViewModal] = useState<{ open: boolean; data: any | null }>({
     open: false,
     data: null,
@@ -59,10 +60,11 @@ export default function CSVPage() {
 
     try {
       console.log('Uploading file to backend...');
-      await csvAPI.upload(file);
+      await csvAPI.upload(file, tag || undefined);
       console.log('Upload successful!');
       toast.success('File uploaded successfully!');
       fetchCsvFiles();
+      setTag('');
     } catch (error: any) {
       console.error('Upload error:', error);
       toast.error(error.response?.data?.message || 'Upload failed');
@@ -214,6 +216,23 @@ export default function CSVPage() {
         {/* Upload Area */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Upload CSV File</h2>
+
+          {/* Tag Input (Optional) */}
+          <div className="mb-6">
+            <label htmlFor="tag" className="block text-sm font-medium text-gray-700 mb-2">
+              Tag (Optional)
+            </label>
+            <input
+              type="text"
+              id="tag"
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              placeholder="e.g., test, production, client-name"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+            />
+            <p className="mt-1 text-sm text-gray-500">Add a tag to categorize this CSV file for your reference</p>
+          </div>
+
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition ${
@@ -262,7 +281,14 @@ export default function CSVPage() {
                 <div key={file._id} className="bg-white rounded-lg shadow p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{file.originalName}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {file.originalName}
+                        {file.tag && (
+                          <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                            {file.tag}
+                          </span>
+                        )}
+                      </h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                         <div>
                           <p className="text-sm text-gray-600">Total Emails</p>

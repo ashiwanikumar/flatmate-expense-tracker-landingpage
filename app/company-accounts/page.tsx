@@ -62,7 +62,8 @@ export default function CompanyAccountsPage() {
     emailSendingConfig: {
       minutesBetweenEmails: 5,
       emailsPerHour: 12,
-    }
+    },
+    tag: '',
   });
 
   // Get all timezones and format them with GMT offset
@@ -283,7 +284,8 @@ export default function CompanyAccountsPage() {
       emailSendingConfig: {
         minutesBetweenEmails: 5,
         emailsPerHour: 12,
-      }
+      },
+      tag: '',
     });
     setShowTemplateForm(true);
   };
@@ -304,7 +306,8 @@ export default function CompanyAccountsPage() {
       emailSendingConfig: template.emailSendingConfig || {
         minutesBetweenEmails: 5,
         emailsPerHour: 12,
-      }
+      },
+      tag: template.tag || '',
     });
     setShowTemplateForm(true);
   };
@@ -949,6 +952,11 @@ export default function CompanyAccountsPage() {
                                       Default
                                     </span>
                                   )}
+                                  {template.tag && (
+                                    <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
+                                      {template.tag}
+                                    </span>
+                                  )}
                                 </div>
                                 <p className="text-sm text-gray-600 mt-1">{template.subject}</p>
                               </div>
@@ -1035,6 +1043,21 @@ export default function CompanyAccountsPage() {
                             <span className="text-sm font-medium text-gray-700">Set as default template</span>
                           </label>
                         </div>
+                      </div>
+                      <div className="mt-4">
+                        <label htmlFor="tag" className="block text-sm font-medium text-gray-700 mb-2">
+                          Tag (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          id="tag"
+                          name="tag"
+                          value={templateFormData.tag || ''}
+                          onChange={(e) => setTemplateFormData({...templateFormData, tag: e.target.value})}
+                          placeholder="e.g., test, production, client-name"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                        />
+                        <p className="mt-1 text-sm text-gray-500">Add a tag to categorize this template</p>
                       </div>
                     </div>
 
