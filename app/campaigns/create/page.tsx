@@ -26,6 +26,7 @@ function CreateCampaignForm() {
     scheduledDate: '',
     campaignName: '',
     timeInterval: 24, // hours between campaigns
+    emailLimit: '', // Optional: limit number of emails to use
   });
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
@@ -46,7 +47,7 @@ function CreateCampaignForm() {
     if (selectedCsv) {
       calculatePlan();
     }
-  }, [selectedCsv, formData.batchSize, formData.scheduledDate]);
+  }, [selectedCsv, formData.batchSize, formData.scheduledDate, formData.emailLimit]);
 
   useEffect(() => {
     if (selectedCompanyAccounts.length > 0) {
@@ -149,10 +150,13 @@ function CreateCampaignForm() {
     try {
       const batchSize = parseInt(formData.batchSize.toString());
       const startDate = formData.scheduledDate ? new Date(formData.scheduledDate) : new Date();
+      const emailLimit = formData.emailLimit ? parseInt(formData.emailLimit.toString()) : null;
+
       const response = await campaignAPI.calculatePlan({
         csvFileId: selectedCsv,
         batchPattern: [batchSize],
         startDate: startDate,
+        emailLimit: emailLimit,
       });
       setCampaignPlan(response.data.data);
     } catch (error) {
@@ -486,6 +490,27 @@ function CreateCampaignForm() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Limit Emails (Optional)</label>
+                <input
+                  type="number"
+                  value={formData.emailLimit}
+                  onChange={(e) => setFormData({ ...formData, emailLimit: e.target.value })}
+                  placeholder="Leave empty to use all available emails"
+                  min="1"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedCsv ? (
+                    <>
+                      Enter a number to use only that many emails from the CSV. Available: {csvFiles.find(f => f._id === selectedCsv)?.remainingCount?.toLocaleString() || 0} emails
+                    </>
+                  ) : (
+                    'Leave empty to use all available emails, or enter a number to limit'
+                  )}
+                </p>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Scheduled Date & Time *</label>
                 <input
                   type="datetime-local"
@@ -574,6 +599,14 @@ function CreateCampaignForm() {
                       <span className="text-gray-700">Remaining:</span>
                       <span className="font-semibold text-blue-600">{campaignPlan.csvFile.remainingCount.toLocaleString()}</span>
                     </div>
+                    {campaignPlan.csvFile.emailsToUse && campaignPlan.csvFile.emailsToUse < campaignPlan.csvFile.remainingCount && (
+                      <div className="flex justify-between border-t pt-2 mt-2">
+                        <span className="text-gray-700 font-medium">Using (Limited):</span>
+                        <span className="font-semibold text-orange-600">
+                          {campaignPlan.csvFile.emailsToUse.toLocaleString()} of {campaignPlan.csvFile.remainingCount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
