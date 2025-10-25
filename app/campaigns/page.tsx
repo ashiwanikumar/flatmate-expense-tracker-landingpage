@@ -497,7 +497,7 @@ export default function CampaignsPage() {
       {/* Delete Single Campaign Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteSingleModal.open}
-        title="localhost:3004 says"
+        title="Confirm Delete"
         message={`Are you sure you want to delete "${deleteSingleModal.campaignName}"?`}
         onConfirm={handleDeleteSingle}
         onCancel={() => setDeleteSingleModal({ open: false, campaignId: null, campaignName: '' })}
@@ -509,7 +509,7 @@ export default function CampaignsPage() {
       {/* Delete Multiple Campaigns Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteBulkModal}
-        title="localhost:3004 says"
+        title="Confirm Delete"
         message={`Are you sure you want to delete ${selectedCampaigns.length} campaign(s)?`}
         onConfirm={handleBulkDelete}
         onCancel={() => setDeleteBulkModal(false)}

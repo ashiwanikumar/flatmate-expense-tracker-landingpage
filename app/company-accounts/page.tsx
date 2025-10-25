@@ -1318,7 +1318,7 @@ export default function CompanyAccountsPage() {
       {/* Delete Company Account Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteModal.open}
-        title="localhost:3004 says"
+        title="Confirm Delete"
         message="Are you sure you want to delete this company account?"
         onConfirm={handleDelete}
         onCancel={() => setDeleteModal({ open: false, accountId: null })}
@@ -1330,7 +1330,7 @@ export default function CompanyAccountsPage() {
       {/* Delete Template Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteTemplateModal.open}
-        title="localhost:3004 says"
+        title="Confirm Delete"
         message="Are you sure you want to delete this template?"
         onConfirm={handleDeleteTemplate}
         onCancel={() => setDeleteTemplateModal({ open: false, templateId: null })}
