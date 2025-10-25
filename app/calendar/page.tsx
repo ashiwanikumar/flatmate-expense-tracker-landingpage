@@ -13,6 +13,8 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
+  const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -78,6 +80,16 @@ export default function CalendarPage() {
     }
   };
 
+  const handleCampaignClick = (campaign: any) => {
+    setSelectedCampaign(campaign);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedCampaign(null);
+  };
+
   const renderMonthView = () => {
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
     const weeks = [];
@@ -111,7 +123,8 @@ export default function CalendarPage() {
             {dayCampaigns.slice(0, 3).map((campaign) => (
               <div
                 key={campaign._id}
-                className={`text-xs px-2 py-1 rounded border cursor-pointer truncate ${getStatusColor(campaign.status)}`}
+                onClick={() => handleCampaignClick(campaign)}
+                className={`text-xs px-2 py-1 rounded border cursor-pointer truncate hover:opacity-80 transition ${getStatusColor(campaign.status)}`}
                 title={`${campaign.name} - ${campaign.companyAccount?.companyName || 'Unknown'}`}
               >
                 <div className="font-medium truncate">{campaign.name}</div>
@@ -412,6 +425,116 @@ export default function CalendarPage() {
       </div>
 
       <Footer />
+
+      {/* Campaign Details Modal */}
+      {showModal && selectedCampaign && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{selectedCampaign.name}</h2>
+                <p className="text-sm text-gray-600 mt-1">Campaign Details</p>
+              </div>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              {/* Status Badge */}
+              <div className="mb-6">
+                <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(selectedCampaign.status)}`}>
+                  {selectedCampaign.status.toUpperCase()}
+                </span>
+              </div>
+
+              {/* Campaign Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Company */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">Company</label>
+                  <p className="text-lg text-gray-900 mt-1">{selectedCampaign.companyAccount?.companyName || 'N/A'}</p>
+                </div>
+
+                {/* CSV File */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">CSV File</label>
+                  <p className="text-lg text-gray-900 mt-1">{selectedCampaign.csvFile?.originalName || 'N/A'}</p>
+                </div>
+
+                {/* Batch Size */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">Batch Size</label>
+                  <p className="text-lg text-gray-900 mt-1">{selectedCampaign.batchSize || 0}</p>
+                </div>
+
+                {/* Emails Sent */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">Emails Sent</label>
+                  <p className="text-lg text-green-600 font-semibold mt-1">{selectedCampaign.emailsSent || 0}</p>
+                </div>
+
+                {/* Failed */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">Failed</label>
+                  <p className="text-lg text-red-600 font-semibold mt-1">{selectedCampaign.failed || 0}</p>
+                </div>
+
+                {/* Scheduled Date */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">Scheduled Date</label>
+                  <p className="text-lg text-gray-900 mt-1">
+                    {selectedCampaign.scheduledDate
+                      ? new Date(selectedCampaign.scheduledDate).toLocaleString()
+                      : 'N/A'}
+                  </p>
+                </div>
+
+                {/* Created Date */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-600">Created</label>
+                  <p className="text-lg text-gray-900 mt-1">
+                    {new Date(selectedCampaign.createdAt).toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Conferbot ID */}
+                {selectedCampaign.conFerbotId && (
+                  <div className="md:col-span-2">
+                    <label className="text-sm font-semibold text-gray-600">Conferbot ID</label>
+                    <p className="text-sm text-gray-700 mt-1 font-mono bg-gray-50 p-2 rounded">
+                      {selectedCampaign.conFerbotId}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t">
+                <a
+                  href={`/campaigns/${selectedCampaign._id}`}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-semibold text-center"
+                >
+                  View Full Details
+                </a>
+                <button
+                  onClick={closeModal}
+                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
