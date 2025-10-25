@@ -446,7 +446,7 @@ export default function CSVPage() {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteModal.open}
-        title="localhost:3004 says"
+        title="Confirm Delete"
         message="Are you sure you want to delete this file?"
         onConfirm={handleDelete}
         onCancel={() => setDeleteModal({ open: false, fileId: null })}

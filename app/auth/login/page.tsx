@@ -98,90 +98,93 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md">
-          {/* Logo for mobile */}
-          <div className="lg:hidden flex justify-center mb-8">
-            <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-16 w-16" />
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h2>
-            <p className="text-gray-600">
-              Welcome to Campaign Manager
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-gray-900 bg-white"
-                placeholder="you@example.com"
-              />
+      <div className="w-full lg:w-1/2 flex flex-col p-8 bg-white">
+        <div className="flex-grow flex items-center justify-center">
+          <div className="w-full max-w-md">
+            {/* Logo for mobile */}
+            <div className="lg:hidden flex justify-center mb-8">
+              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-16 w-16" />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-gray-900 bg-white"
-                placeholder="••••••••"
-              />
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h2>
+              <p className="text-gray-600">
+                Welcome to Campaign Manager
+              </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-gray-900 bg-white"
+                  placeholder="you@example.com"
+                />
+              </div>
 
-          <div className="mt-8 text-center">
-            <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
-              ← Back to home
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-gray-900 bg-white"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="mt-8 text-center">
+              <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
+                ← Back to home
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Section */}
+        <div className="mt-auto pt-8 pb-4">
+          <div className="flex flex-wrap justify-center gap-6 text-sm">
+            <Link href="/privacy-policy" className="text-gray-600 hover:text-purple-600">
+              Privacy Policy
+            </Link>
+            <Link href="/terms-of-service" className="text-gray-600 hover:text-purple-600">
+              Terms of Service
             </Link>
           </div>
-
-          <div className="mt-12 pt-6 border-t border-gray-200">
-            <div className="flex flex-wrap justify-center gap-6 text-sm">
-              <Link href="/privacy-policy" className="text-gray-600 hover:text-purple-600">
-                Privacy Policy
-              </Link>
-              <Link href="/terms-of-service" className="text-gray-600 hover:text-purple-600">
-                Terms of Service
-              </Link>
-            </div>
-            <p className="text-center text-sm text-gray-500 mt-4">
-              © {new Date().getFullYear()}{' '}
-              <a
-                href="https://www.netraga.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-purple-600 hover:text-purple-700"
-              >
-                Netraga
-              </a>
-              . All rights reserved.
-            </p>
-          </div>
+          <p className="text-center text-sm text-gray-500 mt-4">
+            © {new Date().getFullYear()}{' '}
+            <a
+              href="https://www.netraga.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 hover:text-purple-700"
+            >
+              Netraga
+            </a>
+            . All rights reserved.
+          </p>
         </div>
       </div>
     </div>

@@ -60,18 +60,12 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 max-w-md mx-auto">
+            <div className="flex justify-center mb-16">
               <Link
                 href="/auth/login"
                 className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-lg"
               >
                 Get Started
-              </Link>
-              <Link
-                href="/auth/register"
-                className="px-8 py-4 bg-white text-purple-600 rounded-lg font-semibold border-2 border-purple-600 hover:bg-purple-50 transition-all text-lg"
-              >
-                Sign Up
               </Link>
             </div>
 
