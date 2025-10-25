@@ -16,9 +16,9 @@ function CreateCampaignForm() {
   const [csvFiles, setCsvFiles] = useState<any[]>([]);
   const [companyAccounts, setCompanyAccounts] = useState<any[]>([]);
   const [selectedCsv, setSelectedCsv] = useState(csvId || '');
-  const [selectedCompanyAccount, setSelectedCompanyAccount] = useState('');
+  const [selectedCompanyAccounts, setSelectedCompanyAccounts] = useState<string[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
-  const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
+  const [companyTemplates, setCompanyTemplates] = useState<Record<string, string[]>>({});
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [campaignPlan, setCampaignPlan] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -49,13 +49,13 @@ function CreateCampaignForm() {
   }, [selectedCsv, formData.batchSize, formData.scheduledDate]);
 
   useEffect(() => {
-    if (selectedCompanyAccount) {
+    if (selectedCompanyAccounts.length > 0) {
       fetchTemplates();
     } else {
       setTemplates([]);
-      setSelectedTemplates([]);
+      setCompanyTemplates({});
     }
-  }, [selectedCompanyAccount]);
+  }, [selectedCompanyAccounts]);
 
   const fetchCsvFiles = async () => {
     try {
@@ -76,18 +76,37 @@ function CreateCampaignForm() {
   };
 
   const fetchTemplates = async () => {
-    if (!selectedCompanyAccount) return;
+    if (selectedCompanyAccounts.length === 0) return;
 
     setLoadingTemplates(true);
     try {
-      const response = await campaignTemplateAPI.getAll(selectedCompanyAccount);
-      setTemplates(response.data.data);
+      const allTemplates: any[] = [];
+      const templatesMap: Record<string, string[]> = {};
 
-      // Auto-select default template if exists
-      const defaultTemplate = response.data.data.find((t: any) => t.isDefault);
-      if (defaultTemplate) {
-        setSelectedTemplates([defaultTemplate._id]);
+      // Fetch templates for each selected company account
+      for (const companyId of selectedCompanyAccounts) {
+        try {
+          const response = await campaignTemplateAPI.getAll(companyId);
+          const companyTemplatesList = response.data.data;
+
+          // Store all templates
+          allTemplates.push(...companyTemplatesList);
+
+          // Auto-select default template for this company
+          const defaultTemplate = companyTemplatesList.find((t: any) => t.isDefault);
+          if (defaultTemplate) {
+            templatesMap[companyId] = [defaultTemplate._id];
+          } else {
+            templatesMap[companyId] = [];
+          }
+        } catch (error) {
+          console.error(`Error fetching templates for company ${companyId}:`, error);
+          templatesMap[companyId] = [];
+        }
       }
+
+      setTemplates(allTemplates);
+      setCompanyTemplates(templatesMap);
     } catch (error) {
       console.error('Error fetching templates:', error);
       toast.error('Failed to load templates');
@@ -96,12 +115,31 @@ function CreateCampaignForm() {
     }
   };
 
-  const handleTemplateToggle = (templateId: string) => {
-    setSelectedTemplates(prev =>
-      prev.includes(templateId)
-        ? prev.filter(id => id !== templateId)
-        : [...prev, templateId]
-    );
+  const handleCompanyAccountToggle = (companyId: string) => {
+    setSelectedCompanyAccounts(prev => {
+      if (prev.includes(companyId)) {
+        // Remove company and its templates
+        const newCompanyTemplates = { ...companyTemplates };
+        delete newCompanyTemplates[companyId];
+        setCompanyTemplates(newCompanyTemplates);
+        return prev.filter(id => id !== companyId);
+      } else {
+        // Add company
+        return [...prev, companyId];
+      }
+    });
+  };
+
+  const handleTemplateToggle = (companyId: string, templateId: string) => {
+    setCompanyTemplates(prev => {
+      const currentTemplates = prev[companyId] || [];
+      return {
+        ...prev,
+        [companyId]: currentTemplates.includes(templateId)
+          ? currentTemplates.filter(id => id !== templateId)
+          : [...currentTemplates, templateId]
+      };
+    });
   };
 
   const calculatePlan = async () => {
@@ -132,13 +170,15 @@ function CreateCampaignForm() {
       return;
     }
 
-    if (!selectedCompanyAccount) {
-      toast.error('Please select a company account');
+    if (selectedCompanyAccounts.length === 0) {
+      toast.error('Please select at least one company account');
       return;
     }
 
-    if (selectedTemplates.length === 0) {
-      toast.error('Please select at least one template');
+    // Check if at least one company has templates selected
+    const totalTemplatesSelected = Object.values(companyTemplates).reduce((sum, temps) => sum + temps.length, 0);
+    if (totalTemplatesSelected === 0) {
+      toast.error('Please select at least one template for each company');
       return;
     }
 
@@ -160,38 +200,50 @@ function CreateCampaignForm() {
 
       // Calculate how many campaigns to create based on the plan
       const numberOfCampaigns = campaignPlan.campaigns.length;
-
-      // Get the first selected template (or use default logic)
-      const templateId = selectedTemplates.length > 0 ? selectedTemplates[0] : null;
-
-      // Create campaigns based on the plan with time intervals
       const baseDate = new Date(formData.scheduledDate);
       const intervalHours = parseInt(formData.timeInterval.toString());
 
-      for (let i = 0; i < numberOfCampaigns; i++) {
-        try {
-          // Calculate scheduled date for each campaign with interval
-          const campaignDate = new Date(baseDate);
-          campaignDate.setHours(campaignDate.getHours() + (i * intervalHours));
+      // Create campaigns for each company-template combination
+      for (const companyId of selectedCompanyAccounts) {
+        const templateIds = companyTemplates[companyId] || [];
 
-          // Backend will handle suffix logic for duplicate names
-          await campaignAPI.create({
-            csvFileId: selectedCsv,
-            companyAccountId: selectedCompanyAccount,
-            templateId: templateId,
-            batchSize: parseInt(formData.batchSize.toString()),
-            scheduledDate: campaignDate.toISOString(),
-            campaignName: formData.campaignName || undefined,
-          });
-          successCount++;
-        } catch (error) {
-          console.error(`Failed to create campaign ${i + 1}:`, error);
-          failCount++;
+        if (templateIds.length === 0) {
+          console.warn(`No templates selected for company ${companyId}, skipping...`);
+          continue;
+        }
+
+        // For each template in this company
+        for (const templateId of templateIds) {
+          // Create all campaigns in the plan for this company-template combo
+          for (let i = 0; i < numberOfCampaigns; i++) {
+            try {
+              // Calculate scheduled date for each campaign with interval
+              const campaignDate = new Date(baseDate);
+              campaignDate.setHours(campaignDate.getHours() + (i * intervalHours));
+
+              // Backend will handle suffix logic for duplicate names
+              await campaignAPI.create({
+                csvFileId: selectedCsv,
+                companyAccountId: companyId,
+                templateId: templateId,
+                batchSize: parseInt(formData.batchSize.toString()),
+                scheduledDate: campaignDate.toISOString(),
+                campaignName: formData.campaignName || undefined,
+              });
+              successCount++;
+            } catch (error) {
+              console.error(`Failed to create campaign ${i + 1} for company ${companyId}, template ${templateId}:`, error);
+              failCount++;
+            }
+          }
         }
       }
 
       if (successCount > 0) {
         toast.success(`${successCount} campaign${successCount > 1 ? 's' : ''} created successfully!`);
+        if (failCount > 0) {
+          toast.error(`${failCount} campaign${failCount > 1 ? 's' : ''} failed to create`);
+        }
         router.push('/campaigns');
       } else {
         toast.error('Failed to create any campaigns');
@@ -303,28 +355,49 @@ function CreateCampaignForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Select Company Account *</label>
-                <select
-                  value={selectedCompanyAccount}
-                  onChange={(e) => setSelectedCompanyAccount(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
-                >
-                  <option value="">Choose a company account...</option>
-                  {companyAccounts.map((account) => (
-                    <option key={account._id} value={account._id}>
-                      {account.companyName} ({account.email})
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-500 mt-1">The API account to use for sending emails</p>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Company Accounts * ({selectedCompanyAccounts.length} selected)
+                </label>
+                {companyAccounts.length === 0 ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-sm text-yellow-800">
+                      ⚠️ No company accounts found. Please create a company account first.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-white">
+                    <div className="space-y-2">
+                      {companyAccounts.map((account) => (
+                        <label
+                          key={account._id}
+                          className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedCompanyAccounts.includes(account._id)}
+                            onChange={() => handleCompanyAccountToggle(account._id)}
+                            className="mt-1 rounded text-purple-600 focus:ring-purple-500"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-gray-900">{account.companyName}</span>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-0.5">{account.email}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <p className="text-xs text-gray-500 mt-1">Select one or more company accounts for sending emails</p>
               </div>
 
-              {/* Template Selection */}
-              {selectedCompanyAccount && (
+              {/* Template Selection - Grouped by Company */}
+              {selectedCompanyAccounts.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Templates * ({selectedTemplates.length} selected)
+                    Select Templates * (
+                    {Object.values(companyTemplates).reduce((sum, temps) => sum + temps.length, 0)} total selected)
                   </label>
                   {loadingTemplates ? (
                     <div className="text-center py-6">
@@ -334,41 +407,63 @@ function CreateCampaignForm() {
                   ) : templates.length === 0 ? (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                       <p className="text-sm text-yellow-800">
-                        ⚠️ No templates found for this company account. Please create templates first.
+                        ⚠️ No templates found for selected company accounts. Please create templates first.
                       </p>
                     </div>
                   ) : (
-                    <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-white">
-                      <div className="space-y-2">
-                        {templates.map((template) => (
-                          <label
-                            key={template._id}
-                            className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedTemplates.includes(template._id)}
-                              onChange={() => handleTemplateToggle(template._id)}
-                              className="mt-1 rounded text-purple-600 focus:ring-purple-500"
-                            />
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-900">{template.templateName}</span>
-                                {template.isDefault && (
-                                  <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full font-medium">
-                                    Default
-                                  </span>
+                    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                      <div className="max-h-96 overflow-y-auto">
+                        {selectedCompanyAccounts.map((companyId) => {
+                          const company = companyAccounts.find(acc => acc._id === companyId);
+                          const companyTemplatesList = templates.filter(t => t.companyAccount === companyId);
+
+                          return (
+                            <div key={companyId} className="border-b border-gray-200 last:border-b-0">
+                              <div className="bg-purple-50 px-4 py-2 sticky top-0 z-10">
+                                <h4 className="font-semibold text-purple-900 text-sm">
+                                  {company?.companyName} ({companyTemplates[companyId]?.length || 0} selected)
+                                </h4>
+                              </div>
+                              <div className="p-3">
+                                {companyTemplatesList.length === 0 ? (
+                                  <p className="text-sm text-gray-500 italic">No templates available</p>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {companyTemplatesList.map((template) => (
+                                      <label
+                                        key={template._id}
+                                        className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={companyTemplates[companyId]?.includes(template._id) || false}
+                                          onChange={() => handleTemplateToggle(companyId, template._id)}
+                                          className="mt-1 rounded text-purple-600 focus:ring-purple-500"
+                                        />
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium text-gray-900">{template.templateName}</span>
+                                            {template.isDefault && (
+                                              <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                                                Default
+                                              </span>
+                                            )}
+                                          </div>
+                                          <p className="text-xs text-gray-600 mt-0.5">{template.subject}</p>
+                                        </div>
+                                      </label>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-600 mt-0.5">{template.subject}</p>
                             </div>
-                          </label>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
-                    Select one or more templates. One campaign will be created for each selected template.
+                    Select templates for each company. Campaigns will be created for each company-template combination.
                   </p>
                 </div>
               )}
@@ -439,13 +534,16 @@ function CreateCampaignForm() {
 
               <button
                 type="submit"
-                disabled={loading || !selectedCsv || !selectedCompanyAccount || selectedTemplates.length === 0}
+                disabled={loading || !selectedCsv || selectedCompanyAccounts.length === 0 || Object.values(companyTemplates).reduce((sum, temps) => sum + temps.length, 0) === 0}
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading
-                  ? `Creating ${campaignPlan?.campaigns?.length || 0} Campaign${(campaignPlan?.campaigns?.length || 0) > 1 ? 's' : ''}...`
-                  : `Create ${campaignPlan?.campaigns?.length || 0} Campaign${(campaignPlan?.campaigns?.length || 0) > 1 ? 's' : ''}`
-                }
+                {(() => {
+                  const totalTemplates = Object.values(companyTemplates).reduce((sum, temps) => sum + temps.length, 0);
+                  const totalCampaigns = (campaignPlan?.campaigns?.length || 0) * totalTemplates;
+                  return loading
+                    ? `Creating ${totalCampaigns} Campaign${totalCampaigns > 1 ? 's' : ''}...`
+                    : `Create ${totalCampaigns} Campaign${totalCampaigns > 1 ? 's' : ''}`;
+                })()}
               </button>
             </form>
           </div>
@@ -542,8 +640,12 @@ function CreateCampaignForm() {
       {/* Loading Modal */}
       <LoadingModal
         isOpen={loading}
-        title={`Creating ${selectedTemplates.length} Campaign${selectedTemplates.length > 1 ? 's' : ''}`}
-        subtitle="Please wait while we process your request..."
+        title={`Creating ${(() => {
+          const totalTemplates = Object.values(companyTemplates).reduce((sum, temps) => sum + temps.length, 0);
+          const totalCampaigns = (campaignPlan?.campaigns?.length || 0) * totalTemplates;
+          return `${totalCampaigns} Campaign${totalCampaigns > 1 ? 's' : ''}`;
+        })()}`}
+        subtitle={`For ${selectedCompanyAccounts.length} company account${selectedCompanyAccounts.length > 1 ? 's' : ''}. Please wait...`}
       />
 
       {/* All Campaigns Modal */}
