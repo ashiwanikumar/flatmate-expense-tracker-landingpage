@@ -115,6 +115,7 @@ export const activityLogAPI = {
   getMyActivity: (params?: any) => api.get('/activity-logs/my-activity', { params }),
   getRecent: (limit?: number) => api.get('/activity-logs/recent', { params: { limit } }),
   getStats: (params?: any) => api.get('/activity-logs/stats', { params }),
+  exportCSV: () => api.get('/activity-logs/export', { responseType: 'text' }),
 };
 
 export default api;

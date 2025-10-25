@@ -12,6 +12,7 @@ export default function ActivityLogsPage() {
   const [user, setUser] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, pages: 0 });
 
   useEffect(() => {
@@ -40,6 +41,30 @@ export default function ActivityLogsPage() {
       toast.error('Failed to load activity logs');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    setExporting(true);
+    try {
+      const response = await activityLogAPI.exportCSV();
+
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `activity-logs-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Activity logs exported successfully! Check your email for confirmation.');
+    } catch (error: any) {
+      console.error('Error exporting activity logs:', error);
+      toast.error('Failed to export activity logs');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -95,7 +120,7 @@ export default function ActivityLogsPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       {/* Header */}
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
@@ -118,7 +143,7 @@ export default function ActivityLogsPage() {
 
       {/* Navigation */}
       <nav className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <Link
               href="/dashboard"
@@ -166,7 +191,7 @@ export default function ActivityLogsPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,8 +199,20 @@ export default function ActivityLogsPage() {
             </svg>
             <h2 className="text-2xl font-bold text-gray-900">Activity Logs</h2>
           </div>
-          <div className="text-sm text-gray-600">
-            Total: {pagination.total} activities
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-600">
+              Total: {pagination.total} activities
+            </div>
+            <button
+              onClick={handleExportCSV}
+              disabled={exporting || logs.length === 0}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {exporting ? 'Exporting...' : 'Export to CSV'}
+            </button>
           </div>
         </div>
 
