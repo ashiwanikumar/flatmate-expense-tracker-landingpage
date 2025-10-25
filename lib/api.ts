@@ -44,13 +44,17 @@ export const authAPI = {
   login: (data: any) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
+  changePassword: (data: any) => api.put('/auth/change-password', data),
 };
 
 // CSV API
 export const csvAPI = {
-  upload: (file: File) => {
+  upload: (file: File, tag?: string) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (tag) {
+      formData.append('tag', tag);
+    }
     return api.post('/csv/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

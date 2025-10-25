@@ -71,6 +71,12 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-gray-700">Welcome, {user?.name}</span>
+              <Link
+                href="/settings"
+                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              >
+                Settings
+              </Link>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
