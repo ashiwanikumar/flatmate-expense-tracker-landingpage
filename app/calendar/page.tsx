@@ -278,11 +278,11 @@ export default function CalendarPage() {
               <select
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 bg-white font-medium"
               >
-                <option value="all">All Companies</option>
+                <option value="all" className="text-gray-900">All Companies</option>
                 {companies.map((company) => (
-                  <option key={company._id} value={company._id}>
+                  <option key={company._id} value={company._id} className="text-gray-900">
                     {company.companyName}
                   </option>
                 ))}
@@ -360,28 +360,32 @@ export default function CalendarPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={previousMonth}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
+                className="p-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition font-semibold flex items-center gap-2"
+                title="Previous Month"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
+                Previous
               </button>
+              <h2 className="text-xl font-bold text-gray-900 px-4">
+                {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+              </h2>
               <button
                 onClick={nextMonth}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
+                className="p-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition font-semibold flex items-center gap-2"
+                title="Next Month"
               >
+                Next
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-              <h2 className="text-xl font-bold text-gray-900">
-                {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-              </h2>
             </div>
 
             <button
               onClick={goToToday}
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-medium"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-semibold shadow-md"
             >
               Today
             </button>
