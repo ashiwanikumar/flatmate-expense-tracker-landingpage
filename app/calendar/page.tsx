@@ -113,7 +113,7 @@ export default function CalendarPage() {
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(
-        <div key={`empty-${i}`} className="min-h-32 bg-gray-50 border border-gray-200 p-2"></div>
+        <div key={`empty-${i}`} className="min-h-24 sm:min-h-32 bg-gray-50 border border-gray-200 p-1 sm:p-2"></div>
       );
     }
 
@@ -126,18 +126,18 @@ export default function CalendarPage() {
       days.push(
         <div
           key={day}
-          className={`min-h-32 border border-gray-200 p-2 ${
+          className={`min-h-24 sm:min-h-32 border border-gray-200 p-1 sm:p-2 ${
             isToday ? 'bg-blue-50' : 'bg-white'
           } hover:bg-gray-50 transition`}
         >
           <div
-            className={`text-sm font-semibold mb-2 ${isToday ? 'text-blue-600' : 'text-gray-700'} ${dayCampaigns.length > 0 ? 'cursor-pointer hover:underline' : ''}`}
+            className={`text-xs sm:text-sm font-semibold mb-1 sm:mb-2 ${isToday ? 'text-blue-600' : 'text-gray-700'} ${dayCampaigns.length > 0 ? 'cursor-pointer hover:underline' : ''}`}
             onClick={() => dayCampaigns.length > 0 && handleDateClick(date)}
           >
             {day}
-            {isToday && <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">Today</span>}
+            {isToday && <span className="ml-1 sm:ml-2 px-1 sm:px-2 py-0.5 bg-blue-600 text-white text-[10px] sm:text-xs rounded-full hidden sm:inline">Today</span>}
             {dayCampaigns.length > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+              <span className="ml-1 sm:ml-2 px-1 sm:px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] sm:text-xs rounded-full">
                 {dayCampaigns.length}
               </span>
             )}
@@ -147,15 +147,15 @@ export default function CalendarPage() {
               <div
                 key={campaign._id}
                 onClick={() => handleCampaignClick(campaign)}
-                className={`text-xs px-2 py-1 rounded border cursor-pointer truncate hover:opacity-80 transition ${getStatusColor(campaign.status)}`}
+                className={`text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded border cursor-pointer truncate hover:opacity-80 transition ${getStatusColor(campaign.status)}`}
                 title={`${campaign.campaignName} - ${campaign.companyAccount?.companyName || 'Unknown'}`}
               >
                 <div className="font-medium truncate">{campaign.campaignName}</div>
-                <div className="text-[10px] opacity-75">{campaign.companyAccount?.companyName}</div>
+                <div className="text-[8px] sm:text-[10px] opacity-75 hidden sm:block">{campaign.companyAccount?.companyName}</div>
               </div>
             ))}
             {dayCampaigns.length > 3 && (
-              <div className="text-xs text-gray-500 font-medium px-2">
+              <div className="text-[10px] sm:text-xs text-gray-500 font-medium px-1 sm:px-2">
                 +{dayCampaigns.length - 3} more
               </div>
             )}
@@ -178,7 +178,7 @@ export default function CalendarPage() {
     if (days.length > 0) {
       while (days.length < 7) {
         days.push(
-          <div key={`empty-end-${days.length}`} className="min-h-32 bg-gray-50 border border-gray-200 p-2"></div>
+          <div key={`empty-end-${days.length}`} className="min-h-24 sm:min-h-32 bg-gray-50 border border-gray-200 p-1 sm:p-2"></div>
         );
       }
       weeks.push(
@@ -226,57 +226,62 @@ export default function CalendarPage() {
       {/* Header with Navigation */}
       <header className="bg-white shadow-sm border-b">
         <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             {/* Left side: Logo, Title, and Navigation */}
-            <div className="flex items-center gap-8">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 w-full sm:w-auto">
               <div className="flex items-center gap-3">
-                <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10" />
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent whitespace-nowrap">
+                <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent whitespace-nowrap">
                   Campaign Manager
                 </h1>
               </div>
 
               {/* Navigation */}
-              <nav className="flex space-x-6">
+              <nav className="flex space-x-3 sm:space-x-6 overflow-x-auto min-w-max sm:min-w-0">
                 <Link
                   href="/dashboard"
-                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
                 >
-                  Dashboard
+                  <span className="hidden sm:inline">Dashboard</span>
+                  <span className="sm:hidden">Dash</span>
                 </Link>
                 <Link
                   href="/csv"
-                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
                 >
-                  CSV Files
+                  CSV
                 </Link>
                 <Link
                   href="/campaigns"
-                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
                 >
-                  Campaigns
+                  <span className="hidden sm:inline">Campaigns</span>
+                  <span className="sm:hidden">Camp</span>
                 </Link>
                 <Link
                   href="/company-accounts"
-                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
                 >
-                  Company Accounts
+                  <span className="hidden sm:inline">Company Accounts</span>
+                  <span className="sm:hidden">Accounts</span>
                 </Link>
                 <Link
                   href="/calendar"
-                  className="text-sm font-medium text-purple-600 border-b-2 border-purple-600 pb-1"
+                  className="text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 pb-1 whitespace-nowrap"
                 >
-                  📅 Calendar
+                  <span className="hidden sm:inline">📅 Calendar</span>
+                  <span className="sm:hidden">📅 Cal</span>
                 </Link>
                 <Link
                   href="/activity-logs"
-                  className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
                 >
                   <span className="flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Activity Logs
+                    <span className="hidden sm:inline">Activity Logs</span>
+                    <span className="sm:hidden">Logs</span>
                   </span>
                 </Link>
               </nav>
@@ -289,7 +294,7 @@ export default function CalendarPage() {
                 localStorage.removeItem('user');
                 window.location.href = '/';
               }}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
             >
               Logout
             </button>
@@ -297,24 +302,24 @@ export default function CalendarPage() {
         </div>
       </header>
 
-      <div className="flex-grow p-8">
-        <div className="px-4 sm:px-6 lg:px-8">
+      <div className="flex-grow p-4 sm:p-6 md:p-8">
+        <div className="px-2 sm:px-4 lg:px-8">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Campaign Calendar
               </h1>
-              <p className="text-gray-600 mt-1">Visualize and manage your campaigns</p>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">Visualize and manage your campaigns</p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto">
               {/* Company Filter */}
               <select
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 bg-white font-medium"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base text-gray-900 bg-white font-medium"
               >
                 <option value="all" className="text-gray-900">All Companies</option>
                 {companies.map((company) => (
@@ -325,10 +330,10 @@ export default function CalendarPage() {
               </select>
 
               {/* View Toggle */}
-              <div className="flex bg-gray-100 rounded-lg p-1">
+              <div className="flex bg-gray-100 rounded-lg p-1 w-full sm:w-auto">
                 <button
                   onClick={() => setView('month')}
-                  className={`px-4 py-2 rounded text-sm font-medium transition ${
+                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium transition ${
                     view === 'month'
                       ? 'bg-white text-purple-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
@@ -338,7 +343,7 @@ export default function CalendarPage() {
                 </button>
                 <button
                   onClick={() => setView('week')}
-                  className={`px-4 py-2 rounded text-sm font-medium transition ${
+                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium transition ${
                     view === 'week'
                       ? 'bg-white text-purple-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
@@ -349,7 +354,7 @@ export default function CalendarPage() {
                 </button>
                 <button
                   onClick={() => setView('day')}
-                  className={`px-4 py-2 rounded text-sm font-medium transition ${
+                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded text-xs sm:text-sm font-medium transition ${
                     view === 'day'
                       ? 'bg-white text-purple-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
@@ -365,55 +370,55 @@ export default function CalendarPage() {
 
         {/* Status Legend */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex flex-wrap gap-4 items-center">
-            <span className="text-sm font-semibold text-gray-700">Status:</span>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-green-100 border border-green-200"></div>
-              <span className="text-sm text-gray-600">Completed</span>
+          <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
+            <span className="text-xs sm:text-sm font-semibold text-gray-700">Status:</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-green-100 border border-green-200"></div>
+              <span className="text-xs sm:text-sm text-gray-600">Completed</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-blue-100 border border-blue-200"></div>
-              <span className="text-sm text-gray-600">Running</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-blue-100 border border-blue-200"></div>
+              <span className="text-xs sm:text-sm text-gray-600">Running</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-purple-100 border border-purple-200"></div>
-              <span className="text-sm text-gray-600">Scheduled</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-purple-100 border border-purple-200"></div>
+              <span className="text-xs sm:text-sm text-gray-600">Scheduled</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-yellow-100 border border-yellow-200"></div>
-              <span className="text-sm text-gray-600">Paused</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-yellow-100 border border-yellow-200"></div>
+              <span className="text-xs sm:text-sm text-gray-600">Paused</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-red-100 border border-red-200"></div>
-              <span className="text-sm text-gray-600">Failed/Cancelled</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-red-100 border border-red-200"></div>
+              <span className="text-xs sm:text-sm text-gray-600">Failed/Cancelled</span>
             </div>
           </div>
         </div>
 
         {/* Calendar Navigation */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={previousMonth}
-                className="p-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition font-semibold flex items-center gap-2"
+                className="w-full sm:w-auto px-3 py-2 sm:p-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition font-semibold flex items-center justify-center gap-2 text-xs sm:text-sm"
                 title="Previous Month"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
                 Previous
               </button>
-              <h2 className="text-xl font-bold text-gray-900 px-4">
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 px-2 sm:px-4 whitespace-nowrap">
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </h2>
               <button
                 onClick={nextMonth}
-                className="p-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition font-semibold flex items-center gap-2"
+                className="w-full sm:w-auto px-3 py-2 sm:p-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition font-semibold flex items-center justify-center gap-2 text-xs sm:text-sm"
                 title="Next Month"
               >
                 Next
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -421,7 +426,7 @@ export default function CalendarPage() {
 
             <button
               onClick={goToToday}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-semibold shadow-md"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-semibold shadow-md text-xs sm:text-sm"
             >
               Today
             </button>
@@ -433,8 +438,9 @@ export default function CalendarPage() {
           {/* Week day headers */}
           <div className="grid grid-cols-7 gap-0 bg-gray-100 border-b border-gray-200">
             {weekDays.map((day) => (
-              <div key={day} className="p-3 text-center text-sm font-semibold text-gray-700 border-r border-gray-200 last:border-r-0">
-                {day}
+              <div key={day} className="p-2 sm:p-3 text-center text-xs sm:text-sm font-semibold text-gray-700 border-r border-gray-200 last:border-r-0">
+                <span className="hidden sm:inline">{day}</span>
+                <span className="sm:hidden">{day.substring(0, 3)}</span>
               </div>
             ))}
           </div>
@@ -454,73 +460,73 @@ export default function CalendarPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+            <div className="sticky top-0 bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-start sm:items-center gap-2">
+              <div className="flex-1">
+                <h2 className="text-base sm:text-xl md:text-2xl font-bold text-gray-900 leading-tight">
                   {selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   {getCampaignsForDate(selectedDate).length} campaign{getCampaignsForDate(selectedDate).length !== 1 ? 's' : ''} scheduled
                 </p>
               </div>
               <button
                 onClick={closeDateModal}
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="text-gray-400 hover:text-gray-600 transition flex-shrink-0"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6">
-              <div className="space-y-4">
+            <div className="p-4 sm:p-6">
+              <div className="space-y-3 sm:space-y-4">
                 {getCampaignsForDate(selectedDate).map((campaign) => (
                   <div
                     key={campaign._id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                    className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition cursor-pointer"
                     onClick={() => {
                       closeDateModal();
                       handleCampaignClick(campaign);
                     }}
                   >
-                    <div className="flex justify-between items-start mb-3">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0 mb-3">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">{campaign.campaignName}</h3>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900">{campaign.campaignName}</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
                           {campaign.companyAccount?.companyName || 'Unknown Company'}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(campaign.status)}`}>
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${getStatusColor(campaign.status)} whitespace-nowrap`}>
                         {campaign.status.toUpperCase()}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm">
                       <div>
-                        <p className="text-gray-600">Batch Size</p>
-                        <p className="font-semibold text-gray-900">{campaign.batchSize || 0}</p>
+                        <p className="text-gray-600 text-[10px] sm:text-xs">Batch Size</p>
+                        <p className="font-semibold text-gray-900 text-sm sm:text-base">{campaign.batchSize || 0}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Emails Sent</p>
-                        <p className="font-semibold text-green-600">{campaign.emailsSent || 0}</p>
+                        <p className="text-gray-600 text-[10px] sm:text-xs">Emails Sent</p>
+                        <p className="font-semibold text-green-600 text-sm sm:text-base">{campaign.emailsSent || 0}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Failed</p>
-                        <p className="font-semibold text-red-600">{campaign.failed || 0}</p>
+                        <p className="text-gray-600 text-[10px] sm:text-xs">Failed</p>
+                        <p className="font-semibold text-red-600 text-sm sm:text-base">{campaign.failed || 0}</p>
                       </div>
-                      <div>
-                        <p className="text-gray-600">CSV File</p>
-                        <p className="font-semibold text-gray-900 truncate" title={campaign.csvFile?.originalName}>
+                      <div className="col-span-2 md:col-span-1">
+                        <p className="text-gray-600 text-[10px] sm:text-xs">CSV File</p>
+                        <p className="font-semibold text-gray-900 truncate text-sm sm:text-base" title={campaign.csvFile?.originalName}>
                           {campaign.csvFile?.originalName || 'N/A'}
                         </p>
                       </div>
                     </div>
 
                     {campaign.scheduledDate && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <p className="text-xs text-gray-600">
+                      <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200">
+                        <p className="text-[10px] sm:text-xs text-gray-600">
                           Scheduled: {new Date(campaign.scheduledDate).toLocaleString()}
                         </p>
                       </div>
@@ -529,10 +535,10 @@ export default function CalendarPage() {
                 ))}
               </div>
 
-              <div className="flex gap-3 pt-4 border-t mt-6">
+              <div className="flex gap-3 pt-4 border-t mt-4 sm:mt-6">
                 <button
                   onClick={closeDateModal}
-                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold"
+                  className="w-full px-4 py-2 sm:py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold text-sm sm:text-base"
                 >
                   Close
                 </button>
@@ -547,66 +553,66 @@ export default function CalendarPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">{selectedCampaign.campaignName}</h2>
-                <p className="text-sm text-gray-600 mt-1">Campaign Details</p>
+            <div className="sticky top-0 bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-start sm:items-center gap-2">
+              <div className="flex-1">
+                <h2 className="text-base sm:text-xl md:text-2xl font-bold text-gray-900 leading-tight">{selectedCampaign.campaignName}</h2>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">Campaign Details</p>
               </div>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="text-gray-400 hover:text-gray-600 transition flex-shrink-0"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Status Badge */}
-              <div className="mb-6">
-                <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(selectedCampaign.status)}`}>
+              <div className="mb-4 sm:mb-6">
+                <span className={`inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold ${getStatusColor(selectedCampaign.status)}`}>
                   {selectedCampaign.status.toUpperCase()}
                 </span>
               </div>
 
               {/* Campaign Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                 {/* Company */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Company</label>
-                  <p className="text-lg text-gray-900 mt-1">{selectedCampaign.companyAccount?.companyName || 'N/A'}</p>
+                  <label className="text-xs sm:text-sm font-semibold text-gray-600">Company</label>
+                  <p className="text-sm sm:text-base md:text-lg text-gray-900 mt-1 break-words">{selectedCampaign.companyAccount?.companyName || 'N/A'}</p>
                 </div>
 
                 {/* CSV File */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">CSV File</label>
-                  <p className="text-lg text-gray-900 mt-1">{selectedCampaign.csvFile?.originalName || 'N/A'}</p>
+                  <label className="text-xs sm:text-sm font-semibold text-gray-600">CSV File</label>
+                  <p className="text-sm sm:text-base md:text-lg text-gray-900 mt-1 break-words">{selectedCampaign.csvFile?.originalName || 'N/A'}</p>
                 </div>
 
                 {/* Batch Size */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Batch Size</label>
-                  <p className="text-lg text-gray-900 mt-1">{selectedCampaign.batchSize || 0}</p>
+                  <label className="text-xs sm:text-sm font-semibold text-gray-600">Batch Size</label>
+                  <p className="text-sm sm:text-base md:text-lg text-gray-900 mt-1">{selectedCampaign.batchSize || 0}</p>
                 </div>
 
                 {/* Emails Sent */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Emails Sent</label>
-                  <p className="text-lg text-green-600 font-semibold mt-1">{selectedCampaign.emailsSent || 0}</p>
+                  <label className="text-xs sm:text-sm font-semibold text-gray-600">Emails Sent</label>
+                  <p className="text-sm sm:text-base md:text-lg text-green-600 font-semibold mt-1">{selectedCampaign.emailsSent || 0}</p>
                 </div>
 
                 {/* Failed */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Failed</label>
-                  <p className="text-lg text-red-600 font-semibold mt-1">{selectedCampaign.failed || 0}</p>
+                  <label className="text-xs sm:text-sm font-semibold text-gray-600">Failed</label>
+                  <p className="text-sm sm:text-base md:text-lg text-red-600 font-semibold mt-1">{selectedCampaign.failed || 0}</p>
                 </div>
 
                 {/* Scheduled Date */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Scheduled Date</label>
-                  <p className="text-lg text-gray-900 mt-1">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-600">Scheduled Date</label>
+                  <p className="text-sm sm:text-base md:text-lg text-gray-900 mt-1 break-words">
                     {selectedCampaign.scheduledDate
                       ? new Date(selectedCampaign.scheduledDate).toLocaleString()
                       : 'N/A'}
@@ -615,8 +621,8 @@ export default function CalendarPage() {
 
                 {/* Created Date */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Created</label>
-                  <p className="text-lg text-gray-900 mt-1">
+                  <label className="text-xs sm:text-sm font-semibold text-gray-600">Created</label>
+                  <p className="text-sm sm:text-base md:text-lg text-gray-900 mt-1 break-words">
                     {new Date(selectedCampaign.createdAt).toLocaleString()}
                   </p>
                 </div>
@@ -624,8 +630,8 @@ export default function CalendarPage() {
                 {/* Conferbot ID */}
                 {selectedCampaign.conFerbotId && (
                   <div className="md:col-span-2">
-                    <label className="text-sm font-semibold text-gray-600">Conferbot ID</label>
-                    <p className="text-sm text-gray-700 mt-1 font-mono bg-gray-50 p-2 rounded">
+                    <label className="text-xs sm:text-sm font-semibold text-gray-600">Conferbot ID</label>
+                    <p className="text-xs sm:text-sm text-gray-700 mt-1 font-mono bg-gray-50 p-2 rounded break-all">
                       {selectedCampaign.conFerbotId}
                     </p>
                   </div>
@@ -633,16 +639,16 @@ export default function CalendarPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
                 <a
                   href={`/campaigns/${selectedCampaign._id}`}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-semibold text-center"
+                  className="w-full sm:flex-1 px-4 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-semibold text-center text-sm sm:text-base"
                 >
                   View Full Details
                 </a>
                 <button
                   onClick={closeModal}
-                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold"
+                  className="w-full sm:flex-1 px-4 py-2 sm:py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold text-sm sm:text-base"
                 >
                   Close
                 </button>
