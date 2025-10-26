@@ -113,24 +113,24 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Campaign Manager
               </h1>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-700">Welcome, {user?.name}</span>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <span className="text-sm sm:text-base text-gray-700 hidden sm:inline">Welcome, {user?.name}</span>
               <button
                 onClick={() => setPasswordModal(true)}
-                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition whitespace-nowrap"
               >
                 Change Password
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
               >
                 Logout
               </button>
@@ -140,48 +140,49 @@ export default function DashboardPage() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b">
+      <nav className="bg-white border-b overflow-x-auto">
         <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+          <div className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
             <Link
               href="/dashboard"
-              className="px-3 py-4 text-sm font-medium text-purple-600 border-b-2 border-purple-600"
+              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap"
             >
               Dashboard
             </Link>
             <Link
               href="/csv"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
               CSV Files
             </Link>
             <Link
               href="/campaigns"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
               Campaigns
             </Link>
             <Link
               href="/company-accounts"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
               Company Accounts
             </Link>
             <Link
               href="/calendar"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
               📅 Calendar
             </Link>
             <Link
               href="/activity-logs"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex items-center gap-1 sm:gap-2">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Activity Logs
+                <span className="hidden sm:inline">Activity Logs</span>
+                <span className="sm:hidden">Logs</span>
               </span>
             </Link>
           </div>
@@ -319,15 +320,15 @@ export default function DashboardPage() {
             {overview?.recentCampaigns && overview.recentCampaigns.length > 0 ? (
               <div className="space-y-4">
                 {overview.recentCampaigns.map((campaign: any) => (
-                  <div key={campaign._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{campaign.campaignName}</h3>
-                      <p className="text-sm text-gray-600">
+                  <div key={campaign._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{campaign.campaignName}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
                         {campaign.batchSize} emails • {new Date(campaign.scheduledDate).toLocaleDateString()}
                       </p>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-center whitespace-nowrap ${
                         campaign.status === 'completed'
                           ? 'bg-green-100 text-green-800'
                           : campaign.status === 'in_progress'
@@ -343,7 +344,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-8">No campaigns yet. Create your first campaign!</p>
+              <p className="text-center text-gray-500 py-8 text-sm sm:text-base">No campaigns yet. Create your first campaign!</p>
             )}
           </div>
         </div>

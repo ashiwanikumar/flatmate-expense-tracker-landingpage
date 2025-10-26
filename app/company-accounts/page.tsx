@@ -389,16 +389,16 @@ export default function CompanyAccountsPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       <header className="bg-white shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Campaign Manager
               </h1>
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
             >
               Logout
             </button>
@@ -406,64 +406,64 @@ export default function CompanyAccountsPage() {
         </div>
       </header>
 
-      <nav className="bg-white border-b">
+      <nav className="bg-white border-b overflow-x-auto">
         <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+          <div className="flex space-x-4 sm:space-x-8 min-w-max">
             <Link
               href="/dashboard"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
               Dashboard
             </Link>
             <Link
               href="/csv"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
-              CSV Files
+              CSV
             </Link>
             <Link
               href="/campaigns"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
               Campaigns
             </Link>
             <Link
               href="/company-accounts"
-              className="px-3 py-4 text-sm font-medium text-purple-600 border-b-2 border-purple-600"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap"
             >
-              Company Accounts
+              Accounts
             </Link>
             <Link
               href="/calendar"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
-              📅 Calendar
+              Calendar
             </Link>
             <Link
               href="/activity-logs"
-              className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex items-center gap-1 sm:gap-2">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Activity Logs
+                Logs
               </span>
             </Link>
           </div>
         </div>
       </nav>
 
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-gray-900">Company Accounts</h2>
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-4 sm:py-8 w-full">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Company Accounts</h2>
             <button
               onClick={() => setShowAwsInfoModal(true)}
-              className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition"
+              className="p-1.5 sm:p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition"
               title="AWS Configuration Info"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
@@ -474,16 +474,16 @@ export default function CompanyAccountsPage() {
               setEditingAccount(null);
               resetForm();
             }}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+            className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
           >
             + Add Company Account
           </button>
         </div>
 
         {showForm && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4 sm:mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                 {editingAccount ? 'Edit Company Account' : 'Add New Company Account'}
               </h3>
               <button
@@ -494,13 +494,13 @@ export default function CompanyAccountsPage() {
                 }}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
                 <input
@@ -508,7 +508,7 @@ export default function CompanyAccountsPage() {
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                   placeholder="e.g., ConFerbot, SendGrid"
                 />
               </div>
@@ -520,7 +520,7 @@ export default function CompanyAccountsPage() {
                   value={formData.apiUrl}
                   onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                   placeholder="http://localhost:8000/api/v1"
                 />
                 <p className="mt-1 text-xs text-gray-500">Enter full API URL including version (e.g., /api/v1)</p>
@@ -546,7 +546,7 @@ export default function CompanyAccountsPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                   placeholder="api@example.com"
                 />
               </div>
@@ -560,7 +560,7 @@ export default function CompanyAccountsPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required={!editingAccount}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                   placeholder="••••••••"
                 />
               </div>
@@ -571,7 +571,7 @@ export default function CompanyAccountsPage() {
                   type="text"
                   value={formData.campaignPrefix}
                   onChange={(e) => setFormData({ ...formData, campaignPrefix: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                   placeholder="WU"
                 />
               </div>
@@ -585,7 +585,7 @@ export default function CompanyAccountsPage() {
                     value={timezoneSearch}
                     onChange={(e) => setTimezoneSearch(e.target.value)}
                     onFocus={() => setTimezoneSearch('')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                   />
                   {timezoneSearch && (
                     <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-lg shadow-lg">
@@ -619,7 +619,7 @@ export default function CompanyAccountsPage() {
                   Add email addresses to receive campaign notifications. Maximum 10 emails allowed.
                 </p>
 
-                <div className="flex gap-2 mb-3">
+                <div className="flex flex-col sm:flex-row gap-2 mb-3">
                   <div className="flex-1">
                     <input
                       type="email"
@@ -635,7 +635,7 @@ export default function CompanyAccountsPage() {
                         }
                       }}
                       placeholder="Enter email address"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                       disabled={formData.notificationEmails.length >= 10}
                     />
                     {emailError && (
@@ -646,7 +646,7 @@ export default function CompanyAccountsPage() {
                     type="button"
                     onClick={handleAddEmail}
                     disabled={formData.notificationEmails.length >= 10}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium"
+                    className="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium"
                   >
                     Add Email
                   </button>
@@ -700,15 +700,15 @@ export default function CompanyAccountsPage() {
                   type="text"
                   value={formData.defaultBatchPattern}
                   onChange={(e) => setFormData({ ...formData, defaultBatchPattern: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
                   placeholder="1500,1600,1700,1800,1900,2000"
                 />
               </div>
 
-              <div className="md:col-span-2 flex gap-3">
+              <div className="md:col-span-2 flex flex-col sm:flex-row gap-3">
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
                 >
                   {editingAccount ? 'Update Account' : 'Create Account'}
                 </button>
@@ -719,7 +719,7 @@ export default function CompanyAccountsPage() {
                     setEditingAccount(null);
                     resetForm();
                   }}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
                 >
                   Cancel
                 </button>
@@ -729,25 +729,25 @@ export default function CompanyAccountsPage() {
         )}
 
         {accounts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
+          <div className="bg-white rounded-lg shadow p-8 sm:p-12 text-center">
             <p className="text-gray-500 mb-4">No company accounts found.</p>
             <button
               onClick={() => setShowForm(true)}
-              className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+              className="inline-block w-full sm:w-auto px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
             >
               Add Your First Company Account
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {accounts.map((account) => (
-              <div key={account._id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">{account.companyName}</h3>
+              <div key={account._id} className="bg-white rounded-lg shadow p-4 sm:p-6">
+                <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
+                  <div className="flex-1 w-full">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">{account.companyName}</h3>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${
                           account.status === 'active'
                             ? 'bg-green-100 text-green-800'
                             : 'bg-gray-100 text-gray-800'
@@ -757,7 +757,7 @@ export default function CompanyAccountsPage() {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4">
                       <div>
                         <p className="text-sm text-gray-600">API URL</p>
                         <p className="text-sm font-medium text-gray-900 break-all">{account.apiUrl}</p>
@@ -772,7 +772,7 @@ export default function CompanyAccountsPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <p className="text-sm text-gray-600">Timezone</p>
                         <p className="text-sm font-medium text-gray-900">{account.timezone}</p>
@@ -808,29 +808,29 @@ export default function CompanyAccountsPage() {
                     )}
                   </div>
 
-                  <div className="ml-4 flex flex-col gap-2">
+                  <div className="w-full lg:w-auto lg:ml-4 flex flex-col sm:flex-row lg:flex-col gap-2">
                     <button
                       onClick={() => handleManageTemplates(account)}
-                      className="px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 text-sm rounded-lg hover:from-purple-200 hover:to-blue-200 transition font-medium"
+                      className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 text-xs sm:text-sm rounded-lg hover:from-purple-200 hover:to-blue-200 transition font-medium whitespace-nowrap"
                     >
-                      📋 Manage Templates
+                      Manage Templates
                     </button>
                     <button
                       onClick={() => handleTestConnection(account._id)}
                       disabled={testingId === account._id}
-                      className="px-4 py-2 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition disabled:opacity-50"
+                      className="w-full sm:w-auto px-4 py-2 bg-blue-100 text-blue-700 text-xs sm:text-sm rounded-lg hover:bg-blue-200 transition disabled:opacity-50 whitespace-nowrap"
                     >
                       {testingId === account._id ? 'Testing...' : 'Test Connection'}
                     </button>
                     <button
                       onClick={() => handleEdit(account)}
-                      className="px-4 py-2 bg-purple-100 text-purple-700 text-sm rounded-lg hover:bg-purple-200 transition"
+                      className="w-full sm:w-auto px-4 py-2 bg-purple-100 text-purple-700 text-xs sm:text-sm rounded-lg hover:bg-purple-200 transition"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => setDeleteModal({ open: true, accountId: account._id })}
-                      className="px-4 py-2 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
+                      className="w-full sm:w-auto px-4 py-2 bg-red-100 text-red-700 text-xs sm:text-sm rounded-lg hover:bg-red-200 transition"
                     >
                       Delete
                     </button>
@@ -843,16 +843,16 @@ export default function CompanyAccountsPage() {
 
         {/* Templates Management Modal - Now renders properly! */}
         {showTemplatesModal && selectedCompanyForTemplates && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
             <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
               {/* Modal Header */}
-              <div className="border-b border-gray-200 p-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
+              <div className="border-b border-gray-200 p-4 sm:p-6">
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <h2 className="text-lg sm:text-2xl font-bold text-gray-900 break-words">
                       Conferbot Templates - {selectedCompanyForTemplates.companyName}
                     </h2>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
                       Create and manage multiple email campaign templates
                     </p>
                   </div>
@@ -861,9 +861,9 @@ export default function CompanyAccountsPage() {
                       setShowTemplatesModal(false);
                       setShowTemplateForm(false);
                     }}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 flex-shrink-0"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -871,15 +871,15 @@ export default function CompanyAccountsPage() {
               </div>
 
               {/* Modal Content */}
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                 {!showTemplateForm ? (
                   /* Templates List View */
                   <div>
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900">Saved Templates</h3>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Saved Templates</h3>
                       <button
                         onClick={handleCreateNewTemplate}
-                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition font-medium"
+                        className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition font-medium text-sm"
                       >
                         + Create New Template
                       </button>
@@ -891,39 +891,39 @@ export default function CompanyAccountsPage() {
                         <p className="mt-4 text-gray-600">Loading templates...</p>
                       </div>
                     ) : templates.length === 0 ? (
-                      <div className="text-center py-12 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600 mb-4">No templates found</p>
+                      <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-lg">
+                        <p className="text-gray-600 mb-4 text-sm sm:text-base">No templates found</p>
                         <button
                           onClick={handleCreateNewTemplate}
-                          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
+                          className="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
                         >
                           Create Your First Template
                         </button>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         {templates.map((template) => (
-                          <div key={template._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                          <div key={template._id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition">
                             <div className="flex justify-between items-start mb-3">
                               <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="text-lg font-semibold text-gray-900">{template.templateName}</h4>
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                  <h4 className="text-base sm:text-lg font-semibold text-gray-900 break-words">{template.templateName}</h4>
                                   {template.isDefault && (
-                                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
                                       Default
                                     </span>
                                   )}
                                   {template.tag && (
-                                    <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
+                                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs bg-purple-100 text-purple-800 rounded">
                                       {template.tag}
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-sm text-gray-600 mt-1">{template.subject}</p>
+                                <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">{template.subject}</p>
                               </div>
                             </div>
 
-                            <div className="space-y-2 text-sm mb-4">
+                            <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm mb-3 sm:mb-4">
                               <div className="flex justify-between">
                                 <span className="text-gray-600">From:</span>
                                 <span className="font-medium text-gray-900">{template.fromName}</span>
@@ -938,24 +938,24 @@ export default function CompanyAccountsPage() {
                               </div>
                             </div>
 
-                            <div className="flex gap-2 pt-3 border-t border-gray-200">
+                            <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-200">
                               {!template.isDefault && (
                                 <button
                                   onClick={() => handleSetDefaultTemplate(template._id)}
-                                  className="flex-1 px-3 py-2 bg-green-50 text-green-700 text-sm rounded-lg hover:bg-green-100 transition font-medium"
+                                  className="flex-1 px-3 py-2 bg-green-50 text-green-700 text-xs sm:text-sm rounded-lg hover:bg-green-100 transition font-medium"
                                 >
                                   Set as Default
                                 </button>
                               )}
                               <button
                                 onClick={() => handleEditTemplate(template)}
-                                className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 text-sm rounded-lg hover:bg-blue-100 transition font-medium"
+                                className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 text-xs sm:text-sm rounded-lg hover:bg-blue-100 transition font-medium"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => setDeleteTemplateModal({ open: true, templateId: template._id })}
-                                className="px-3 py-2 bg-red-50 text-red-700 text-sm rounded-lg hover:bg-red-100 transition font-medium"
+                                className="px-3 py-2 bg-red-50 text-red-700 text-xs sm:text-sm rounded-lg hover:bg-red-100 transition font-medium"
                               >
                                 Delete
                               </button>
@@ -967,29 +967,29 @@ export default function CompanyAccountsPage() {
                   </div>
                 ) : (
                   /* Template Form View - Note: This is a large form scrollable within the modal */
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                         {editingTemplate ? 'Edit Template' : 'Create New Template'}
                       </h3>
                       <button
                         onClick={() => setShowTemplateForm(false)}
-                        className="text-gray-600 hover:text-gray-800"
+                        className="text-xs sm:text-sm text-gray-600 hover:text-gray-800"
                       >
                         ← Back to Templates
                       </button>
                     </div>
 
                     {/* Template Name & Default */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Template Name *</label>
                           <input
                             type="text"
                             value={templateFormData.templateName}
                             onChange={(e) => setTemplateFormData({...templateFormData, templateName: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                             placeholder="e.g., Cold Outreach Template"
                           />
                         </div>
@@ -1001,11 +1001,11 @@ export default function CompanyAccountsPage() {
                               onChange={(e) => setTemplateFormData({...templateFormData, isDefault: e.target.checked})}
                               className="rounded text-purple-600 focus:ring-purple-500"
                             />
-                            <span className="text-sm font-medium text-gray-700">Set as default template</span>
+                            <span className="text-xs sm:text-sm font-medium text-gray-700">Set as default template</span>
                           </label>
                         </div>
                       </div>
-                      <div className="mt-4">
+                      <div className="mt-3 sm:mt-4">
                         <label htmlFor="tag" className="block text-sm font-medium text-gray-700 mb-2">
                           Tag (Optional)
                         </label>
@@ -1016,23 +1016,23 @@ export default function CompanyAccountsPage() {
                           value={templateFormData.tag || ''}
                           onChange={(e) => setTemplateFormData({...templateFormData, tag: e.target.value})}
                           placeholder="e.g., test, production, client-name"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                         />
-                        <p className="mt-1 text-sm text-gray-500">Add a tag to categorize this template</p>
+                        <p className="mt-1 text-xs sm:text-sm text-gray-500">Add a tag to categorize this template</p>
                       </div>
                     </div>
 
                     {/* Campaign Settings */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="text-md font-semibold text-gray-900 mb-4">Campaign Settings</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                      <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4">Campaign Settings</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">From Name *</label>
                           <input
                             type="text"
                             value={templateFormData.fromName}
                             onChange={(e) => setTemplateFormData({...templateFormData, fromName: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                             placeholder="Anna from Conferbot"
                           />
                         </div>
@@ -1042,7 +1042,7 @@ export default function CompanyAccountsPage() {
                             type="text"
                             value={templateFormData.subject}
                             onChange={(e) => setTemplateFormData({...templateFormData, subject: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                             placeholder="Email subject line"
                           />
                         </div>
@@ -1052,7 +1052,7 @@ export default function CompanyAccountsPage() {
                             type="text"
                             value={templateFormData.htmlTemplate}
                             onChange={(e) => setTemplateFormData({...templateFormData, htmlTemplate: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                             placeholder="675f6480744324008c6535ac"
                           />
                           <p className="text-xs text-gray-500 mt-1">Conferbot template ID</p>
@@ -1063,7 +1063,7 @@ export default function CompanyAccountsPage() {
                             type="email"
                             value={templateFormData.replyTo}
                             onChange={(e) => setTemplateFormData({...templateFormData, replyTo: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                             placeholder="reply@example.com"
                           />
                         </div>
@@ -1071,9 +1071,9 @@ export default function CompanyAccountsPage() {
                     </div>
 
                     {/* Email Sending Config */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="text-md font-semibold text-gray-900 mb-4">Email Sending Configuration</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                      <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4">Email Sending Configuration</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Minutes Between Emails</label>
                           <input
@@ -1086,7 +1086,7 @@ export default function CompanyAccountsPage() {
                                 minutesBetweenEmails: Number(e.target.value)
                               }
                             })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                             min="1"
                           />
                         </div>
@@ -1102,7 +1102,7 @@ export default function CompanyAccountsPage() {
                                 emailsPerHour: Number(e.target.value)
                               }
                             })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                             min="1"
                           />
                         </div>
@@ -1110,9 +1110,9 @@ export default function CompanyAccountsPage() {
                     </div>
 
                     {/* Template Variables */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-md font-semibold text-gray-900">Template Variables</h4>
+                    <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-4">
+                        <h4 className="text-sm sm:text-md font-semibold text-gray-900">Template Variables</h4>
                         <button
                           onClick={() => setTemplateFormData({
                             ...templateFormData,
@@ -1121,7 +1121,7 @@ export default function CompanyAccountsPage() {
                               {key: '', defaultValue: '', description: ''}
                             ]
                           })}
-                          className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium"
+                          className="w-full sm:w-auto px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-xs sm:text-sm font-medium"
                         >
                           + Add Variable
                         </button>
@@ -1191,9 +1191,9 @@ export default function CompanyAccountsPage() {
                     </div>
 
                     {/* Email Accounts */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-md font-semibold text-gray-900">Email Sending Accounts *</h4>
+                    <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-4">
+                        <h4 className="text-sm sm:text-md font-semibold text-gray-900">Email Sending Accounts *</h4>
                         <button
                           onClick={() => setTemplateFormData({
                             ...templateFormData,
@@ -1202,7 +1202,7 @@ export default function CompanyAccountsPage() {
                               {id: '', useAlias: false, selectedAlias: ''}
                             ]
                           })}
-                          className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium"
+                          className="w-full sm:w-auto px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-xs sm:text-sm font-medium"
                         >
                           + Add Account
                         </button>
@@ -1277,16 +1277,16 @@ export default function CompanyAccountsPage() {
                     </div>
 
                     {/* Form Actions */}
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
                       <button
                         onClick={handleSaveTemplate}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                        className="w-full sm:flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
                       >
                         {editingTemplate ? 'Update Template' : 'Save Template'}
                       </button>
                       <button
                         onClick={() => setShowTemplateForm(false)}
-                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
                       >
                         Cancel
                       </button>
@@ -1325,43 +1325,43 @@ export default function CompanyAccountsPage() {
 
       {/* Connection Test Modal */}
       {showConnectionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 max-w-md w-full">
             {connectionStatus === 'testing' && (
               <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mx-auto mb-4"></div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Testing Connection...</h3>
-                <p className="text-gray-600">Please wait while we verify the connection</p>
+                <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-4 border-purple-600 mx-auto mb-4"></div>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Testing Connection...</h3>
+                <p className="text-sm sm:text-base text-gray-600">Please wait while we verify the connection</p>
               </div>
             )}
 
             {connectionStatus === 'success' && (
               <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                  <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-green-100 mb-4">
+                  <svg className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Connection Successful!</h3>
-                <p className="text-gray-600">{connectionMessage}</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Connection Successful!</h3>
+                <p className="text-sm sm:text-base text-gray-600">{connectionMessage}</p>
               </div>
             )}
 
             {connectionStatus === 'error' && (
               <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                  <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-red-100 mb-4">
+                  <svg className="h-8 w-8 sm:h-10 sm:w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Connection Failed</h3>
-                <p className="text-gray-600 whitespace-pre-line">{connectionMessage}</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Connection Failed</h3>
+                <p className="text-sm sm:text-base text-gray-600 whitespace-pre-line break-words">{connectionMessage}</p>
                 <button
                   onClick={() => {
                     setShowConnectionModal(false);
                     setTestingId(null);
                   }}
-                  className="mt-6 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                  className="mt-6 w-full sm:w-auto px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                 >
                   Close
                 </button>
@@ -1373,61 +1373,61 @@ export default function CompanyAccountsPage() {
 
       {/* AWS Configuration Info Modal */}
       {showAwsInfoModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-6">
-              <h3 className="text-2xl font-semibold text-gray-900">AWS Configuration Required for CSV Uploads</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start gap-2 mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 flex-1">AWS Configuration Required for CSV Uploads</h3>
               <button
                 onClick={() => setShowAwsInfoModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 flex-shrink-0"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="space-y-6">
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <p className="text-sm text-blue-800">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-3 sm:p-4 rounded">
+                <p className="text-xs sm:text-sm text-blue-800">
                   To enable CSV file uploads, you need to configure AWS S3 and CloudFront settings in your environment.
                 </p>
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Required Environment Variables:</h4>
+                <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">Required Environment Variables:</h4>
 
-                <div className="space-y-4">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h5 className="font-medium text-gray-900 mb-2">AWS S3 Configuration:</h5>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                      <li><code className="bg-gray-200 px-2 py-1 rounded">AWS_ACCESS_KEY_ID</code> - Your AWS access key</li>
-                      <li><code className="bg-gray-200 px-2 py-1 rounded">AWS_SECRET_ACCESS_KEY</code> - Your AWS secret key</li>
-                      <li><code className="bg-gray-200 px-2 py-1 rounded">AWS_REGION</code> - AWS region (e.g., us-east-1)</li>
-                      <li><code className="bg-gray-200 px-2 py-1 rounded">AWS_S3_BUCKET</code> - S3 bucket name for CSV storage</li>
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200">
+                    <h5 className="text-sm sm:text-base font-medium text-gray-900 mb-2">AWS S3 Configuration:</h5>
+                    <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-gray-700">
+                      <li className="break-words"><code className="bg-gray-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">AWS_ACCESS_KEY_ID</code> - Your AWS access key</li>
+                      <li className="break-words"><code className="bg-gray-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">AWS_SECRET_ACCESS_KEY</code> - Your AWS secret key</li>
+                      <li className="break-words"><code className="bg-gray-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">AWS_REGION</code> - AWS region (e.g., us-east-1)</li>
+                      <li className="break-words"><code className="bg-gray-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">AWS_S3_BUCKET</code> - S3 bucket name for CSV storage</li>
                     </ul>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h5 className="font-medium text-gray-900 mb-2">CloudFront Configuration:</h5>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                      <li><code className="bg-gray-200 px-2 py-1 rounded">CLOUDFRONT_DISTRIBUTION_ID</code> - CloudFront distribution ID</li>
-                      <li><code className="bg-gray-200 px-2 py-1 rounded">CLOUDFRONT_DOMAIN</code> - CloudFront domain URL</li>
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200">
+                    <h5 className="text-sm sm:text-base font-medium text-gray-900 mb-2">CloudFront Configuration:</h5>
+                    <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-gray-700">
+                      <li className="break-words"><code className="bg-gray-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">CLOUDFRONT_DISTRIBUTION_ID</code> - CloudFront distribution ID</li>
+                      <li className="break-words"><code className="bg-gray-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">CLOUDFRONT_DOMAIN</code> - CloudFront domain URL</li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-                <p className="text-sm text-yellow-800">
-                  <strong>Note:</strong> Add these environment variables to your <code className="bg-yellow-100 px-1 rounded">.env</code> file and restart the server for changes to take effect.
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 sm:p-4 rounded">
+                <p className="text-xs sm:text-sm text-yellow-800">
+                  <strong>Note:</strong> Add these environment variables to your <code className="bg-yellow-100 px-1 rounded text-xs">.env</code> file and restart the server for changes to take effect.
                 </p>
               </div>
 
               <div className="flex justify-end">
                 <button
                   onClick={() => setShowAwsInfoModal(false)}
-                  className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition font-medium"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition font-medium text-sm"
                 >
                   Got it
                 </button>
