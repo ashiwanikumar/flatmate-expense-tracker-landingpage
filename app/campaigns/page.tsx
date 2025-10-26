@@ -23,6 +23,12 @@ export default function CampaignsPage() {
   });
   const [deleteBulkModal, setDeleteBulkModal] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -30,13 +36,21 @@ export default function CampaignsPage() {
       return;
     }
     fetchCampaigns();
-  }, [filter]);
+  }, [filter, currentPage, itemsPerPage]);
 
   const fetchCampaigns = async () => {
     try {
-      const params = filter !== 'all' ? { status: filter } : {};
+      const params: any = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+      if (filter !== 'all') {
+        params.status = filter;
+      }
       const response = await campaignAPI.getAll(params);
       setCampaigns(response.data.data);
+      setTotalItems(response.data.total || 0);
+      setTotalPages(response.data.pages || 0);
     } catch (error: any) {
       console.error('Error fetching campaigns:', error);
       toast.error('Failed to load campaigns');
@@ -119,6 +133,23 @@ export default function CampaignsPage() {
       return;
     }
     setDeleteBulkModal(true);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedCampaigns([]); // Clear selections when changing page
+  };
+
+  const handleItemsPerPageChange = (newLimit: number) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1); // Reset to first page when changing items per page
+    setSelectedCampaigns([]); // Clear selections
+  };
+
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter);
+    setCurrentPage(1); // Reset to first page when changing filter
+    setSelectedCampaigns([]); // Clear selections
   };
 
   const getStatusColor = (status: string) => {
@@ -249,7 +280,7 @@ export default function CampaignsPage() {
             {['all', 'scheduled', 'in_progress', 'completed', 'failed'].map((status) => (
               <button
                 key={status}
-                onClick={() => setFilter(status)}
+                onClick={() => handleFilterChange(status)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                   filter === status
                     ? 'bg-purple-600 text-white'
@@ -489,6 +520,101 @@ export default function CampaignsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalItems > 0 && (
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-lg shadow">
+            {/* Items per page selector */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-700">Items per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => handleItemsPerPageChange(parseInt(e.target.value))}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900 bg-white"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value={500}>500</option>
+                <option value={1000}>1000</option>
+              </select>
+              <span className="text-sm text-gray-600">
+                Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
+              </span>
+            </div>
+
+            {/* Page navigation */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              <div className="flex gap-1">
+                {/* First page */}
+                {currentPage > 3 && (
+                  <>
+                    <button
+                      onClick={() => handlePageChange(1)}
+                      className="px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      1
+                    </button>
+                    {currentPage > 4 && <span className="px-2 py-2 text-gray-500">...</span>}
+                  </>
+                )}
+
+                {/* Pages around current page */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    return page === currentPage ||
+                      page === currentPage - 1 ||
+                      page === currentPage + 1 ||
+                      page === currentPage - 2 ||
+                      page === currentPage + 2;
+                  })
+                  .map(page => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-3 py-2 rounded-lg transition ${
+                        page === currentPage
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                {/* Last page */}
+                {currentPage < totalPages - 2 && (
+                  <>
+                    {currentPage < totalPages - 3 && <span className="px-2 py-2 text-gray-500">...</span>}
+                    <button
+                      onClick={() => handlePageChange(totalPages)}
+                      className="px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </main>
