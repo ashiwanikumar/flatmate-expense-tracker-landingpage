@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import LoadingModal from '@/components/LoadingModal';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function CSVPage() {
   const router = useRouter();
@@ -25,9 +26,10 @@ export default function CSVPage() {
     open: false,
     fileId: null,
   });
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; fileId: string | null }>({
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; fileId: string | null; fileName: string }>({
     open: false,
     fileId: null,
+    fileName: '',
   });
 
   useEffect(() => {
@@ -344,7 +346,7 @@ export default function CSVPage() {
                         Reset
                       </button>
                       <button
-                        onClick={() => setDeleteModal({ open: true, fileId: file._id })}
+                        onClick={() => setDeleteModal({ open: true, fileId: file._id, fileName: file.originalName })}
                         className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-red-100 text-red-700 text-xs sm:text-sm rounded-lg hover:bg-red-200 transition whitespace-nowrap"
                       >
                         Delete
@@ -476,15 +478,13 @@ export default function CSVPage() {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
+      <DeleteConfirmModal
         isOpen={deleteModal.open}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this file?"
+        title="Confirm Delete CSV File"
+        message="This action cannot be undone. This will permanently delete the CSV file."
+        itemName={deleteModal.fileName}
         onConfirm={handleDelete}
-        onCancel={() => setDeleteModal({ open: false, fileId: null })}
-        confirmText="OK"
-        cancelText="Cancel"
-        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+        onCancel={() => setDeleteModal({ open: false, fileId: null, fileName: '' })}
       />
     </div>
   );

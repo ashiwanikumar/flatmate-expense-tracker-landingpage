@@ -7,7 +7,7 @@ import { companyAccountAPI, campaignTemplateAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import moment from 'moment-timezone';
-import ConfirmDialog from '@/components/ConfirmDialog';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function CompanyAccountsPage() {
   const router = useRouter();
@@ -32,13 +32,15 @@ export default function CompanyAccountsPage() {
   const [timezoneSearch, setTimezoneSearch] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; accountId: string | null }>({
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; accountId: string | null; accountName: string }>({
     open: false,
     accountId: null,
+    accountName: '',
   });
-  const [deleteTemplateModal, setDeleteTemplateModal] = useState<{ open: boolean; templateId: string | null }>({
+  const [deleteTemplateModal, setDeleteTemplateModal] = useState<{ open: boolean; templateId: string | null; templateName: string }>({
     open: false,
     templateId: null,
+    templateName: '',
   });
   const [showAwsInfoModal, setShowAwsInfoModal] = useState(false);
 
@@ -169,7 +171,7 @@ export default function CompanyAccountsPage() {
     try {
       await companyAccountAPI.delete(deleteModal.accountId);
       toast.success('Company account deleted successfully');
-      setDeleteModal({ open: false, accountId: null });
+      setDeleteModal({ open: false, accountId: null, accountName: '' });
       fetchAccounts();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to delete account');
@@ -357,7 +359,7 @@ export default function CompanyAccountsPage() {
     try {
       await campaignTemplateAPI.delete(deleteTemplateModal.templateId);
       toast.success('Template deleted successfully');
-      setDeleteTemplateModal({ open: false, templateId: null });
+      setDeleteTemplateModal({ open: false, templateId: null, templateName: '' });
       await fetchTemplates(selectedCompanyForTemplates._id);
     } catch (error: any) {
       console.error('Error deleting template:', error);
@@ -837,7 +839,7 @@ export default function CompanyAccountsPage() {
                       Edit
                     </button>
                     <button
-                      onClick={() => setDeleteModal({ open: true, accountId: account._id })}
+                      onClick={() => setDeleteModal({ open: true, accountId: account._id, accountName: account.companyName })}
                       className="w-full sm:w-auto px-4 py-2 bg-red-100 text-red-700 text-xs sm:text-sm rounded-lg hover:bg-red-200 transition"
                     >
                       Delete
@@ -962,7 +964,7 @@ export default function CompanyAccountsPage() {
                                 Edit
                               </button>
                               <button
-                                onClick={() => setDeleteTemplateModal({ open: true, templateId: template._id })}
+                                onClick={() => setDeleteTemplateModal({ open: true, templateId: template._id, templateName: template.templateName })}
                                 className="px-3 py-2 bg-red-50 text-red-700 text-xs sm:text-sm rounded-lg hover:bg-red-100 transition font-medium"
                               >
                                 Delete
@@ -1308,27 +1310,23 @@ export default function CompanyAccountsPage() {
       </main>
 
       {/* Delete Company Account Confirmation Dialog */}
-      <ConfirmDialog
+      <DeleteConfirmModal
         isOpen={deleteModal.open}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this company account?"
+        title="Confirm Delete Company Account"
+        message="This action cannot be undone. This will permanently delete the company account and all associated data."
+        itemName={deleteModal.accountName}
         onConfirm={handleDelete}
-        onCancel={() => setDeleteModal({ open: false, accountId: null })}
-        confirmText="OK"
-        cancelText="Cancel"
-        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+        onCancel={() => setDeleteModal({ open: false, accountId: null, accountName: '' })}
       />
 
       {/* Delete Template Confirmation Dialog */}
-      <ConfirmDialog
+      <DeleteConfirmModal
         isOpen={deleteTemplateModal.open}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this template?"
+        title="Confirm Delete Template"
+        message="This action cannot be undone. This will permanently delete the template."
+        itemName={deleteTemplateModal.templateName}
         onConfirm={handleDeleteTemplate}
-        onCancel={() => setDeleteTemplateModal({ open: false, templateId: null })}
-        confirmText="OK"
-        cancelText="Cancel"
-        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+        onCancel={() => setDeleteTemplateModal({ open: false, templateId: null, templateName: '' })}
       />
 
       {/* Connection Test Modal */}
