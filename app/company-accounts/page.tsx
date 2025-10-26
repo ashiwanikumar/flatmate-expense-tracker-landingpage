@@ -110,7 +110,15 @@ export default function CompanyAccountsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.companyName || !formData.apiUrl || !formData.email || !formData.password) {
+    // When creating: require all fields including password
+    // When editing: password is optional (only update if provided)
+    if (!formData.companyName || !formData.apiUrl || !formData.email) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+
+    // Only require password when creating (not editing)
+    if (!editingAccount && !formData.password) {
       toast.error('Please fill all required fields');
       return;
     }
