@@ -70,37 +70,37 @@ export default function Home() {
             </div>
 
             <div className="max-w-5xl mx-auto">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="text-2xl font-bold text-purple-600">1</span>
                   </div>
-                  <h3 className="text-base font-semibold mb-2">Upload your email list</h3>
-                  <p className="text-sm text-gray-600">Upload CSV</p>
+                  <h3 className="text-sm md:text-base font-bold mb-2 text-gray-900">Upload your email list</h3>
+                  <p className="text-xs md:text-sm text-gray-700 font-medium">Upload CSV</p>
                 </div>
 
                 <div className="text-center">
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="text-2xl font-bold text-purple-600">2</span>
                   </div>
-                  <h3 className="text-base font-semibold mb-2">Set your campaign settings</h3>
-                  <p className="text-sm text-gray-600">Configure</p>
+                  <h3 className="text-sm md:text-base font-bold mb-2 text-gray-900">Set your campaign settings</h3>
+                  <p className="text-xs md:text-sm text-gray-700 font-medium">Configure</p>
                 </div>
 
                 <div className="text-center">
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="text-2xl font-bold text-purple-600">3</span>
                   </div>
-                  <h3 className="text-base font-semibold mb-2">Create automated campaigns</h3>
-                  <p className="text-sm text-gray-600">Schedule</p>
+                  <h3 className="text-sm md:text-base font-bold mb-2 text-gray-900">Create automated campaigns</h3>
+                  <p className="text-xs md:text-sm text-gray-700 font-medium">Schedule</p>
                 </div>
 
                 <div className="text-center">
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="text-2xl font-bold text-purple-600">4</span>
                   </div>
-                  <h3 className="text-base font-semibold mb-2">Monitor your progress</h3>
-                  <p className="text-sm text-gray-600">Track</p>
+                  <h3 className="text-sm md:text-base font-bold mb-2 text-gray-900">Monitor your progress</h3>
+                  <p className="text-xs md:text-sm text-gray-700 font-medium">Track</p>
                 </div>
               </div>
             </div>
