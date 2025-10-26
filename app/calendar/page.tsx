@@ -15,6 +15,8 @@ export default function CalendarPage() {
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
   const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showDateModal, setShowDateModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -90,6 +92,19 @@ export default function CalendarPage() {
     setSelectedCampaign(null);
   };
 
+  const handleDateClick = (date: Date) => {
+    const dateCampaigns = getCampaignsForDate(date);
+    if (dateCampaigns.length > 0) {
+      setSelectedDate(date);
+      setShowDateModal(true);
+    }
+  };
+
+  const closeDateModal = () => {
+    setShowDateModal(false);
+    setSelectedDate(null);
+  };
+
   const renderMonthView = () => {
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
     const weeks = [];
@@ -115,9 +130,17 @@ export default function CalendarPage() {
             isToday ? 'bg-blue-50' : 'bg-white'
           } hover:bg-gray-50 transition`}
         >
-          <div className={`text-sm font-semibold mb-2 ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+          <div
+            className={`text-sm font-semibold mb-2 ${isToday ? 'text-blue-600' : 'text-gray-700'} ${dayCampaigns.length > 0 ? 'cursor-pointer hover:underline' : ''}`}
+            onClick={() => dayCampaigns.length > 0 && handleDateClick(date)}
+          >
             {day}
             {isToday && <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">Today</span>}
+            {dayCampaigns.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                {dayCampaigns.length}
+              </span>
+            )}
           </div>
           <div className="space-y-1">
             {dayCampaigns.slice(0, 3).map((campaign) => (
@@ -425,6 +448,99 @@ export default function CalendarPage() {
       </div>
 
       <Footer />
+
+      {/* Date Campaigns Modal */}
+      {showDateModal && selectedDate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {getCampaignsForDate(selectedDate).length} campaign{getCampaignsForDate(selectedDate).length !== 1 ? 's' : ''} scheduled
+                </p>
+              </div>
+              <button
+                onClick={closeDateModal}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <div className="space-y-4">
+                {getCampaignsForDate(selectedDate).map((campaign) => (
+                  <div
+                    key={campaign._id}
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                    onClick={() => {
+                      closeDateModal();
+                      handleCampaignClick(campaign);
+                    }}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900">{campaign.campaignName}</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {campaign.companyAccount?.companyName || 'Unknown Company'}
+                        </p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(campaign.status)}`}>
+                        {campaign.status.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Batch Size</p>
+                        <p className="font-semibold text-gray-900">{campaign.batchSize || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Emails Sent</p>
+                        <p className="font-semibold text-green-600">{campaign.emailsSent || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Failed</p>
+                        <p className="font-semibold text-red-600">{campaign.failed || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">CSV File</p>
+                        <p className="font-semibold text-gray-900 truncate" title={campaign.csvFile?.originalName}>
+                          {campaign.csvFile?.originalName || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {campaign.scheduledDate && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-600">
+                          Scheduled: {new Date(campaign.scheduledDate).toLocaleString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t mt-6">
+                <button
+                  onClick={closeDateModal}
+                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Campaign Details Modal */}
       {showModal && selectedCampaign && (
