@@ -14,7 +14,7 @@ export default function ActivityLogsPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
-  const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, pages: 0 });
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -247,6 +247,18 @@ export default function ActivityLogsPage() {
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       IP Address
                     </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      City
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      State
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Country
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Country Code
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -266,6 +278,18 @@ export default function ActivityLogsPage() {
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                         {log.ipAddress || '-'}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                        {log.location?.city || '-'}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                        {log.location?.region || '-'}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                        {log.location?.country || '-'}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                        {log.location?.countryCode || '-'}
                       </td>
                     </tr>
                   ))}
@@ -301,6 +325,30 @@ export default function ActivityLogsPage() {
                       <div className="flex items-start">
                         <span className="text-xs font-medium text-gray-500 min-w-20">IP:</span>
                         <span className="text-xs text-gray-500">{log.ipAddress}</span>
+                      </div>
+                    )}
+                    {log.location?.city && (
+                      <div className="flex items-start">
+                        <span className="text-xs font-medium text-gray-500 min-w-20">City:</span>
+                        <span className="text-xs text-gray-500">{log.location.city}</span>
+                      </div>
+                    )}
+                    {log.location?.region && (
+                      <div className="flex items-start">
+                        <span className="text-xs font-medium text-gray-500 min-w-20">State:</span>
+                        <span className="text-xs text-gray-500">{log.location.region}</span>
+                      </div>
+                    )}
+                    {log.location?.country && (
+                      <div className="flex items-start">
+                        <span className="text-xs font-medium text-gray-500 min-w-20">Country:</span>
+                        <span className="text-xs text-gray-500">{log.location.country}</span>
+                      </div>
+                    )}
+                    {log.location?.countryCode && (
+                      <div className="flex items-start">
+                        <span className="text-xs font-medium text-gray-500 min-w-20">Code:</span>
+                        <span className="text-xs text-gray-500">{log.location.countryCode}</span>
                       </div>
                     )}
                   </div>
