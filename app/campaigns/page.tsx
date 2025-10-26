@@ -7,6 +7,7 @@ import { campaignAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import LoadingModal from '@/components/LoadingModal';
 
 export default function CampaignsPage() {
@@ -632,27 +633,22 @@ export default function CampaignsPage() {
       <Footer />
 
       {/* Delete Single Campaign Confirmation Dialog */}
-      <ConfirmDialog
+      <DeleteConfirmModal
         isOpen={deleteSingleModal.open}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete "${deleteSingleModal.campaignName}"?`}
+        title="Confirm Delete Campaign"
+        message="This action cannot be undone. This will permanently delete the campaign."
+        itemName={deleteSingleModal.campaignName}
         onConfirm={handleDeleteSingle}
         onCancel={() => setDeleteSingleModal({ open: false, campaignId: null, campaignName: '' })}
-        confirmText="OK"
-        cancelText="Cancel"
-        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
       />
 
       {/* Delete Multiple Campaigns Confirmation Dialog */}
-      <ConfirmDialog
+      <DeleteConfirmModal
         isOpen={deleteBulkModal}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete ${selectedCampaigns.length} campaign(s)?`}
+        title="Confirm Bulk Delete"
+        message={`This action cannot be undone. This will permanently delete ${selectedCampaigns.length} campaign(s).`}
         onConfirm={handleBulkDelete}
         onCancel={() => setDeleteBulkModal(false)}
-        confirmText="OK"
-        cancelText="Cancel"
-        confirmButtonClass="bg-blue-600 hover:bg-blue-700"
       />
 
       {/* Filtering Loading Modal */}
