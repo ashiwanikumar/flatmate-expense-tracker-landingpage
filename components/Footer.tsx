@@ -24,8 +24,8 @@ export default function Footer() {
             We build world-class software products
           </div>
 
-          {/* Right side - Links */}
-          <div className="flex gap-6 text-xs flex-shrink-0">
+          {/* Right side - Links - Hidden on mobile */}
+          <div className="hidden sm:flex gap-6 text-xs flex-shrink-0">
             <Link
               href="/privacy-policy"
               className="text-gray-300 hover:text-purple-400 transition-colors duration-200"
