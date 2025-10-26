@@ -178,7 +178,14 @@ export default function CampaignsPage() {
   };
 
   if (loading) {
-    return <LoadingModal isOpen={true} title="Loading Campaigns" subtitle="Please wait..." />;
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'rgb(12, 190, 225)', boxShadow: 'rgb(12, 190, 225) 0px 0px 4px 0px' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="mt-4 text-white font-semibold">Loading Campaigns...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
