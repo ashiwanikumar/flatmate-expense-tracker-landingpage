@@ -7,11 +7,13 @@ import { campaignAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import LoadingModal from '@/components/LoadingModal';
 
 export default function CampaignsPage() {
   const router = useRouter();
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
   const [filter, setFilter] = useState('all');
   const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
@@ -40,6 +42,11 @@ export default function CampaignsPage() {
 
   const fetchCampaigns = async () => {
     try {
+      // Show filtering modal if not initial load
+      if (!loading) {
+        setFiltering(true);
+      }
+
       const params: any = {
         page: currentPage,
         limit: itemsPerPage,
@@ -56,6 +63,7 @@ export default function CampaignsPage() {
       toast.error('Failed to load campaigns');
     } finally {
       setLoading(false);
+      setFiltering(false);
     }
   };
 
@@ -170,14 +178,7 @@ export default function CampaignsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'rgb(12, 190, 225)', boxShadow: 'rgb(12, 190, 225) 0px 0px 4px 0px' }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-white font-semibold">Loading campaigns...</p>
-        </div>
-      </div>
-    );
+    return <LoadingModal isOpen={true} title="Loading Campaigns" subtitle="Please wait..." />;
   }
 
   return (
@@ -642,6 +643,13 @@ export default function CampaignsPage() {
         confirmText="OK"
         cancelText="Cancel"
         confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+      />
+
+      {/* Filtering Loading Modal */}
+      <LoadingModal
+        isOpen={filtering}
+        title="Loading Campaigns"
+        subtitle="Filtering campaigns, please wait..."
       />
     </div>
   );
