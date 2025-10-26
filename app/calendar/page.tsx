@@ -24,7 +24,7 @@ export default function CalendarPage() {
     try {
       setLoading(true);
       const [campaignsRes, companiesRes] = await Promise.all([
-        campaignAPI.getAll(),
+        campaignAPI.getAll({ limit: 10000 }), // Fetch all campaigns
         companyAccountAPI.getAll()
       ]);
       setCampaigns(campaignsRes.data.data || []);
@@ -125,9 +125,9 @@ export default function CalendarPage() {
                 key={campaign._id}
                 onClick={() => handleCampaignClick(campaign)}
                 className={`text-xs px-2 py-1 rounded border cursor-pointer truncate hover:opacity-80 transition ${getStatusColor(campaign.status)}`}
-                title={`${campaign.name} - ${campaign.companyAccount?.companyName || 'Unknown'}`}
+                title={`${campaign.campaignName} - ${campaign.companyAccount?.companyName || 'Unknown'}`}
               >
-                <div className="font-medium truncate">{campaign.name}</div>
+                <div className="font-medium truncate">{campaign.campaignName}</div>
                 <div className="text-[10px] opacity-75">{campaign.companyAccount?.companyName}</div>
               </div>
             ))}
@@ -433,7 +433,7 @@ export default function CalendarPage() {
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{selectedCampaign.name}</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{selectedCampaign.campaignName}</h2>
                 <p className="text-sm text-gray-600 mt-1">Campaign Details</p>
               </div>
               <button
