@@ -25,9 +25,9 @@ export async function detectIPv4(): Promise<string | null> {
   // Start new detection
   ipv4DetectionPromise = (async () => {
     try {
-      // Use ipify API which specifically returns IPv4
-      // api64.ipify.org forces IPv4 even on IPv6 networks
-      const response = await fetch('https://api64.ipify.org?format=json', {
+      // Use ipv4.icanhazip.com which is IPv4-only
+      // This forces the browser to use IPv4 connection even on IPv6 networks
+      const response = await fetch('https://ipv4.icanhazip.com', {
         method: 'GET',
         cache: 'no-cache',
       });
@@ -37,8 +37,7 @@ export async function detectIPv4(): Promise<string | null> {
         return null;
       }
 
-      const data = await response.json();
-      const ipv4 = data.ip;
+      const ipv4 = (await response.text()).trim();
 
       // Validate IPv4 format
       if (ipv4 && /^(\d{1,3}\.){3}\d{1,3}$/.test(ipv4)) {
