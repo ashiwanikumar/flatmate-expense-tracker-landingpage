@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { detectIPv4, getCachedIPv4 } from './ipv4Detection';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8004/api/v1';
 
@@ -11,13 +12,36 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor to add auth token
+// Start detecting IPv4 on initialization (non-blocking)
+if (typeof window !== 'undefined') {
+  detectIPv4().catch(err => {
+    console.warn('Background IPv4 detection failed:', err);
+  });
+}
+
+// Request interceptor to add auth token and IPv4 header
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    // Add auth token
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add IPv4 address header (try cached first, then detect if not available)
+    let ipv4 = getCachedIPv4();
+    if (!ipv4) {
+      try {
+        ipv4 = await detectIPv4();
+      } catch (error) {
+        console.warn('IPv4 detection failed:', error);
+      }
+    }
+
+    if (ipv4) {
+      config.headers['X-Client-IPv4'] = ipv4;
+    }
+
     return config;
   },
   (error) => {

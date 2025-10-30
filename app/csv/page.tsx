@@ -92,7 +92,7 @@ export default function CSVPage() {
     try {
       await csvAPI.delete(deleteModal.fileId);
       toast.success('File deleted successfully');
-      setDeleteModal({ open: false, fileId: null });
+      setDeleteModal({ open: false, fileId: null, fileName: '' });
       fetchCsvFiles();
     } catch (error) {
       toast.error('Failed to delete file');
