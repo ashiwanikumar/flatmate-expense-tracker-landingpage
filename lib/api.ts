@@ -148,4 +148,23 @@ export const activityLogAPI = {
   exportCSV: () => api.get('/activity-logs/export', { responseType: 'text' }),
 };
 
+// OTP API
+export const otpAPI = {
+  sendOTP: (data: { email: string }) => api.post('/otp/send', data),
+  verifyOTP: (data: { email: string; otp: string }) => api.post('/otp/verify', data),
+  checkSession: (email: string) => api.get('/otp/session', { params: { email } }),
+};
+
+// Infrastructure API
+export const infrastructureAPI = {
+  getAll: (params?: any) => api.get('/infrastructure', { params }),
+  getOne: (id: string, includeSecrets?: boolean) =>
+    api.get(`/infrastructure/${id}`, { params: { includeSecrets } }),
+  create: (data: any) => api.post('/infrastructure', data),
+  update: (id: string, data: any) => api.put(`/infrastructure/${id}`, data),
+  delete: (id: string) => api.delete(`/infrastructure/${id}`),
+  getByCategory: () => api.get('/infrastructure/by-category'),
+  getStatistics: () => api.get('/infrastructure/statistics'),
+};
+
 export default api;
