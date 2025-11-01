@@ -86,7 +86,7 @@ const shapeOptions = [
   { label: 'Cylinder', value: 'cylinder', color: '#8b5cf6' },
 ];
 
-function ArchitecturePageContent() {
+function ArchitectureDiagramFlow() {
   const router = useRouter();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<any>(null);
@@ -100,6 +100,7 @@ function ArchitecturePageContent() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedAspectRatio, setSelectedAspectRatio] = useState('current');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { getNodes } = useReactFlow();
 
   // Database state
@@ -108,6 +109,9 @@ function ArchitecturePageContent() {
   const [diagramName, setDiagramName] = useState('');
   const [diagramDescription, setDiagramDescription] = useState('');
   const [showDiagramList, setShowDiagramList] = useState(false);
+
+  // Auto-save
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -121,6 +125,45 @@ function ArchitecturePageContent() {
     setUser(JSON.parse(userData));
     loadDiagrams();
   }, [router]);
+
+  // Auto-save effect
+  useEffect(() => {
+    if (currentDiagramId && diagramName.trim()) {
+      // Clear existing timer
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+
+      // Set new timer for auto-save after 2 seconds of inactivity
+      autoSaveTimerRef.current = setTimeout(() => {
+        autoSaveDiagram();
+      }, 2000);
+    }
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [nodes, edges, diagramName, diagramDescription]);
+
+  const autoSaveDiagram = async () => {
+    if (!currentDiagramId || !diagramName.trim()) return;
+
+    try {
+      const diagramData = {
+        name: diagramName,
+        description: diagramDescription,
+        nodes,
+        edges,
+      };
+
+      await architectureAPI.update(currentDiagramId, diagramData);
+      console.log('Auto-saved');
+    } catch (error: any) {
+      console.error('Auto-save failed:', error);
+    }
+  };
 
   const loadDiagrams = async () => {
     try {
@@ -160,13 +203,13 @@ function ArchitecturePageContent() {
   );
 
   const addNewNode = () => {
-    if (!nodeName.trim()) return;
+    const label = nodeName.trim() || 'New Node';
 
     const newNode: Node = {
       id: `${Date.now()}`,
       type: nodeShape,
       position: { x: Math.random() * 400 + 50, y: Math.random() * 400 + 50 },
-      data: { label: nodeName, color: nodeColor },
+      data: { label, color: nodeColor },
     };
 
     setNodes((nds) => [...nds, newNode]);
@@ -269,9 +312,9 @@ function ArchitecturePageContent() {
     if (!reactFlowWrapper.current) return;
 
     const nodesBounds = getRectOfNodes(getNodes());
-    const viewport = reactFlowWrapper.current.querySelector('.react-flow__viewport') as HTMLElement;
+    const reactFlowElement = reactFlowWrapper.current.querySelector('.react-flow') as HTMLElement;
 
-    if (!viewport) return;
+    if (!reactFlowElement) return;
 
     try {
       let imageWidth = selectedRatio?.width || nodesBounds.width;
@@ -291,7 +334,8 @@ function ArchitecturePageContent() {
         0.1
       );
 
-      const dataUrl = await toPng(viewport, {
+      // Export the entire react-flow element including edges
+      const dataUrl = await toPng(reactFlowElement, {
         backgroundColor: '#ffffff',
         width: imageWidth,
         height: imageHeight,
@@ -299,6 +343,17 @@ function ArchitecturePageContent() {
           width: `${imageWidth}px`,
           height: `${imageHeight}px`,
           transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+        },
+        filter: (node) => {
+          // Exclude controls, minimap, and panel from export
+          if (
+            node?.classList?.contains('react-flow__controls') ||
+            node?.classList?.contains('react-flow__minimap') ||
+            node?.classList?.contains('react-flow__panel')
+          ) {
+            return false;
+          }
+          return true;
         },
       });
 
@@ -312,6 +367,10 @@ function ArchitecturePageContent() {
       console.error('Error exporting PNG:', error);
       alert('Failed to export PNG. Please try again.');
     }
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
   };
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
@@ -333,146 +392,160 @@ function ArchitecturePageContent() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Campaign Manager
-              </h1>
+      {!isFullscreen && (
+        <>
+          <header className="bg-white shadow-sm">
+            <div className="px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
+                  <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    Campaign Manager
+                  </h1>
+                </div>
+                <button onClick={handleLogout} className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                  Logout
+                </button>
+              </div>
             </div>
-            <button onClick={handleLogout} className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      {/* Navigation */}
-      <nav className="bg-white border-b overflow-x-auto">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
-            <Link href="/dashboard" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-              Dashboard
-            </Link>
-            <Link href="/csv" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-              CSV Files
-            </Link>
-            <Link href="/campaigns" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-              Campaigns
-            </Link>
-            <Link href="/company-accounts" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-              Company Accounts
-            </Link>
-            <Link href="/calendar" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-              Calendar
-            </Link>
-            <Link href="/activity-logs" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-              Activity Logs
-            </Link>
-            <Link href="/infrastructure" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-              Infrastructures
-            </Link>
-            <Link href="/architecture" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap">
-              Architecture
-            </Link>
-          </div>
-        </div>
-      </nav>
+          {/* Navigation */}
+          <nav className="bg-white border-b overflow-x-auto">
+            <div className="px-4 sm:px-6 lg:px-8">
+              <div className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
+                <Link href="/dashboard" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  Dashboard
+                </Link>
+                <Link href="/csv" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  CSV Files
+                </Link>
+                <Link href="/campaigns" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  Campaigns
+                </Link>
+                <Link href="/company-accounts" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  Company Accounts
+                </Link>
+                <Link href="/calendar" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  Calendar
+                </Link>
+                <Link href="/activity-logs" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  Activity Logs
+                </Link>
+                <Link href="/infrastructure" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  Infrastructures
+                </Link>
+                <Link href="/architecture" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap">
+                  Architecture
+                </Link>
+              </div>
+            </div>
+          </nav>
+        </>
+      )}
 
       {/* Main Content */}
-      <main className="flex-1 p-4">
-        <div className="mb-4 flex justify-between items-start">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Architecture Diagram</h2>
-            <p className="text-sm text-gray-600 mt-1">Visualize and document your application architecture</p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowDiagramList(!showDiagramList)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
-            >
-              📋 My Diagrams ({diagrams.length})
-            </button>
-            <button
-              onClick={createNewDiagram}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium"
-            >
-              ➕ New Diagram
-            </button>
-          </div>
-        </div>
+      <main className={`flex-1 p-4 ${isFullscreen ? 'fixed inset-0 z-50 bg-gray-50' : ''}`}>
+        {!isFullscreen && (
+          <>
+            <div className="mb-4 flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Architecture Diagram</h2>
+                <p className="text-sm text-gray-600 mt-1">Visualize and document your application architecture</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowDiagramList(!showDiagramList)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                >
+                  My Diagrams ({diagrams.length})
+                </button>
+                <button
+                  onClick={createNewDiagram}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium"
+                >
+                  New Diagram
+                </button>
+              </div>
+            </div>
 
-        {/* Diagram List Modal */}
-        {showDiagramList && (
-          <div className="mb-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-3">Saved Diagrams</h3>
-            {diagrams.length === 0 ? (
-              <p className="text-sm text-gray-500">No saved diagrams yet.</p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {diagrams.map((diagram) => (
-                  <div
-                    key={diagram._id}
-                    className={`border rounded-lg p-3 cursor-pointer transition ${
-                      currentDiagramId === diagram._id
-                        ? 'border-purple-600 bg-purple-50'
-                        : 'border-gray-200 hover:border-purple-300'
-                    }`}
-                  >
-                    <div onClick={() => loadDiagram(diagram._id)}>
-                      <h4 className="font-semibold text-gray-900">{diagram.name}</h4>
-                      {diagram.description && (
-                        <p className="text-xs text-gray-600 mt-1">{diagram.description}</p>
-                      )}
-                      <p className="text-xs text-gray-400 mt-2">
-                        Last updated: {new Date(diagram.updatedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteDiagram(diagram._id);
-                      }}
-                      className="mt-2 text-xs text-red-600 hover:text-red-700"
-                    >
-                      🗑️ Delete
-                    </button>
+            {/* Diagram List Modal */}
+            {showDiagramList && (
+              <div className="mb-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-3">Saved Diagrams</h3>
+                {diagrams.length === 0 ? (
+                  <p className="text-sm text-gray-500">No saved diagrams yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {diagrams.map((diagram) => (
+                      <div
+                        key={diagram._id}
+                        className={`border rounded-lg p-3 cursor-pointer transition ${
+                          currentDiagramId === diagram._id
+                            ? 'border-purple-600 bg-purple-50'
+                            : 'border-gray-200 hover:border-purple-300'
+                        }`}
+                      >
+                        <div onClick={() => loadDiagram(diagram._id)}>
+                          <h4 className="font-semibold text-gray-900">{diagram.name}</h4>
+                          {diagram.description && (
+                            <p className="text-xs text-gray-600 mt-1">{diagram.description}</p>
+                          )}
+                          <p className="text-xs text-gray-400 mt-2">
+                            Last updated: {new Date(diagram.updatedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteDiagram(diagram._id);
+                          }}
+                          className="mt-2 text-xs text-red-600 hover:text-red-700"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
-          </div>
+
+            {/* Diagram Info */}
+            <div className="mb-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Diagram Name * {currentDiagramId && <span className="text-xs text-green-600">(Auto-saving...)</span>}
+                  </label>
+                  <input
+                    type="text"
+                    value={diagramName}
+                    onChange={(e) => setDiagramName(e.target.value)}
+                    placeholder="e.g., Production Architecture"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <input
+                    type="text"
+                    value={diagramDescription}
+                    onChange={(e) => setDiagramDescription(e.target.value)}
+                    placeholder="e.g., Main application architecture diagram"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
-        {/* Diagram Info */}
-        <div className="mb-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Diagram Name *</label>
-              <input
-                type="text"
-                value={diagramName}
-                onChange={(e) => setDiagramName(e.target.value)}
-                placeholder="e.g., Production Architecture"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <input
-                type="text"
-                value={diagramDescription}
-                onChange={(e) => setDiagramDescription(e.target.value)}
-                placeholder="e.g., Main application architecture diagram"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div ref={reactFlowWrapper} className="bg-white rounded-lg shadow-sm border border-gray-200" style={{ height: 'calc(100vh - 450px)' }}>
+        <div
+          ref={reactFlowWrapper}
+          className="bg-white rounded-lg shadow-sm border border-gray-200"
+          style={{ height: isFullscreen ? '100vh' : 'calc(100vh - 450px)' }}
+        >
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -491,8 +564,17 @@ function ArchitecturePageContent() {
             />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
 
-            <Panel position="top-right" className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 space-y-3 max-h-[calc(100vh-460px)] overflow-y-auto">
-              <div className="text-sm font-bold text-gray-900 mb-2">Add Node</div>
+            <Panel position={isFullscreen ? "top-left" : "top-right"} className={`bg-white p-4 rounded-lg shadow-lg border border-gray-200 space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto w-64 ${isFullscreen ? 'mt-2 ml-2' : 'mt-2 mr-2'}`}>
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-sm font-bold text-gray-900">Add Node</div>
+                <button
+                  onClick={toggleFullscreen}
+                  className="px-3 py-1.5 bg-purple-600 text-white hover:bg-purple-700 rounded text-xs font-medium"
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                  {isFullscreen ? 'Exit FS' : 'Full'}
+                </button>
+              </div>
 
               {/* Node Shape Selector */}
               <div>
@@ -504,7 +586,7 @@ function ArchitecturePageContent() {
                     const selected = shapeOptions.find(s => s.value === e.target.value);
                     if (selected) setNodeColor(selected.color);
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 >
                   {shapeOptions.map(shape => (
                     <option key={shape.value} value={shape.value}>{shape.label}</option>
@@ -517,7 +599,7 @@ function ArchitecturePageContent() {
                 value={nodeName}
                 onChange={(e) => setNodeName(e.target.value)}
                 placeholder="Node name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 onKeyPress={(e) => e.key === 'Enter' && addNewNode()}
               />
               <div className="flex items-center gap-2">
@@ -551,43 +633,47 @@ function ArchitecturePageContent() {
                   disabled={saving}
                   className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium disabled:opacity-50"
                 >
-                  {saving ? '💾 Saving...' : '💾 Save to Database'}
+                  {saving ? 'Saving...' : 'Save to Database'}
                 </button>
                 <button
                   onClick={() => setShowExportModal(true)}
                   className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
                 >
-                  📸 Export PNG
+                  Export PNG
                 </button>
                 <button
                   onClick={exportAsJSON}
                   className="w-full px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
                 >
-                  📄 Export JSON
+                  Export JSON
                 </button>
                 <button
                   onClick={clearDiagram}
                   className="w-full px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium"
                 >
-                  🗑️ Clear All
+                  Clear All
                 </button>
               </div>
             </Panel>
           </ReactFlow>
         </div>
 
-        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-bold text-blue-900 mb-2">How to use:</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Enter diagram name and save to database (accessible from any device)</li>
-            <li>• Choose a shape (Square, Circle, Triangle, Diamond, Hexagon, Cylinder)</li>
-            <li>• Click and drag nodes to reposition them</li>
-            <li>• Connect nodes by dragging from one node's edge to another</li>
-            <li>• Click a node to select it, then delete it using the button</li>
-            <li>• Load existing diagrams using "My Diagrams" button</li>
-            <li>• Export as PNG (multiple aspect ratios) or JSON</li>
-          </ul>
-        </div>
+        {!isFullscreen && (
+          <div className="mt-4 mb-20 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="text-sm font-bold text-blue-900 mb-2">How to use:</h3>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Enter diagram name and save to database (accessible from any device)</li>
+              <li>• Auto-save enabled - changes are saved automatically after 2 seconds</li>
+              <li>• Choose a shape (Square, Circle, Triangle, Diamond, Hexagon, Cylinder)</li>
+              <li>• Click and drag nodes to reposition them</li>
+              <li>• Connect nodes by dragging from one node's edge to another</li>
+              <li>• Click a node to select it, then delete it using the button</li>
+              <li>• Load existing diagrams using "My Diagrams" button</li>
+              <li>• Export as PNG (multiple aspect ratios) or JSON</li>
+              <li>• Use Fullscreen mode for better workspace</li>
+            </ul>
+          </div>
+        )}
       </main>
 
       {/* Export PNG Modal */}
@@ -636,7 +722,7 @@ function ArchitecturePageContent() {
         </div>
       )}
 
-      <Footer />
+      {!isFullscreen && <Footer />}
     </div>
   );
 }
@@ -644,7 +730,7 @@ function ArchitecturePageContent() {
 export default function ArchitecturePage() {
   return (
     <ReactFlowProvider>
-      <ArchitecturePageContent />
+      <ArchitectureDiagramFlow />
     </ReactFlowProvider>
   );
 }
