@@ -35,14 +35,14 @@ const AUTHORIZED_EMAILS = [
 ];
 
 const CATEGORIES = [
-  { value: 'server', label: '🖥️ Server', color: 'bg-blue-100 text-blue-800' },
-  { value: 'mail_server', label: '📧 Mail Server', color: 'bg-purple-100 text-purple-800' },
-  { value: 'monitoring', label: '📊 Monitoring', color: 'bg-green-100 text-green-800' },
-  { value: 'database', label: '🗄️ Database', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'devops', label: '🔧 DevOps', color: 'bg-orange-100 text-orange-800' },
-  { value: 'network', label: '🌐 Network', color: 'bg-cyan-100 text-cyan-800' },
-  { value: 'cloud_service', label: '☁️ Cloud Service', color: 'bg-indigo-100 text-indigo-800' },
-  { value: 'other', label: '📦 Other', color: 'bg-gray-100 text-gray-800' },
+  { value: 'server', label: 'Server', color: 'bg-blue-100 text-blue-800' },
+  { value: 'mail_server', label: 'Mail Server', color: 'bg-purple-100 text-purple-800' },
+  { value: 'monitoring', label: 'Monitoring', color: 'bg-green-100 text-green-800' },
+  { value: 'database', label: 'Database', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'devops', label: 'DevOps', color: 'bg-orange-100 text-orange-800' },
+  { value: 'network', label: 'Network', color: 'bg-cyan-100 text-cyan-800' },
+  { value: 'cloud_service', label: 'Cloud Service', color: 'bg-indigo-100 text-indigo-800' },
+  { value: 'other', label: 'Other', color: 'bg-gray-100 text-gray-800' },
 ];
 
 const ENVIRONMENTS = ['production', 'staging', 'development', 'testing'];
@@ -119,6 +119,13 @@ export default function InfrastructurePage() {
       setResources(response.data.data);
     } catch (error: any) {
       console.error('Error fetching resources:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/auth/login');
+        return;
+      }
       toast.error('Failed to load resources');
     } finally {
       setLoading(false);
@@ -138,6 +145,13 @@ export default function InfrastructurePage() {
       setCountdown(300); // 5 minutes
       toast.success('OTP sent to your email!');
     } catch (error: any) {
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/auth/login');
+        return;
+      }
       toast.error(error.response?.data?.message || 'Failed to send OTP');
     } finally {
       setOtpLoading(false);
@@ -155,10 +169,17 @@ export default function InfrastructurePage() {
       await otpAPI.verifyOTP({ email: otpEmail, otp });
       setIsEditMode(true);
       setShowOTPModal(false);
-      toast.success('Edit mode unlocked! 🎉');
+      toast.success('Edit mode unlocked!');
       setOtp('');
       setOtpSent(false);
     } catch (error: any) {
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/auth/login');
+        return;
+      }
       toast.error(error.response?.data?.message || 'Invalid OTP');
     } finally {
       setOtpVerifying(false);
@@ -379,13 +400,13 @@ export default function InfrastructurePage() {
               {isEditMode ? (
                 <>
                   <span className="px-3 py-1.5 bg-green-100 text-green-800 text-sm font-medium rounded-full flex items-center gap-2">
-                    🔓 Edit Mode Active
+                    Edit Mode Active
                   </span>
                   <button
                     onClick={() => handleOpenModal()}
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
                   >
-                    ➕ Add Resource
+                    Add Resource
                   </button>
                 </>
               ) : (
@@ -393,7 +414,7 @@ export default function InfrastructurePage() {
                   onClick={() => setShowOTPModal(true)}
                   className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
                 >
-                  🔒 Unlock Edit Mode
+                  Unlock Edit Mode
                 </button>
               )}
             </div>
@@ -403,7 +424,7 @@ export default function InfrastructurePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input
               type="text"
-              placeholder="🔍 Search resources..."
+              placeholder="Search resources..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onBlur={fetchResources}
@@ -446,7 +467,6 @@ export default function InfrastructurePage() {
         <div>
         {resources.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="text-6xl mb-4">📂</div>
             <h3 className="text-xl font-bold text-gray-900">No resources found</h3>
             <p className="mt-3 text-base text-gray-700 font-medium">
               {isEditMode
@@ -491,7 +511,7 @@ export default function InfrastructurePage() {
                   <div className="space-y-2 text-sm">
                     {resource.url && (
                       <div className="flex items-center text-gray-600">
-                        <span className="w-4 mr-2">🌐</span>
+                        <span className="text-xs mr-2">URL:</span>
                         <a
                           href={resource.url}
                           target="_blank"
@@ -504,13 +524,13 @@ export default function InfrastructurePage() {
                     )}
                     {resource.ipAddress && (
                       <div className="flex items-center text-gray-600">
-                        <span className="w-4 mr-2">📍</span>
+                        <span className="text-xs mr-2">IP:</span>
                         <span className="truncate">{resource.ipAddress}{resource.port ? `:${resource.port}` : ''}</span>
                       </div>
                     )}
                     {resource.username && (
                       <div className="flex items-center text-gray-600">
-                        <span className="w-4 mr-2">👤</span>
+                        <span className="text-xs mr-2">User:</span>
                         <span className="truncate">{resource.username}</span>
                       </div>
                     )}
@@ -522,7 +542,7 @@ export default function InfrastructurePage() {
                       onClick={() => handleViewResource(resource)}
                       className="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
                     >
-                      👁️ View
+                      View
                     </button>
                     {isEditMode && (
                       <>
@@ -530,13 +550,13 @@ export default function InfrastructurePage() {
                           onClick={() => handleOpenModal(resource)}
                           className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium"
                         >
-                          ✏️ Edit
+                          Edit
                         </button>
                         <button
                           onClick={() => handleDelete(resource._id)}
                           className="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
                         >
-                          🗑️ Delete
+                          Delete
                         </button>
                       </>
                     )}
@@ -560,11 +580,10 @@ export default function InfrastructurePage() {
               }}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
-              ✕
+              X
             </button>
 
             <div className="text-center mb-6">
-              <div className="text-5xl mb-4">🔐</div>
               <h2 className="text-2xl font-bold text-gray-900">Unlock Edit Mode</h2>
               <p className="text-sm text-gray-600 mt-2">
                 Enter your authorized email to receive an OTP
@@ -595,7 +614,7 @@ export default function InfrastructurePage() {
                   disabled={otpLoading || !otpEmail}
                   className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
                 >
-                  {otpLoading ? 'Sending...' : '📧 Send OTP'}
+                  {otpLoading ? 'Sending...' : 'Send OTP'}
                 </button>
               </div>
             ) : (
@@ -628,7 +647,7 @@ export default function InfrastructurePage() {
                   disabled={otpVerifying || otp.length !== 6}
                   className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
                 >
-                  {otpVerifying ? 'Verifying...' : '✓ Verify OTP'}
+                  {otpVerifying ? 'Verifying...' : 'Verify OTP'}
                 </button>
 
                 <button
@@ -652,13 +671,13 @@ export default function InfrastructurePage() {
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-8 my-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                {selectedResource ? '✏️ Edit Resource' : '➕ Add New Resource'}
+                {selectedResource ? 'Edit Resource' : 'Add New Resource'}
               </h2>
               <button
                 onClick={handleCloseModal}
                 className="text-gray-400 hover:text-gray-600 text-2xl"
               >
-                ✕
+                X
               </button>
             </div>
 
@@ -842,7 +861,7 @@ export default function InfrastructurePage() {
                 onClick={closeViewModal}
                 className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
               >
-                ✕
+                X
               </button>
             </div>
 
@@ -956,8 +975,8 @@ export default function InfrastructurePage() {
 
               {/* Security Notice */}
               <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  🔒 Sensitive information (passwords, API keys) is hidden. Enable Edit Mode with OTP verification to view or modify sensitive data.
+                <p className="text-sm text-blue-800 font-medium">
+                  Sensitive information (passwords, API keys) is hidden. Enable Edit Mode with OTP verification to view or modify sensitive data.
                 </p>
               </div>
             </div>
