@@ -167,4 +167,13 @@ export const infrastructureAPI = {
   getStatistics: () => api.get('/infrastructure/statistics'),
 };
 
+// Architecture Diagram API
+export const architectureAPI = {
+  getAll: () => api.get('/architecture'),
+  getOne: (id: string) => api.get(`/architecture/${id}`),
+  create: (data: any) => api.post('/architecture', data),
+  update: (id: string, data: any) => api.put(`/architecture/${id}`, data),
+  delete: (id: string) => api.delete(`/architecture/${id}`),
+};
+
 export default api;
