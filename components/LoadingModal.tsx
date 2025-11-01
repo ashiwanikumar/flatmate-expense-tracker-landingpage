@@ -8,7 +8,7 @@ export default function LoadingModal({ isOpen, title, subtitle }: LoadingModalPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ background: 'rgba(12, 190, 225, 0.5)' }}>
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
         <div className="text-center">
           <div className="mb-4">
