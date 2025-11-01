@@ -185,6 +185,12 @@ export default function DashboardPage() {
                 <span className="sm:hidden">Logs</span>
               </span>
             </Link>
+            <Link
+              href="/infrastructure"
+              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
+            >
+              Infrastructures
+            </Link>
           </div>
         </div>
       </nav>

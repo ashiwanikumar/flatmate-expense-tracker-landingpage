@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { infrastructureAPI, otpAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import LoadingModal from '@/components/LoadingModal';
 
 interface Resource {
   _id: string;
@@ -58,12 +60,14 @@ export default function InfrastructurePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterEnvironment, setFilterEnvironment] = useState('');
+  const [saving, setSaving] = useState(false);
 
   // OTP state
   const [otpEmail, setOtpEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
   // Form state
@@ -145,7 +149,7 @@ export default function InfrastructurePage() {
       return;
     }
 
-    setOtpLoading(true);
+    setOtpVerifying(true);
     try {
       await otpAPI.verifyOTP({ email: otpEmail, otp });
       setIsEditMode(true);
@@ -156,11 +160,12 @@ export default function InfrastructurePage() {
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Invalid OTP');
     } finally {
-      setOtpLoading(false);
+      setOtpVerifying(false);
     }
   };
 
   const handleCreateOrUpdate = async () => {
+    setSaving(true);
     try {
       if (selectedResource) {
         await infrastructureAPI.update(selectedResource._id, formData);
@@ -173,6 +178,8 @@ export default function InfrastructurePage() {
       handleCloseModal();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Operation failed');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -234,6 +241,12 @@ export default function InfrastructurePage() {
     setSelectedResource(null);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/');
+  };
+
   const getCategoryStyle = (category: string) => {
     return CATEGORIES.find((c) => c.value === category)?.color || 'bg-gray-100 text-gray-800';
   };
@@ -253,26 +266,103 @@ export default function InfrastructurePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'rgb(12, 190, 225)', boxShadow: 'rgb(12, 190, 225) 0px 0px 4px 0px' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading infrastructure...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="mt-4 text-white font-semibold">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <header className="bg-white shadow-sm">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Campaign Manager
+              </h1>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="bg-white border-b overflow-x-auto">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
+            <Link
+              href="/dashboard"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
+            >
+              <span className="hidden sm:inline">Dashboard</span>
+              <span className="sm:hidden">Home</span>
+            </Link>
+            <Link
+              href="/csv"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
+            >
+              CSV Files
+            </Link>
+            <Link
+              href="/campaigns"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
+            >
+              Campaigns
+            </Link>
+            <Link
+              href="/company-accounts"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
+            >
+              <span className="hidden sm:inline">Company Accounts</span>
+              <span className="sm:hidden">Accounts</span>
+            </Link>
+            <Link
+              href="/calendar"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
+            >
+              Calendar
+            </Link>
+            <Link
+              href="/activity-logs"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
+            >
+              <span className="flex items-center gap-1 sm:gap-2">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="hidden sm:inline">Activity Logs</span>
+                <span className="sm:hidden">Logs</span>
+              </span>
+            </Link>
+            <Link
+              href="/infrastructure"
+              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap"
+            >
+              Infrastructures
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {/* Page Header with Filters and Edit Controls */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">🏢 Infrastructure Workspace</h1>
-              <p className="mt-1 text-sm text-gray-600 font-medium">
-                Manage your company's infrastructure resources
-              </p>
+              <h2 className="text-2xl font-bold text-gray-900">Infrastructure Workspace</h2>
+              <p className="mt-1 text-sm text-gray-600">Manage your company's infrastructure resources</p>
             </div>
             <div className="flex items-center gap-3">
               {isEditMode ? (
@@ -282,7 +372,7 @@ export default function InfrastructurePage() {
                   </span>
                   <button
                     onClick={() => handleOpenModal()}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
                   >
                     ➕ Add Resource
                   </button>
@@ -290,7 +380,7 @@ export default function InfrastructurePage() {
               ) : (
                 <button
                   onClick={() => setShowOTPModal(true)}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
                 >
                   🔒 Unlock Edit Mode
                 </button>
@@ -299,14 +389,14 @@ export default function InfrastructurePage() {
           </div>
 
           {/* Filters */}
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input
               type="text"
               placeholder="🔍 Search resources..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onBlur={fetchResources}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 placeholder-gray-500"
             />
             <select
               value={filterCategory}
@@ -314,7 +404,7 @@ export default function InfrastructurePage() {
                 setFilterCategory(e.target.value);
                 fetchResources();
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 font-medium"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 font-medium"
             >
               <option value="">All Categories</option>
               {CATEGORIES.map((cat) => (
@@ -329,7 +419,7 @@ export default function InfrastructurePage() {
                 setFilterEnvironment(e.target.value);
                 fetchResources();
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 font-medium"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 font-medium"
             >
               <option value="">All Environments</option>
               {ENVIRONMENTS.map((env) => (
@@ -340,10 +430,9 @@ export default function InfrastructurePage() {
             </select>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Resources */}
+        <div>
         {resources.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="text-6xl mb-4">📂</div>
@@ -517,10 +606,10 @@ export default function InfrastructurePage() {
 
                 <button
                   onClick={handleVerifyOTP}
-                  disabled={otpLoading || otp.length !== 6}
+                  disabled={otpVerifying || otp.length !== 6}
                   className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
                 >
-                  {otpLoading ? 'Verifying...' : '✓ Verify OTP'}
+                  {otpVerifying ? 'Verifying...' : '✓ Verify OTP'}
                 </button>
 
                 <button
@@ -702,8 +791,27 @@ export default function InfrastructurePage() {
           </div>
         </div>
       )}
-
+      </main>
       <Footer />
+
+      {/* Loading Modals */}
+      <LoadingModal
+        isOpen={saving}
+        title={selectedResource ? 'Updating Resource...' : 'Creating Resource...'}
+        subtitle={selectedResource ? 'Please wait while we update your infrastructure resource' : 'Please wait while we save your infrastructure resource'}
+      />
+
+      <LoadingModal
+        isOpen={otpLoading}
+        title="Sending OTP..."
+        subtitle="Please wait while we send the verification code to your email"
+      />
+
+      <LoadingModal
+        isOpen={otpVerifying}
+        title="Verifying OTP..."
+        subtitle="Please wait while we verify your code"
+      />
     </div>
   );
 }
