@@ -19,6 +19,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.2.3",
     "react-hot-toast": "^2.4.1",
+    "reactflow": "^11.11.4",
     "recharts": "^2.10.0"
   },
   "devDependencies": {

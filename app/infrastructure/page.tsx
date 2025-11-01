@@ -56,6 +56,7 @@ export default function InfrastructurePage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [showResourceModal, setShowResourceModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
@@ -245,6 +246,16 @@ export default function InfrastructurePage() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     router.push('/');
+  };
+
+  const handleViewResource = (resource: Resource) => {
+    setSelectedResource(resource);
+    setShowViewModal(true);
+  };
+
+  const closeViewModal = () => {
+    setShowViewModal(false);
+    setSelectedResource(null);
   };
 
   const getCategoryStyle = (category: string) => {
@@ -506,22 +517,30 @@ export default function InfrastructurePage() {
                   </div>
 
                   {/* Actions */}
-                  {isEditMode && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
-                      <button
-                        onClick={() => handleOpenModal(resource)}
-                        className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium"
-                      >
-                        ✏️ Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(resource._id)}
-                        className="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
-                  )}
+                  <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
+                    <button
+                      onClick={() => handleViewResource(resource)}
+                      className="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                    >
+                      👁️ View
+                    </button>
+                    {isEditMode && (
+                      <>
+                        <button
+                          onClick={() => handleOpenModal(resource)}
+                          className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(resource._id)}
+                          className="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -812,6 +831,148 @@ export default function InfrastructurePage() {
         title="Verifying OTP..."
         subtitle="Please wait while we verify your code"
       />
+
+      {/* View Modal */}
+      {showViewModal && selectedResource && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">View Resource</h2>
+              <button
+                onClick={closeViewModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Name</label>
+                <p className="text-gray-900 font-medium">{selectedResource.name}</p>
+              </div>
+
+              {/* Category, Environment, Status */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
+                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryStyle(selectedResource.category)}`}>
+                    {selectedResource.category}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Environment</label>
+                  <p className="text-gray-900 font-medium capitalize">{selectedResource.environment}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Status</label>
+                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedResource.status)}`}>
+                    {selectedResource.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              {selectedResource.description && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                  <p className="text-gray-900">{selectedResource.description}</p>
+                </div>
+              )}
+
+              {/* URL */}
+              {selectedResource.url && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">URL</label>
+                  <a
+                    href={selectedResource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline break-all"
+                  >
+                    {selectedResource.url}
+                  </a>
+                </div>
+              )}
+
+              {/* IP Address */}
+              {selectedResource.ipAddress && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">IP Address</label>
+                  <p className="text-gray-900 font-mono">{selectedResource.ipAddress}</p>
+                </div>
+              )}
+
+              {/* Username */}
+              {selectedResource.username && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Username</label>
+                  <p className="text-gray-900 font-medium">{selectedResource.username}</p>
+                </div>
+              )}
+
+              {/* Access Instructions */}
+              {selectedResource.accessInstructions && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Access Instructions</label>
+                  <p className="text-gray-900 whitespace-pre-wrap">{selectedResource.accessInstructions}</p>
+                </div>
+              )}
+
+              {/* Notes */}
+              {selectedResource.notes && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Notes</label>
+                  <p className="text-gray-900 whitespace-pre-wrap">{selectedResource.notes}</p>
+                </div>
+              )}
+
+              {/* Tags */}
+              {selectedResource.tags && selectedResource.tags.length > 0 && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Tags</label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedResource.tags.map((tag, index) => (
+                      <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Created/Updated Info */}
+              <div className="pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 text-sm text-gray-600">
+                <div>
+                  <span className="font-semibold">Created:</span>{' '}
+                  {new Date(selectedResource.createdAt).toLocaleDateString()}
+                </div>
+                <div>
+                  <span className="font-semibold">Updated:</span>{' '}
+                  {new Date(selectedResource.updatedAt).toLocaleDateString()}
+                </div>
+              </div>
+
+              {/* Security Notice */}
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  🔒 Sensitive information (passwords, API keys) is hidden. Enable Edit Mode with OTP verification to view or modify sensitive data.
+                </p>
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4">
+              <button
+                onClick={closeViewModal}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
