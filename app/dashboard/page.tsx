@@ -186,10 +186,10 @@ export default function DashboardPage() {
               </span>
             </Link>
             <Link
-              href="/infrastructure"
+              href="/cmdb-infrastructure"
               className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
             >
-              Infrastructures
+              CMDB Infrastructure
             </Link>
             <Link
               href="/architecture"

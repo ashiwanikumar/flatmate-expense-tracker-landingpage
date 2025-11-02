@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { infrastructureAPI } from '@/lib/api';
+import { cmdbInfrastructureAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 
@@ -21,7 +21,7 @@ const CATEGORIES = [
 const ENVIRONMENTS = ['production', 'staging', 'development', 'testing'];
 const STATUSES = ['active', 'inactive', 'maintenance'];
 
-export default function AddInfrastructurePage() {
+export default function AddCmdbInfrastructurePage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -110,9 +110,9 @@ export default function AddInfrastructurePage() {
         dataToSend.sshKey = sshKeyContent;
       }
 
-      await infrastructureAPI.create(dataToSend);
+      await cmdbInfrastructureAPI.create(dataToSend);
       toast.success('Resource created successfully');
-      router.push('/infrastructure');
+      router.push('/cmdb-infrastructure');
     } catch (error: any) {
       console.error('Error creating resource:', error);
       toast.error(error.response?.data?.message || 'Failed to create resource');
@@ -172,8 +172,8 @@ export default function AddInfrastructurePage() {
             <Link href="/activity" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
               Activity Logs
             </Link>
-            <Link href="/infrastructure" className="px-3 py-4 text-sm font-medium text-gray-900 border-b-2 border-purple-600">
-              Infrastructure
+            <Link href="/cmdb-infrastructure" className="px-3 py-4 text-sm font-medium text-gray-900 border-b-2 border-purple-600">
+              CMDB Infrastructure
             </Link>
             <Link href="/architecture" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
               Architecture
@@ -188,11 +188,11 @@ export default function AddInfrastructurePage() {
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Add New Infrastructure Resource</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Add New CMDB Infrastructure Resource</h1>
               <p className="mt-1 text-sm text-gray-600">Create a new resource in your CMDB</p>
             </div>
             <Link
-              href="/infrastructure"
+              href="/cmdb-infrastructure"
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Cancel
@@ -475,7 +475,7 @@ export default function AddInfrastructurePage() {
           {/* Form Actions */}
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
             <Link
-              href="/infrastructure"
+              href="/cmdb-infrastructure"
               className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Cancel

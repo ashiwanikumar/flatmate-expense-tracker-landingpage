@@ -155,16 +155,16 @@ export const otpAPI = {
   checkSession: (email: string) => api.get('/otp/session', { params: { email } }),
 };
 
-// Infrastructure API
-export const infrastructureAPI = {
-  getAll: (params?: any) => api.get('/infrastructure', { params }),
+// CMDB Infrastructure API
+export const cmdbInfrastructureAPI = {
+  getAll: (params?: any) => api.get('/cmdb-infrastructure', { params }),
   getOne: (id: string, includeSecrets?: boolean) =>
-    api.get(`/infrastructure/${id}`, { params: { includeSecrets } }),
-  create: (data: any) => api.post('/infrastructure', data),
-  update: (id: string, data: any) => api.put(`/infrastructure/${id}`, data),
-  delete: (id: string) => api.delete(`/infrastructure/${id}`),
-  getByCategory: () => api.get('/infrastructure/by-category'),
-  getStatistics: () => api.get('/infrastructure/statistics'),
+    api.get(`/cmdb-infrastructure/${id}`, { params: { includeSecrets } }),
+  create: (data: any) => api.post('/cmdb-infrastructure', data),
+  update: (id: string, data: any) => api.put(`/cmdb-infrastructure/${id}`, data),
+  delete: (id: string) => api.delete(`/cmdb-infrastructure/${id}`),
+  getByCategory: () => api.get('/cmdb-infrastructure/by-category'),
+  getStatistics: () => api.get('/cmdb-infrastructure/statistics'),
 };
 
 // Architecture Diagram API

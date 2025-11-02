@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { infrastructureAPI, otpAPI } from '@/lib/api';
+import { cmdbInfrastructureAPI, otpAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import LoadingModal from '@/components/LoadingModal';
@@ -48,7 +48,7 @@ const CATEGORIES = [
 const ENVIRONMENTS = ['production', 'staging', 'development', 'testing'];
 const STATUSES = ['active', 'inactive', 'maintenance'];
 
-export default function InfrastructurePage() {
+export default function CmdbInfrastructurePage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [resources, setResources] = useState<Resource[]>([]);
@@ -111,7 +111,7 @@ export default function InfrastructurePage() {
 
   const fetchResources = async () => {
     try {
-      const response = await infrastructureAPI.getAll({
+      const response = await cmdbInfrastructureAPI.getAll({
         category: filterCategory || undefined,
         environment: filterEnvironment || undefined,
         search: searchTerm || undefined,
@@ -190,10 +190,10 @@ export default function InfrastructurePage() {
     setSaving(true);
     try {
       if (selectedResource) {
-        await infrastructureAPI.update(selectedResource._id, formData);
+        await cmdbInfrastructureAPI.update(selectedResource._id, formData);
         toast.success('Resource updated successfully!');
       } else {
-        await infrastructureAPI.create(formData);
+        await cmdbInfrastructureAPI.create(formData);
         toast.success('Resource created successfully!');
       }
       fetchResources();
@@ -209,7 +209,7 @@ export default function InfrastructurePage() {
     if (!confirm('Are you sure you want to delete this resource?')) return;
 
     try {
-      await infrastructureAPI.delete(id);
+      await cmdbInfrastructureAPI.delete(id);
       toast.success('Resource deleted!');
       fetchResources();
     } catch (error: any) {
@@ -378,10 +378,10 @@ export default function InfrastructurePage() {
               </span>
             </Link>
             <Link
-              href="/infrastructure"
+              href="/cmdb-infrastructure"
               className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap"
             >
-              Infrastructures
+              CMDB Infrastructure
             </Link>
           </div>
         </div>
@@ -393,8 +393,8 @@ export default function InfrastructurePage() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Infrastructure Workspace</h2>
-              <p className="mt-1 text-sm text-gray-600">Manage your company's infrastructure resources</p>
+              <h2 className="text-2xl font-bold text-gray-900">CMDB Infrastructure Workspace</h2>
+              <p className="mt-1 text-sm text-gray-600">Manage your company's CMDB infrastructure resources</p>
             </div>
             <div className="flex items-center gap-3">
               {isEditMode ? (
@@ -403,7 +403,7 @@ export default function InfrastructurePage() {
                     Edit Mode Active
                   </span>
                   <Link
-                    href="/infrastructure/add"
+                    href="/cmdb-infrastructure/add"
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm inline-block"
                   >
                     Add Resource
@@ -470,7 +470,7 @@ export default function InfrastructurePage() {
             <h3 className="text-xl font-bold text-gray-900">No resources found</h3>
             <p className="mt-3 text-base text-gray-700 font-medium">
               {isEditMode
-                ? 'Get started by adding your first infrastructure resource'
+                ? 'Get started by adding your first CMDB infrastructure resource'
                 : 'Unlock edit mode to add resources'}
             </p>
           </div>
@@ -547,7 +547,7 @@ export default function InfrastructurePage() {
                     {isEditMode && (
                       <>
                         <Link
-                          href={`/infrastructure/edit/${resource._id}`}
+                          href={`/cmdb-infrastructure/edit/${resource._id}`}
                           className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium text-center"
                         >
                           Edit
@@ -836,7 +836,7 @@ export default function InfrastructurePage() {
       <LoadingModal
         isOpen={saving}
         title={selectedResource ? 'Updating Resource...' : 'Creating Resource...'}
-        subtitle={selectedResource ? 'Please wait while we update your infrastructure resource' : 'Please wait while we save your infrastructure resource'}
+        subtitle={selectedResource ? 'Please wait while we update your CMDB infrastructure resource' : 'Please wait while we save your CMDB infrastructure resource'}
       />
 
       <LoadingModal

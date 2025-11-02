@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { infrastructureAPI } from '@/lib/api';
+import { cmdbInfrastructureAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 
@@ -21,7 +21,7 @@ const CATEGORIES = [
 const ENVIRONMENTS = ['production', 'staging', 'development', 'testing'];
 const STATUSES = ['active', 'inactive', 'maintenance'];
 
-export default function EditInfrastructurePage() {
+export default function EditCmdbInfrastructurePage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
@@ -66,7 +66,7 @@ export default function EditInfrastructurePage() {
 
     try {
       setLoading(true);
-      const response = await infrastructureAPI.getOne(id, true);
+      const response = await cmdbInfrastructureAPI.getOne(id, true);
       const resourceData = response.data.data;
       setResource(resourceData);
 
@@ -89,7 +89,7 @@ export default function EditInfrastructurePage() {
     } catch (error: any) {
       console.error('Error loading resource:', error);
       toast.error(error.response?.data?.message || 'Failed to load resource');
-      router.push('/infrastructure');
+      router.push('/cmdb-infrastructure');
     } finally {
       setLoading(false);
     }
@@ -130,9 +130,9 @@ export default function EditInfrastructurePage() {
         dataToSend.tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
       }
 
-      await infrastructureAPI.update(id, dataToSend);
+      await cmdbInfrastructureAPI.update(id, dataToSend);
       toast.success('Resource updated successfully');
-      router.push('/infrastructure');
+      router.push('/cmdb-infrastructure');
     } catch (error: any) {
       console.error('Error updating resource:', error);
       toast.error(error.response?.data?.message || 'Failed to update resource');
@@ -208,8 +208,8 @@ export default function EditInfrastructurePage() {
             <Link href="/activity" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
               Activity Logs
             </Link>
-            <Link href="/infrastructure" className="px-3 py-4 text-sm font-medium text-gray-900 border-b-2 border-purple-600">
-              Infrastructure
+            <Link href="/cmdb-infrastructure" className="px-3 py-4 text-sm font-medium text-gray-900 border-b-2 border-purple-600">
+              CMDB Infrastructure
             </Link>
             <Link href="/architecture" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
               Architecture
@@ -224,11 +224,11 @@ export default function EditInfrastructurePage() {
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Edit Infrastructure Resource</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Edit CMDB Infrastructure Resource</h1>
               <p className="mt-1 text-sm text-gray-600">Update resource information in your CMDB</p>
             </div>
             <Link
-              href="/infrastructure"
+              href="/cmdb-infrastructure"
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Cancel
@@ -521,7 +521,7 @@ export default function EditInfrastructurePage() {
           {/* Form Actions */}
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
             <Link
-              href="/infrastructure"
+              href="/cmdb-infrastructure"
               className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Cancel

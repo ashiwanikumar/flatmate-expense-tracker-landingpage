@@ -432,8 +432,8 @@ function ArchitectureDiagramFlow() {
                 <Link href="/activity-logs" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
                   Activity Logs
                 </Link>
-                <Link href="/infrastructure" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  Infrastructures
+                <Link href="/cmdb-infrastructure" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
+                  CMDB Infrastructure
                 </Link>
                 <Link href="/architecture" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap">
                   Architecture
