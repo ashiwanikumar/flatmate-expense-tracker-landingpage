@@ -402,12 +402,12 @@ export default function InfrastructurePage() {
                   <span className="px-3 py-1.5 bg-green-100 text-green-800 text-sm font-medium rounded-full flex items-center gap-2">
                     Edit Mode Active
                   </span>
-                  <button
-                    onClick={() => handleOpenModal()}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
+                  <Link
+                    href="/infrastructure/add"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm inline-block"
                   >
                     Add Resource
-                  </button>
+                  </Link>
                 </>
               ) : (
                 <button
@@ -546,12 +546,12 @@ export default function InfrastructurePage() {
                     </button>
                     {isEditMode && (
                       <>
-                        <button
-                          onClick={() => handleOpenModal(resource)}
-                          className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium"
+                        <Link
+                          href={`/infrastructure/edit/${resource._id}`}
+                          className="flex-1 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium text-center"
                         >
                           Edit
-                        </button>
+                        </Link>
                         <button
                           onClick={() => handleDelete(resource._id)}
                           className="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
