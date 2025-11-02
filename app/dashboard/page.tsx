@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { dashboardAPI, authAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import NavigationMenu from '@/components/NavigationMenu';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -140,66 +141,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b overflow-x-auto">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
-            <Link
-              href="/dashboard"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/csv"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              CSV Files
-            </Link>
-            <Link
-              href="/campaigns"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              Campaigns
-            </Link>
-            <Link
-              href="/company-accounts"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              Company Accounts
-            </Link>
-            <Link
-              href="/calendar"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              📅 Calendar
-            </Link>
-            <Link
-              href="/activity-logs"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              <span className="flex items-center gap-1 sm:gap-2">
-                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="hidden sm:inline">Activity Logs</span>
-                <span className="sm:hidden">Logs</span>
-              </span>
-            </Link>
-            <Link
-              href="/cmdb-infrastructure"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              CMDB Infrastructure
-            </Link>
-            <Link
-              href="/architecture"
-              className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              Architecture
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <NavigationMenu />
 
       {/* Main Content */}
       <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 w-full">
