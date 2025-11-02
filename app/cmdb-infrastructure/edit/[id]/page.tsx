@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { cmdbInfrastructureAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import LoadingModal from '@/components/LoadingModal';
 
 const CATEGORIES = [
   { value: 'server', label: 'Server' },
@@ -36,16 +37,19 @@ export default function EditCmdbInfrastructurePage() {
     category: 'server',
     description: '',
     url: '',
-    ipAddress: '',
+    privateIpAddress: '',
+    publicIpAddress: '',
     port: '',
     username: '',
     password: '',
     apiKey: '',
+    sshKey: null as File | null,
     environment: 'production',
     status: 'active',
     tags: '',
     notes: '',
     accessInstructions: '',
+    owner: '',
   });
 
   useEffect(() => {
@@ -75,16 +79,19 @@ export default function EditCmdbInfrastructurePage() {
         category: resourceData.category || 'server',
         description: resourceData.description || '',
         url: resourceData.url || '',
-        ipAddress: resourceData.ipAddress || '',
+        privateIpAddress: resourceData.privateIpAddress || '',
+        publicIpAddress: resourceData.publicIpAddress || '',
         port: resourceData.port?.toString() || '',
         username: resourceData.username || '',
         password: resourceData.password || '',
         apiKey: resourceData.apiKey || '',
+        sshKey: null,
         environment: resourceData.environment || 'production',
         status: resourceData.status || 'active',
         tags: resourceData.tags?.join(', ') || '',
         notes: resourceData.notes || '',
         accessInstructions: resourceData.accessInstructions || '',
+        owner: resourceData.owner || '',
       });
     } catch (error: any) {
       console.error('Error loading resource:', error);
@@ -98,6 +105,11 @@ export default function EditCmdbInfrastructurePage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData(prev => ({ ...prev, sshKey: file }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,20 +131,32 @@ export default function EditCmdbInfrastructurePage() {
 
       if (formData.description.trim()) dataToSend.description = formData.description.trim();
       if (formData.url.trim()) dataToSend.url = formData.url.trim();
-      if (formData.ipAddress.trim()) dataToSend.ipAddress = formData.ipAddress.trim();
+      if (formData.privateIpAddress.trim()) dataToSend.privateIpAddress = formData.privateIpAddress.trim();
+      if (formData.publicIpAddress.trim()) dataToSend.publicIpAddress = formData.publicIpAddress.trim();
       if (formData.port) dataToSend.port = parseInt(formData.port);
       if (formData.username.trim()) dataToSend.username = formData.username.trim();
       if (formData.password.trim()) dataToSend.password = formData.password.trim();
       if (formData.apiKey.trim()) dataToSend.apiKey = formData.apiKey.trim();
+      if (formData.owner.trim()) dataToSend.owner = formData.owner.trim();
       if (formData.notes.trim()) dataToSend.notes = formData.notes.trim();
       if (formData.accessInstructions.trim()) dataToSend.accessInstructions = formData.accessInstructions.trim();
       if (formData.tags.trim()) {
         dataToSend.tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
       }
+      if (formData.sshKey) {
+        // Read SSH key file content
+        const reader = new FileReader();
+        const sshKeyContent = await new Promise<string>((resolve, reject) => {
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onerror = reject;
+          reader.readAsText(formData.sshKey as File);
+        });
+        dataToSend.sshKey = sshKeyContent;
+      }
 
       await cmdbInfrastructureAPI.update(id, dataToSend);
       toast.success('Resource updated successfully');
-      router.push('/cmdb-infrastructure');
+      router.push(`/cmdb-infrastructure/view/${id}`);
     } catch (error: any) {
       console.error('Error updating resource:', error);
       toast.error(error.response?.data?.message || 'Failed to update resource');
@@ -163,6 +187,13 @@ export default function EditCmdbInfrastructurePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Loading Modal */}
+      <LoadingModal
+        isOpen={saving}
+        title="Updating CMDB Infrastructure Resource"
+        subtitle="Please wait while we save your changes..."
+      />
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -219,7 +250,7 @@ export default function EditCmdbInfrastructurePage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-20">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 mb-20">
         {/* Page Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
@@ -276,9 +307,9 @@ export default function EditCmdbInfrastructurePage() {
             {/* Basic Information Section */}
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* Name - Required */}
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Name <span className="text-red-500">*</span>
                   </label>
@@ -288,7 +319,7 @@ export default function EditCmdbInfrastructurePage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="e.g., Production Mail Server"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                     required
                   />
                 </div>
@@ -302,7 +333,7 @@ export default function EditCmdbInfrastructurePage() {
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white"
                     required
                   >
                     {CATEGORIES.map(cat => (
@@ -320,7 +351,7 @@ export default function EditCmdbInfrastructurePage() {
                     name="environment"
                     value={formData.environment}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white"
                     required
                   >
                     {ENVIRONMENTS.map(env => (
@@ -338,7 +369,7 @@ export default function EditCmdbInfrastructurePage() {
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white"
                     required
                   >
                     {STATUSES.map(status => (
@@ -346,28 +377,13 @@ export default function EditCmdbInfrastructurePage() {
                     ))}
                   </select>
                 </div>
-
-                {/* Description - Optional */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description <span className="text-gray-400 text-xs">(Optional)</span>
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="Brief description of this resource"
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  />
-                </div>
               </div>
             </div>
 
             {/* Connection Details Section */}
             <div className="border-t border-gray-200 pt-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Connection Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* URL - Optional */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -379,27 +395,12 @@ export default function EditCmdbInfrastructurePage() {
                     value={formData.url}
                     onChange={handleInputChange}
                     placeholder="https://example.com"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  />
-                </div>
-
-                {/* IP Address - Optional */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    IP Address <span className="text-gray-400 text-xs">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="ipAddress"
-                    value={formData.ipAddress}
-                    onChange={handleInputChange}
-                    placeholder="192.168.1.1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
 
                 {/* Port - Optional */}
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Port <span className="text-gray-400 text-xs">(Optional)</span>
                   </label>
@@ -409,7 +410,37 @@ export default function EditCmdbInfrastructurePage() {
                     value={formData.port}
                     onChange={handleInputChange}
                     placeholder="8080"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Private IP Address - Optional */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Private IP Address <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="privateIpAddress"
+                    value={formData.privateIpAddress}
+                    onChange={handleInputChange}
+                    placeholder="192.168.1.1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Public IP Address - Optional */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Public IP Address <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="publicIpAddress"
+                    value={formData.publicIpAddress}
+                    onChange={handleInputChange}
+                    placeholder="203.0.113.1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -418,7 +449,7 @@ export default function EditCmdbInfrastructurePage() {
             {/* Credentials Section */}
             <div className="border-t border-gray-200 pt-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Credentials</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* Username - Optional */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -430,14 +461,14 @@ export default function EditCmdbInfrastructurePage() {
                     value={formData.username}
                     onChange={handleInputChange}
                     placeholder="admin"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
 
                 {/* Password - Optional */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password <span className="text-gray-400 text-xs">(Optional, leave blank to keep current)</span>
+                    Password <span className="text-gray-400 text-xs">(Optional)</span>
                   </label>
                   <input
                     type="password"
@@ -445,14 +476,14 @@ export default function EditCmdbInfrastructurePage() {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
 
                 {/* API Key - Optional */}
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    API Key <span className="text-gray-400 text-xs">(Optional, leave blank to keep current)</span>
+                    API Key <span className="text-gray-400 text-xs">(Optional)</span>
                   </label>
                   <input
                     type="password"
@@ -460,8 +491,39 @@ export default function EditCmdbInfrastructurePage() {
                     value={formData.apiKey}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
+                </div>
+
+                {/* Owner of Server - Optional */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Owner of Server <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="owner"
+                    value={formData.owner}
+                    onChange={handleInputChange}
+                    placeholder="e.g., IT Team, John Doe"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
+                  />
+                </div>
+
+                {/* SSH Key - Optional */}
+                <div className="md:col-span-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SSH Key <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pem,.key,.pub"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  />
+                  {formData.sshKey && (
+                    <p className="mt-2 text-sm text-gray-600">Selected: {formData.sshKey.name}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -469,50 +531,43 @@ export default function EditCmdbInfrastructurePage() {
             {/* Additional Information Section */}
             <div className="border-t border-gray-200 pt-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h2>
-              <div className="space-y-6">
-                {/* Tags - Optional */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Description - Optional */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags <span className="text-gray-400 text-xs">(Optional, comma-separated)</span>
+                    Description <span className="text-gray-400 text-xs">(Optional, max 3000 characters)</span>
                   </label>
-                  <input
-                    type="text"
-                    name="tags"
-                    value={formData.tags}
+                  <textarea
+                    name="description"
+                    value={formData.description}
                     onChange={handleInputChange}
-                    placeholder="email, production, critical"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="Brief description of this resource"
+                    maxLength={3000}
+                    rows={8}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formData.description.length}/3000 characters
+                  </p>
                 </div>
 
                 {/* Access Instructions - Optional */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Access Instructions <span className="text-gray-400 text-xs">(Optional)</span>
+                    Access Instructions <span className="text-gray-400 text-xs">(Optional, max 3000 characters)</span>
                   </label>
                   <textarea
                     name="accessInstructions"
                     value={formData.accessInstructions}
                     onChange={handleInputChange}
                     placeholder="How to access this resource..."
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    maxLength={3000}
+                    rows={8}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
-                </div>
-
-                {/* Notes - Optional */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Notes <span className="text-gray-400 text-xs">(Optional)</span>
-                  </label>
-                  <textarea
-                    name="notes"
-                    value={formData.notes}
-                    onChange={handleInputChange}
-                    placeholder="Additional notes or information"
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formData.accessInstructions.length}/3000 characters
+                  </p>
                 </div>
               </div>
             </div>

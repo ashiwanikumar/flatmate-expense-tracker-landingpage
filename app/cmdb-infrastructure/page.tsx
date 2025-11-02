@@ -270,8 +270,7 @@ export default function CmdbInfrastructurePage() {
   };
 
   const handleViewResource = (resource: Resource) => {
-    setSelectedResource(resource);
-    setShowViewModal(true);
+    router.push(`/cmdb-infrastructure/view/${resource._id}`);
   };
 
   const closeViewModal = () => {

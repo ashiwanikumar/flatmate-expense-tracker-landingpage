@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { cmdbInfrastructureAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import LoadingModal from '@/components/LoadingModal';
 
 const CATEGORIES = [
   { value: 'server', label: 'Server' },
@@ -110,9 +111,10 @@ export default function AddCmdbInfrastructurePage() {
         dataToSend.sshKey = sshKeyContent;
       }
 
-      await cmdbInfrastructureAPI.create(dataToSend);
+      const response = await cmdbInfrastructureAPI.create(dataToSend);
       toast.success('Resource created successfully');
-      router.push('/cmdb-infrastructure');
+      // Redirect to view page instead of list page
+      router.push(`/cmdb-infrastructure/view/${response.data.resource._id}`);
     } catch (error: any) {
       console.error('Error creating resource:', error);
       toast.error(error.response?.data?.message || 'Failed to create resource');
@@ -127,6 +129,13 @@ export default function AddCmdbInfrastructurePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Loading Modal */}
+      <LoadingModal
+        isOpen={saving}
+        title="Creating CMDB Infrastructure Resource"
+        subtitle="Please wait while we save your resource..."
+      />
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
