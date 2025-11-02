@@ -31,11 +31,13 @@ export default function AddInfrastructurePage() {
     category: 'server',
     description: '',
     url: '',
-    ipAddress: '',
+    privateIpAddress: '',
+    publicIpAddress: '',
     port: '',
     username: '',
     password: '',
     apiKey: '',
+    sshKey: null as File | null,
     environment: 'production',
     status: 'active',
     tags: '',
@@ -61,6 +63,11 @@ export default function AddInfrastructurePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData(prev => ({ ...prev, sshKey: file }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -80,7 +87,8 @@ export default function AddInfrastructurePage() {
 
       if (formData.description.trim()) dataToSend.description = formData.description.trim();
       if (formData.url.trim()) dataToSend.url = formData.url.trim();
-      if (formData.ipAddress.trim()) dataToSend.ipAddress = formData.ipAddress.trim();
+      if (formData.privateIpAddress.trim()) dataToSend.privateIpAddress = formData.privateIpAddress.trim();
+      if (formData.publicIpAddress.trim()) dataToSend.publicIpAddress = formData.publicIpAddress.trim();
       if (formData.port) dataToSend.port = parseInt(formData.port);
       if (formData.username.trim()) dataToSend.username = formData.username.trim();
       if (formData.password.trim()) dataToSend.password = formData.password.trim();
@@ -90,6 +98,16 @@ export default function AddInfrastructurePage() {
       if (formData.accessInstructions.trim()) dataToSend.accessInstructions = formData.accessInstructions.trim();
       if (formData.tags.trim()) {
         dataToSend.tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+      }
+      if (formData.sshKey) {
+        // Read SSH key file content
+        const reader = new FileReader();
+        const sshKeyContent = await new Promise<string>((resolve, reject) => {
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onerror = reject;
+          reader.readAsText(formData.sshKey as File);
+        });
+        dataToSend.sshKey = sshKeyContent;
       }
 
       await infrastructureAPI.create(dataToSend);
@@ -258,21 +276,6 @@ export default function AddInfrastructurePage() {
                     ))}
                   </select>
                 </div>
-
-                {/* Description - Optional */}
-                <div className="md:col-span-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description <span className="text-gray-400 text-xs">(Optional)</span>
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="Brief description of this resource"
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
-                  />
-                </div>
               </div>
             </div>
 
@@ -295,23 +298,8 @@ export default function AddInfrastructurePage() {
                   />
                 </div>
 
-                {/* IP Address - Optional */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    IP Address <span className="text-gray-400 text-xs">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="ipAddress"
-                    value={formData.ipAddress}
-                    onChange={handleInputChange}
-                    placeholder="192.168.1.1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
-                  />
-                </div>
-
                 {/* Port - Optional */}
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Port <span className="text-gray-400 text-xs">(Optional)</span>
                   </label>
@@ -321,6 +309,36 @@ export default function AddInfrastructurePage() {
                     value={formData.port}
                     onChange={handleInputChange}
                     placeholder="8080"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Private IP Address - Optional */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Private IP Address <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="privateIpAddress"
+                    value={formData.privateIpAddress}
+                    onChange={handleInputChange}
+                    placeholder="192.168.1.1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Public IP Address - Optional */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Public IP Address <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="publicIpAddress"
+                    value={formData.publicIpAddress}
+                    onChange={handleInputChange}
+                    placeholder="203.0.113.1"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
@@ -376,6 +394,22 @@ export default function AddInfrastructurePage() {
                   />
                 </div>
 
+                {/* SSH Key - Optional */}
+                <div className="md:col-span-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SSH Key <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pem,.key,.pub"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  />
+                  {formData.sshKey && (
+                    <p className="mt-2 text-sm text-gray-600">Selected: {formData.sshKey.name}</p>
+                  )}
+                </div>
+
                 {/* Owner of Server - Optional */}
                 <div className="md:col-span-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -397,17 +431,17 @@ export default function AddInfrastructurePage() {
             <div className="border-t border-gray-200 pt-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h2>
               <div className="space-y-6">
-                {/* Tags - Optional */}
+                {/* Description - Optional */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags <span className="text-gray-400 text-xs">(Optional, comma-separated)</span>
+                    Description <span className="text-gray-400 text-xs">(Optional)</span>
                   </label>
-                  <input
-                    type="text"
-                    name="tags"
-                    value={formData.tags}
+                  <textarea
+                    name="description"
+                    value={formData.description}
                     onChange={handleInputChange}
-                    placeholder="email, production, critical"
+                    placeholder="Brief description of this resource"
+                    rows={3}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
@@ -438,6 +472,21 @@ export default function AddInfrastructurePage() {
                     onChange={handleInputChange}
                     placeholder="Additional notes or information"
                     rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Tags - Optional */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tags <span className="text-gray-400 text-xs">(Optional, comma-separated)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="tags"
+                    value={formData.tags}
+                    onChange={handleInputChange}
+                    placeholder="email, production, critical"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
