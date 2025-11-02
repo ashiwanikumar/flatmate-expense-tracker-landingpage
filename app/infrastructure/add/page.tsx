@@ -380,7 +380,7 @@ export default function AddInfrastructurePage() {
                 </div>
 
                 {/* API Key - Optional */}
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     API Key <span className="text-gray-400 text-xs">(Optional)</span>
                   </label>
@@ -390,6 +390,21 @@ export default function AddInfrastructurePage() {
                     value={formData.apiKey}
                     onChange={handleInputChange}
                     placeholder="••••••••"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Owner of Server - Optional */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Owner of Server <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="owner"
+                    value={formData.owner}
+                    onChange={handleInputChange}
+                    placeholder="e.g., IT Team, John Doe"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
                 </div>
@@ -409,86 +424,49 @@ export default function AddInfrastructurePage() {
                     <p className="mt-2 text-sm text-gray-600">Selected: {formData.sshKey.name}</p>
                   )}
                 </div>
-
-                {/* Owner of Server - Optional */}
-                <div className="md:col-span-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Owner of Server <span className="text-gray-400 text-xs">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="owner"
-                    value={formData.owner}
-                    onChange={handleInputChange}
-                    placeholder="e.g., IT Team, John Doe"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
-                  />
-                </div>
               </div>
             </div>
 
             {/* Additional Information Section */}
             <div className="border-t border-gray-200 pt-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h2>
-              <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Description - Optional */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description <span className="text-gray-400 text-xs">(Optional)</span>
+                    Description <span className="text-gray-400 text-xs">(Optional, max 3000 characters)</span>
                   </label>
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Brief description of this resource"
-                    rows={3}
+                    maxLength={3000}
+                    rows={8}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formData.description.length}/3000 characters
+                  </p>
                 </div>
 
                 {/* Access Instructions - Optional */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Access Instructions <span className="text-gray-400 text-xs">(Optional)</span>
+                    Access Instructions <span className="text-gray-400 text-xs">(Optional, max 3000 characters)</span>
                   </label>
                   <textarea
                     name="accessInstructions"
                     value={formData.accessInstructions}
                     onChange={handleInputChange}
                     placeholder="How to access this resource..."
-                    rows={3}
+                    maxLength={3000}
+                    rows={8}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
                   />
-                </div>
-
-                {/* Notes - Optional */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Notes <span className="text-gray-400 text-xs">(Optional)</span>
-                  </label>
-                  <textarea
-                    name="notes"
-                    value={formData.notes}
-                    onChange={handleInputChange}
-                    placeholder="Additional notes or information"
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
-                  />
-                </div>
-
-                {/* Tags - Optional */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags <span className="text-gray-400 text-xs">(Optional, comma-separated)</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="tags"
-                    value={formData.tags}
-                    onChange={handleInputChange}
-                    placeholder="email, production, critical"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white placeholder-gray-400"
-                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formData.accessInstructions.length}/3000 characters
+                  </p>
                 </div>
               </div>
             </div>
