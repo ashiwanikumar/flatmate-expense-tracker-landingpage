@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { authAPI } from '@/lib/api';
 
@@ -75,23 +76,23 @@ export default function Header({ user }: HeaderProps) {
       <header className="bg-white shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8 py-2">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-8 w-8 sm:h-10 sm:w-10" />
               <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Campaign Manager
               </h1>
-            </div>
+            </Link>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-700 hidden md:inline">Welcome, {user?.name}</span>
+              <span className="text-sm font-medium text-gray-700 hidden md:inline">Welcome, {user?.name}</span>
               <button
                 onClick={() => setPasswordModal(true)}
-                className="px-3 py-1.5 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 whitespace-nowrap"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 whitespace-nowrap"
               >
                 Change Password
               </button>
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200"
               >
                 Logout
               </button>
