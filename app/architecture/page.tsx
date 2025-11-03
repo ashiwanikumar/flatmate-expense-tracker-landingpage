@@ -25,6 +25,8 @@ import 'reactflow/dist/style.css';
 import Footer from '@/components/Footer';
 import { SquareNode, CircleNode, DiamondNode, TriangleNode, HexagonNode, CylinderNode } from '@/components/CustomNodes';
 import { architectureAPI } from '@/lib/api';
+import Header from '@/components/Header';
+import NavigationMenu from '@/components/NavigationMenu';
 
 const nodeTypes = {
   square: SquareNode,
@@ -189,12 +191,6 @@ function ArchitectureDiagramFlow() {
     } catch (error: any) {
       alert('Failed to load diagram: ' + (error.response?.data?.message || error.message));
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/');
   };
 
   const onConnect = useCallback(
@@ -391,56 +387,10 @@ function ArchitectureDiagramFlow() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
       {!isFullscreen && (
         <>
-          <header className="bg-white shadow-sm">
-            <div className="px-4 sm:px-6 lg:px-8 py-4">
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
-                <div className="flex items-center gap-2 sm:gap-4">
-                  <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
-                  <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    Campaign Manager
-                  </h1>
-                </div>
-                <button onClick={handleLogout} className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                  Logout
-                </button>
-              </div>
-            </div>
-          </header>
-
-          {/* Navigation */}
-          <nav className="bg-white border-b overflow-x-auto">
-            <div className="px-4 sm:px-6 lg:px-8">
-              <div className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
-                <Link href="/dashboard" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  Dashboard
-                </Link>
-                <Link href="/csv" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  CSV Files
-                </Link>
-                <Link href="/campaigns" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  Campaigns
-                </Link>
-                <Link href="/company-accounts" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  Company Accounts
-                </Link>
-                <Link href="/calendar" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  Calendar
-                </Link>
-                <Link href="/activity-logs" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  Activity Logs
-                </Link>
-                <Link href="/cmdb-infrastructure" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap">
-                  CMDB Infrastructure
-                </Link>
-                <Link href="/architecture" className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap">
-                  Architecture
-                </Link>
-              </div>
-            </div>
-          </nav>
+          <Header user={user} />
+          <NavigationMenu />
         </>
       )}
 

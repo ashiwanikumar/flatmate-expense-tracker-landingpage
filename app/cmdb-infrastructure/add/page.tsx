@@ -7,6 +7,8 @@ import { cmdbInfrastructureAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import LoadingModal from '@/components/LoadingModal';
+import Header from '@/components/Header';
+import NavigationMenu from '@/components/NavigationMenu';
 
 const CATEGORIES = [
   { value: 'server', label: 'Server' },
@@ -136,60 +138,8 @@ export default function AddCmdbInfrastructurePage() {
         subtitle="Please wait while we save your resource..."
       />
 
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-2xl font-bold text-purple-600">
-                Campaign Manager
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
-              <button
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  localStorage.removeItem('user');
-                  router.push('/auth/login');
-                }}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
-            <Link href="/dashboard" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
-              Dashboard
-            </Link>
-            <Link href="/csv" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
-              CSV Files
-            </Link>
-            <Link href="/campaigns" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
-              Campaigns
-            </Link>
-            <Link href="/company-accounts" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
-              Company Accounts
-            </Link>
-            <Link href="/activity" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
-              Activity Logs
-            </Link>
-            <Link href="/cmdb-infrastructure" className="px-3 py-4 text-sm font-medium text-gray-900 border-b-2 border-purple-600">
-              CMDB Infrastructure
-            </Link>
-            <Link href="/architecture" className="px-3 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300">
-              Architecture
-            </Link>
-          </nav>
-        </div>
-      </div>
+      <Header user={user} />
+      <NavigationMenu />
 
       {/* Main Content */}
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8 mb-20">

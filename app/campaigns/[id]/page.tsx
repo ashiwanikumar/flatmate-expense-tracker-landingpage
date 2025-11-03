@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { campaignAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import NavigationMenu from '@/components/NavigationMenu';
 
 export default function CampaignDetailsPage() {
   const router = useRouter();
@@ -18,13 +20,16 @@ export default function CampaignDetailsPage() {
   const [actionMessage, setActionMessage] = useState('');
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [newScheduledDate, setNewScheduledDate] = useState('');
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
+    const userData = localStorage.getItem('user');
+    if (!token || !userData) {
       router.push('/auth/login');
       return;
     }
+    setUser(JSON.parse(userData));
     fetchCampaign();
   }, [id]);
 
@@ -119,12 +124,6 @@ export default function CampaignDetailsPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/');
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -170,60 +169,8 @@ export default function CampaignDetailsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12" />
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Campaign Manager
-              </h1>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="w-full sm:w-auto px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="bg-white border-b overflow-x-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-4 sm:space-x-8">
-            <Link
-              href="/dashboard"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              <span className="hidden sm:inline">Dashboard</span>
-              <span className="sm:hidden">Home</span>
-            </Link>
-            <Link
-              href="/csv"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              <span className="hidden sm:inline">CSV Files</span>
-              <span className="sm:hidden">CSV</span>
-            </Link>
-            <Link
-              href="/campaigns"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap"
-            >
-              Campaigns
-            </Link>
-            <Link
-              href="/company-accounts"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              <span className="hidden sm:inline">Company Accounts</span>
-              <span className="sm:hidden">Accounts</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Header user={user} />
+      <NavigationMenu />
 
       {/* Main Content */}
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 w-full">

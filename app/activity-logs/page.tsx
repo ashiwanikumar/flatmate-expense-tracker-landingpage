@@ -7,6 +7,8 @@ import { activityLogAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Footer from '@/components/Footer';
 import LoadingModal from '@/components/LoadingModal';
+import Header from '@/components/Header';
+import NavigationMenu from '@/components/NavigationMenu';
 
 export default function ActivityLogsPage() {
   const router = useRouter();
@@ -69,12 +71,6 @@ export default function ActivityLogsPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    toast.success('Logged out successfully');
-    router.push('/');
-  };
 
   const getActionBadgeColor = (action: string) => {
     const colors: any = {
@@ -119,80 +115,8 @@ export default function ActivityLogsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Campaign Manager
-              </h1>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <span className="text-xs sm:text-sm text-gray-700 truncate">Welcome, {user?.name}</span>
-              <button
-                onClick={handleLogout}
-                className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition w-full sm:w-auto"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="bg-white border-b overflow-x-auto">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
-            <Link
-              href="/dashboard"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              <span className="hidden sm:inline">Dashboard</span>
-              <span className="sm:hidden">Home</span>
-            </Link>
-            <Link
-              href="/csv"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              CSV
-            </Link>
-            <Link
-              href="/campaigns"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              Campaigns
-            </Link>
-            <Link
-              href="/company-accounts"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              <span className="hidden sm:inline">Company Accounts</span>
-              <span className="sm:hidden">Accounts</span>
-            </Link>
-            <Link
-              href="/calendar"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 whitespace-nowrap"
-            >
-              📅 <span className="hidden sm:inline">Calendar</span>
-            </Link>
-            <Link
-              href="/activity-logs"
-              className="px-2 sm:px-3 py-3 sm:py-4 text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap"
-            >
-              <span className="flex items-center gap-1 sm:gap-2">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="hidden sm:inline">Activity Logs</span>
-                <span className="sm:hidden">Activity</span>
-              </span>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Header user={user} />
+      <NavigationMenu />
 
       {/* Main Content */}
       <main className="flex-grow px-4 sm:px-6 lg:px-8 py-4 sm:py-8 w-full">

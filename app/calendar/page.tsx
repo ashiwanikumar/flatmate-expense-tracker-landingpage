@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { campaignAPI, companyAccountAPI } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import NavigationMenu from '@/components/NavigationMenu';
 
 export default function CalendarPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>('all');
@@ -19,6 +24,13 @@ export default function CalendarPage() {
   const [showDateModal, setShowDateModal] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (!token || !userData) {
+      router.push('/auth/login');
+      return;
+    }
+    setUser(JSON.parse(userData));
     fetchData();
   }, []);
 
@@ -223,84 +235,8 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 pb-24">
-      {/* Header with Navigation */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            {/* Left side: Logo, Title, and Navigation */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 w-full sm:w-auto">
-              <div className="flex items-center gap-3">
-                <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-10 w-10 sm:h-12 sm:w-12" />
-                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent whitespace-nowrap">
-                  Campaign Manager
-                </h1>
-              </div>
-
-              {/* Navigation */}
-              <nav className="flex space-x-3 sm:space-x-6 overflow-x-auto min-w-max sm:min-w-0">
-                <Link
-                  href="/dashboard"
-                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
-                >
-                  <span className="hidden sm:inline">Dashboard</span>
-                  <span className="sm:hidden">Dash</span>
-                </Link>
-                <Link
-                  href="/csv"
-                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
-                >
-                  CSV
-                </Link>
-                <Link
-                  href="/campaigns"
-                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
-                >
-                  <span className="hidden sm:inline">Campaigns</span>
-                  <span className="sm:hidden">Camp</span>
-                </Link>
-                <Link
-                  href="/company-accounts"
-                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
-                >
-                  <span className="hidden sm:inline">Company Accounts</span>
-                  <span className="sm:hidden">Accounts</span>
-                </Link>
-                <Link
-                  href="/calendar"
-                  className="text-xs sm:text-sm font-medium text-purple-600 border-b-2 border-purple-600 pb-1 whitespace-nowrap"
-                >
-                  <span className="hidden sm:inline">📅 Calendar</span>
-                  <span className="sm:hidden">📅 Cal</span>
-                </Link>
-                <Link
-                  href="/activity-logs"
-                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-purple-600 transition whitespace-nowrap"
-                >
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span className="hidden sm:inline">Activity Logs</span>
-                    <span className="sm:hidden">Logs</span>
-                  </span>
-                </Link>
-              </nav>
-            </div>
-
-            {/* Right side: Logout button */}
-            <button
-              onClick={() => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/';
-              }}
-              className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header user={user} />
+      <NavigationMenu />
 
       <div className="flex-grow p-4 sm:p-6 md:p-8">
         <div className="px-2 sm:px-4 lg:px-8">
