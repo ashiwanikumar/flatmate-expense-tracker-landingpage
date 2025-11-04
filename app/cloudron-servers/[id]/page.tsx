@@ -19,6 +19,8 @@ export default function CloudronServerDetailPage() {
   const [domains, setDomains] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'mailboxes' | 'domains'>('overview');
   const [loading, setLoading] = useState(true);
+  const [mailboxesLoading, setMailboxesLoading] = useState(false);
+  const [domainsLoading, setDomainsLoading] = useState(false);
   const [showAddMailboxModal, setShowAddMailboxModal] = useState(false);
   const [mailboxForm, setMailboxForm] = useState({
     name: '',
@@ -60,21 +62,27 @@ export default function CloudronServerDetailPage() {
 
   const fetchMailboxes = async () => {
     try {
+      setMailboxesLoading(true);
       const response = await cloudronAPI.getMailboxes(serverId);
       setMailboxes(response.data.data || []);
     } catch (error: any) {
       console.error('Error fetching mailboxes:', error);
       toast.error(error.response?.data?.message || 'Failed to fetch mailboxes');
+    } finally {
+      setMailboxesLoading(false);
     }
   };
 
   const fetchDomains = async () => {
     try {
+      setDomainsLoading(true);
       const response = await cloudronAPI.getDomains(serverId);
       setDomains(response.data.data || []);
     } catch (error: any) {
       console.error('Error fetching domains:', error);
       toast.error(error.response?.data?.message || 'Failed to fetch domains');
+    } finally {
+      setDomainsLoading(false);
     }
   };
 
@@ -94,6 +102,14 @@ export default function CloudronServerDetailPage() {
     } catch (error: any) {
       console.error('Error syncing server:', error);
       toast.error(error.response?.data?.message || 'Failed to sync server');
+    }
+  };
+
+  const handleOpenAddMailbox = async () => {
+    setShowAddMailboxModal(true);
+    // Fetch domains if not already loaded
+    if (domains.length === 0) {
+      await fetchDomains();
     }
   };
 
@@ -308,14 +324,18 @@ export default function CloudronServerDetailPage() {
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Mailboxes</h3>
                     <button
-                      onClick={() => setShowAddMailboxModal(true)}
+                      onClick={handleOpenAddMailbox}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium text-sm"
                     >
                       + Add Mailbox
                     </button>
                   </div>
 
-                  {mailboxes.length === 0 ? (
+                  {mailboxesLoading ? (
+                    <div className="flex justify-center items-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                    </div>
+                  ) : mailboxes.length === 0 ? (
                     <div className="text-center py-12">
                       <p className="text-gray-500">No mailboxes found</p>
                     </div>
@@ -323,12 +343,14 @@ export default function CloudronServerDetailPage() {
                     <div className="space-y-3">
                       {mailboxes.map((mailbox: any) => (
                         <div
-                          key={mailbox.id}
+                          key={`${mailbox.name}-${mailbox.domain}`}
                           className="flex justify-between items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
                         >
                           <div>
-                            <p className="font-medium text-gray-900">{mailbox.name}</p>
-                            <p className="text-sm text-gray-500">{mailbox.domain}</p>
+                            <p className="font-medium text-gray-900">{mailbox.name}@{mailbox.domain}</p>
+                            <p className="text-sm text-gray-500">
+                              Owner: {mailbox.ownerType} | Active: {mailbox.active ? 'Yes' : 'No'}
+                            </p>
                           </div>
                           <button
                             onClick={() => handleDeleteMailbox(mailbox)}
@@ -347,7 +369,11 @@ export default function CloudronServerDetailPage() {
               {activeTab === 'domains' && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Domains</h3>
-                  {domains.length === 0 ? (
+                  {domainsLoading ? (
+                    <div className="flex justify-center items-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                    </div>
+                  ) : domains.length === 0 ? (
                     <div className="text-center py-12">
                       <p className="text-gray-500">No domains found</p>
                     </div>

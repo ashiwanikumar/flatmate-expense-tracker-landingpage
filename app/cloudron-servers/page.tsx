@@ -37,6 +37,7 @@ export default function CloudronServersPage() {
   });
   const [testingConnection, setTestingConnection] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [syncingServer, setSyncingServer] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -110,12 +111,15 @@ export default function CloudronServersPage() {
 
   const handleSync = async (serverId: string) => {
     try {
+      setSyncingServer(serverId);
       await cloudronAPI.syncServer(serverId);
       toast.success('Server synced successfully!');
       fetchServers();
     } catch (error: any) {
       console.error('Error syncing server:', error);
       toast.error(error.response?.data?.message || 'Failed to sync server');
+    } finally {
+      setSyncingServer(null);
     }
   };
 
@@ -267,9 +271,20 @@ export default function CloudronServersPage() {
                     </button>
                     <button
                       onClick={() => handleSync(server._id)}
-                      className="px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium"
+                      disabled={syncingServer === server._id}
+                      className="px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                     >
-                      Sync
+                      {syncingServer === server._id ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Syncing...
+                        </>
+                      ) : (
+                        'Sync'
+                      )}
                     </button>
                     <button
                       onClick={() => handleDelete(server._id, server.domain)}
