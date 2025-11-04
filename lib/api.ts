@@ -205,8 +205,114 @@ export const cloudronAPI = {
 
   // Domains management
   getDomains: (serverId: string) => api.get(`/cloudron/servers/${serverId}/domains`),
+  addDomain: (serverId: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/domains`, data),
+  getDomain: (serverId: string, domain: string) =>
+    api.get(`/cloudron/servers/${serverId}/domains/${domain}`),
+  deleteDomain: (serverId: string, domain: string) =>
+    api.delete(`/cloudron/servers/${serverId}/domains/${domain}`),
+  setDomainConfig: (serverId: string, domain: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/domains/${domain}/config`, data),
+  setWellKnown: (serverId: string, domain: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/domains/${domain}/wellknown`, data),
+  checkDnsRecords: (serverId: string, domain: string, subdomain: string) =>
+    api.get(`/cloudron/servers/${serverId}/domains/${domain}/dns-check?subdomain=${encodeURIComponent(subdomain)}`),
+  syncDns: (serverId: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/domains/sync-dns`, data),
   getMailConfig: (serverId: string, domain: string) =>
     api.get(`/cloudron/servers/${serverId}/domains/${domain}/mail-config`),
+
+  // Mail domain management
+  getMailDomain: (serverId: string, domain: string) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}`),
+  enableMailDomain: (serverId: string, domain: string, enabled: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/enable`, { enabled }),
+  getMailDomainStatus: (serverId: string, domain: string) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}/status`),
+  setMailFromValidation: (serverId: string, domain: string, enabled: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/mail-from-validation`, { enabled }),
+  setCatchAllAddresses: (serverId: string, domain: string, addresses: string[]) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/catch-all`, { addresses }),
+  setMailRelay: (serverId: string, domain: string, relayConfig: any) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/relay`, relayConfig),
+  setMailSignature: (serverId: string, domain: string, signatureData: any) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/banner`, signatureData),
+  sendTestMail: (serverId: string, domain: string, to: string) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/send-test-mail`, { to }),
+  getMailboxCount: (serverId: string, domain: string) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}/mailbox-count`),
+
+  // Mailboxes for specific domain
+  getMailboxesForDomain: (serverId: string, domain: string) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes`),
+  addMailboxToDomain: (serverId: string, domain: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes`, data),
+  getMailboxFromDomain: (serverId: string, domain: string, name: string) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}`),
+  updateMailboxInDomain: (serverId: string, domain: string, name: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}`, data),
+  deleteMailboxFromDomain: (serverId: string, domain: string, name: string, deleteMails: boolean = false) =>
+    api.delete(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}`, {
+      data: { deleteMails }
+    }),
+
+  // Mailbox aliases
+  getMailboxAliases: (serverId: string, domain: string, name: string) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}/aliases`),
+  setMailboxAliases: (serverId: string, domain: string, name: string, aliases: any[]) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}/aliases`, { aliases }),
+
+  // Mail lists management
+  getMailLists: (serverId: string, domain: string, params?: any) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}/lists`, { params }),
+  addMailList: (serverId: string, domain: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/lists`, data),
+  getMailList: (serverId: string, domain: string, name: string) =>
+    api.get(`/cloudron/servers/${serverId}/mail/${domain}/lists/${name}`),
+  updateMailList: (serverId: string, domain: string, name: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/lists/${name}`, data),
+  deleteMailList: (serverId: string, domain: string, name: string) =>
+    api.delete(`/cloudron/servers/${serverId}/mail/${domain}/lists/${name}`),
+
+  // Mailserver configuration
+  getMailserverEventlogs: (serverId: string, params?: any) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/eventlog`, { params }),
+  clearMailserverEventlogs: (serverId: string, till?: number) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/clear_eventlog`, null, { params: { till } }),
+  getMailserverLocation: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/location`),
+  setMailserverLocation: (serverId: string, data: { domain: string; subdomain: string }) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/location`, data),
+  getMaxEmailSize: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/max_email_size`),
+  setMaxEmailSize: (serverId: string, size: number) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/max_email_size`, { size }),
+  getSpamAcl: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/spam_acl`),
+  setSpamAcl: (serverId: string, blacklist: string[]) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/spam_acl`, { blacklist }),
+  getSpamCustomConfig: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/spam_custom_config`),
+  setSpamCustomConfig: (serverId: string, config: string) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/spam_custom_config`, { config }),
+  getDnsblConfig: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/dnsbl_config`),
+  setDnsblConfig: (serverId: string, zones: string[]) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/dnsbl_config`, { zones }),
+  getSolrConfig: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/solr_config`),
+  setSolrConfig: (serverId: string, enabled: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/solr_config`, { enabled }),
+  getMailboxSharing: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/mailbox_sharing`),
+  setMailboxSharing: (serverId: string, enabled: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/mailbox_sharing`, { enabled }),
+  getVirtualAllMail: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/virtual_all_mail`),
+  setVirtualAllMail: (serverId: string, enabled: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/mailserver/virtual_all_mail`, { enabled }),
+  getMailserverUsage: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/mailserver/usage`),
 };
 
 export default api;
