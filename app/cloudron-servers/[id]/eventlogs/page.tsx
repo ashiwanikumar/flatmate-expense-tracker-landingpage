@@ -165,19 +165,22 @@ export default function EventlogsPage() {
   };
 
   const getActionBadgeColor = (action: string) => {
-    if (action.includes('error') || action.includes('down') || action.includes('oom') || action.includes('remove')) {
+    if (!action) return 'bg-gray-100 text-gray-800';
+
+    const actionLower = action.toLowerCase();
+    if (actionLower.includes('error') || actionLower.includes('down') || actionLower.includes('oom') || actionLower.includes('remove')) {
       return 'bg-red-100 text-red-800';
     }
-    if (action.includes('install') || action.includes('add') || action.includes('new') || action.includes('enabled')) {
+    if (actionLower.includes('install') || actionLower.includes('add') || actionLower.includes('new') || actionLower.includes('enabled')) {
       return 'bg-green-100 text-green-800';
     }
-    if (action.includes('update') || action.includes('configure') || action.includes('restart')) {
+    if (actionLower.includes('update') || actionLower.includes('configure') || actionLower.includes('restart')) {
       return 'bg-blue-100 text-blue-800';
     }
-    if (action.includes('backup') || action.includes('restore')) {
+    if (actionLower.includes('backup') || actionLower.includes('restore')) {
       return 'bg-purple-100 text-purple-800';
     }
-    if (action.includes('login') || action.includes('logout')) {
+    if (actionLower.includes('login') || actionLower.includes('logout')) {
       return 'bg-yellow-100 text-yellow-800';
     }
     return 'bg-gray-100 text-gray-800';

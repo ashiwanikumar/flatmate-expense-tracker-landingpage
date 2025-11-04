@@ -360,8 +360,8 @@ export default function CloudronServerDetailPage() {
                         <p className="text-gray-500 text-center py-8">No mailboxes configured</p>
                       ) : (
                         <div className="space-y-2">
-                          {mailboxes.slice(0, 5).map((mailbox: any) => (
-                            <div key={mailbox.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          {mailboxes.slice(0, 5).map((mailbox: any, index: number) => (
+                            <div key={mailbox.id || `mailbox-${index}`} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                               <div>
                                 <p className="font-medium text-gray-900">
                                   {mailbox.name}@{mailbox.domain}
@@ -403,8 +403,8 @@ export default function CloudronServerDetailPage() {
                         <p className="text-gray-500 text-center py-8">No domains configured</p>
                       ) : (
                         <div className="space-y-3">
-                          {domains.map((domain: any) => (
-                            <div key={domain.domain} className="p-4 bg-gray-50 rounded-lg">
+                          {domains.map((domain: any, index: number) => (
+                            <div key={domain.domain || `domain-${index}`} className="p-4 bg-gray-50 rounded-lg">
                               <div className="flex items-center justify-between">
                                 <div className="flex-1">
                                   <p className="font-bold text-gray-900">{domain.domain}</p>
