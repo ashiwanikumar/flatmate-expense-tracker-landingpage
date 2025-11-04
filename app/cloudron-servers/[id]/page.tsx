@@ -151,6 +151,20 @@ export default function CloudronServerDetailPage() {
                     >
                       Services
                     </Link>
+                    <Link
+                      href={`/cloudron-servers/${serverId}/tasks`}
+                      className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-all duration-200 font-medium"
+                      title="View Tasks"
+                    >
+                      Tasks
+                    </Link>
+                    <Link
+                      href={`/cloudron-servers/${serverId}/volumes`}
+                      className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-200 font-medium"
+                      title="Manage Storage Volumes"
+                    >
+                      Volumes
+                    </Link>
                     <button
                       onClick={handleSync}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 font-medium"

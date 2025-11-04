@@ -454,6 +454,38 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/system/logs/${unit}`, { params: { lines: lines || 100, format: format || 'json' } }),
   getSystemLogStreamUrl: (serverId: string, unit: string, lines?: number, format?: string) =>
     api.get(`/cloudron/servers/${serverId}/system/logstream/${unit}`, { params: { lines: lines || 100, format: format || 'json' } }),
+
+  // Tasks management
+  getTasks: (serverId: string, params?: { page?: number; per_page?: number; type?: string }) =>
+    api.get(`/cloudron/servers/${serverId}/tasks`, { params }),
+  getTask: (serverId: string, taskId: string) =>
+    api.get(`/cloudron/servers/${serverId}/tasks/${taskId}`),
+  getTaskLogs: (serverId: string, taskId: string, params?: { lines?: number; format?: string }) =>
+    api.get(`/cloudron/servers/${serverId}/tasks/${taskId}/logs`, { params }),
+  getTaskLogStreamUrl: (serverId: string, taskId: string, lines?: number) =>
+    api.get(`/cloudron/servers/${serverId}/tasks/${taskId}/logstream`, { params: { lines } }),
+  stopTask: (serverId: string, taskId: string) =>
+    api.post(`/cloudron/servers/${serverId}/tasks/${taskId}/stop`),
+
+  // Volumes management
+  addVolume: (serverId: string, data: { name: string; mountType: string; mountOptions: any }) =>
+    api.post(`/cloudron/servers/${serverId}/volumes`, data),
+  listVolumes: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/volumes`),
+  getVolume: (serverId: string, volumeId: string) =>
+    api.get(`/cloudron/servers/${serverId}/volumes/${volumeId}`),
+  updateVolume: (serverId: string, volumeId: string, data: { mountOptions: any }) =>
+    api.post(`/cloudron/servers/${serverId}/volumes/${volumeId}`, data),
+  deleteVolume: (serverId: string, volumeId: string) =>
+    api.delete(`/cloudron/servers/${serverId}/volumes/${volumeId}`),
+  getVolumeStatus: (serverId: string, volumeId: string) =>
+    api.get(`/cloudron/servers/${serverId}/volumes/${volumeId}/status`),
+  remountVolume: (serverId: string, volumeId: string) =>
+    api.post(`/cloudron/servers/${serverId}/volumes/${volumeId}/remount`),
+  getFileFromVolume: (serverId: string, volumeId: string, filename: string) =>
+    api.get(`/cloudron/servers/${serverId}/volumes/${volumeId}/files/${filename}`, {
+      responseType: 'blob'
+    }),
 };
 
 export default api;
