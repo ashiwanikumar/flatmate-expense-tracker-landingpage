@@ -172,6 +172,20 @@ export default function CloudronServerDetailPage() {
                     >
                       User Directory
                     </Link>
+                    <Link
+                      href={`/cloudron-servers/${serverId}/updater`}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium"
+                      title="Update Manager"
+                    >
+                      Updater
+                    </Link>
+                    <Link
+                      href={`/cloudron-servers/${serverId}/users`}
+                      className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all duration-200 font-medium"
+                      title="User Management"
+                    >
+                      Users
+                    </Link>
                     <button
                       onClick={handleSync}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 font-medium"

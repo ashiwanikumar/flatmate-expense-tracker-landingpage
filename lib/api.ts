@@ -492,6 +492,22 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/user-directory/profile-config`),
   setUserDirectoryProfileConfig: (serverId: string, data: { lockUserProfiles: boolean; mandatory2FA: boolean }) =>
     api.post(`/cloudron/servers/${serverId}/user-directory/profile-config`, data),
+
+  // Updater management
+  getPendingUpdates: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/updater/updates`),
+  checkForUpdates: (serverId: string) =>
+    api.post(`/cloudron/servers/${serverId}/updater/check`),
+  updateCloudron: (serverId: string, skipBackup?: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/updater/update`, { skipBackup }),
+  getUpdateSchedule: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/updater/schedule`),
+  setUpdateSchedule: (serverId: string, pattern: string) =>
+    api.post(`/cloudron/servers/${serverId}/updater/schedule`, { pattern }),
+
+  // Users management
+  listUsers: (serverId: string, params?: { page?: number; per_page?: number; search?: string; active?: boolean }) =>
+    api.get(`/cloudron/servers/${serverId}/users`, { params }),
 };
 
 export default api;
