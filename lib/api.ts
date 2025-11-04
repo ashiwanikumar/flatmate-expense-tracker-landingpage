@@ -508,6 +508,48 @@ export const cloudronAPI = {
   // Users management
   listUsers: (serverId: string, params?: { page?: number; per_page?: number; search?: string; active?: boolean }) =>
     api.get(`/cloudron/servers/${serverId}/users`, { params }),
+
+  // Branding management
+  getCloudronAvatar: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/branding/cloudron_avatar`, {
+      responseType: 'blob'
+    }),
+  setCloudronAvatar: (serverId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return api.post(`/cloudron/servers/${serverId}/branding/cloudron_avatar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  getCloudronName: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/branding/cloudron_name`),
+  setCloudronName: (serverId: string, name: string) =>
+    api.post(`/cloudron/servers/${serverId}/branding/cloudron_name`, { name }),
+  getCloudronBackground: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/branding/cloudron_background`, {
+      responseType: 'blob'
+    }),
+  setCloudronBackground: (serverId: string, file: File | null) => {
+    const formData = new FormData();
+    if (file) {
+      formData.append('background', file);
+    }
+    return api.post(`/cloudron/servers/${serverId}/branding/cloudron_background`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  getCloudronFooter: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/branding/footer`),
+  setCloudronFooter: (serverId: string, footer: string) =>
+    api.post(`/cloudron/servers/${serverId}/branding/footer`, { footer }),
+
+  // Cloudron status
+  getCloudronStatus: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/cloudron/status`),
 };
 
 export default api;

@@ -105,6 +105,13 @@ export default function CloudronServerDetailPage() {
                   </div>
                   <div className="flex gap-2">
                     <Link
+                      href={`/cloudron-servers/${serverId}/branding`}
+                      className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium"
+                      title="Branding Settings"
+                    >
+                      Branding
+                    </Link>
+                    <Link
                       href={`/cloudron-servers/${serverId}/notifications`}
                       className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all duration-200 font-medium flex items-center gap-2"
                       title="View Notifications"
