@@ -648,7 +648,7 @@ export default function MailDomainManagementPage() {
                     type="email"
                     value={newCatchAllAddress}
                     onChange={(e) => setNewCatchAllAddress(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                     placeholder="catchall@example.com"
                   />
                   <button
@@ -714,7 +714,7 @@ export default function MailDomainManagementPage() {
                 <select
                   value={relayForm.provider}
                   onChange={(e) => setRelayForm({ ...relayForm, provider: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   required
                 >
                   <option value="">Select Provider</option>
@@ -729,7 +729,7 @@ export default function MailDomainManagementPage() {
                   type="text"
                   value={relayForm.host}
                   onChange={(e) => setRelayForm({ ...relayForm, host: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   placeholder="smtp.example.com"
                 />
               </div>
@@ -739,7 +739,7 @@ export default function MailDomainManagementPage() {
                   type="number"
                   value={relayForm.port}
                   onChange={(e) => setRelayForm({ ...relayForm, port: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                 />
               </div>
               <div>
@@ -748,7 +748,7 @@ export default function MailDomainManagementPage() {
                   type="text"
                   value={relayForm.username}
                   onChange={(e) => setRelayForm({ ...relayForm, username: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                 />
               </div>
               <div>
@@ -757,7 +757,7 @@ export default function MailDomainManagementPage() {
                   type="password"
                   value={relayForm.password}
                   onChange={(e) => setRelayForm({ ...relayForm, password: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                 />
               </div>
               <div className="flex items-center gap-6">
@@ -817,7 +817,7 @@ export default function MailDomainManagementPage() {
                 <textarea
                   value={signatureForm.text}
                   onChange={(e) => setSignatureForm({ ...signatureForm, text: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   rows={4}
                   required
                   placeholder="Best regards, Your Team"
@@ -828,7 +828,7 @@ export default function MailDomainManagementPage() {
                 <textarea
                   value={signatureForm.html}
                   onChange={(e) => setSignatureForm({ ...signatureForm, html: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-mono text-sm text-gray-900"
                   rows={6}
                   placeholder="<div>Best regards, <strong>Your Team</strong></div>"
                 />
@@ -870,7 +870,7 @@ export default function MailDomainManagementPage() {
                 type="email"
                 value={testMailAddress}
                 onChange={(e) => setTestMailAddress(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                 placeholder="test@example.com"
                 required
               />
@@ -921,7 +921,7 @@ export default function MailDomainManagementPage() {
                   type="password"
                   value={passwordForm.password}
                   onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                   placeholder="Enter new password (min. 8 characters)"
                   minLength={8}
                   required
@@ -933,7 +933,7 @@ export default function MailDomainManagementPage() {
                   type="password"
                   value={passwordForm.confirmPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                   placeholder="Confirm new password"
                   minLength={8}
                   required
@@ -985,7 +985,7 @@ export default function MailDomainManagementPage() {
                   type="text"
                   value={mailboxForm.name}
                   onChange={(e) => setMailboxForm({ ...mailboxForm, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   placeholder="username"
                   required
                 />
@@ -996,7 +996,7 @@ export default function MailDomainManagementPage() {
                   type="text"
                   value={mailboxForm.ownerId}
                   onChange={(e) => setMailboxForm({ ...mailboxForm, ownerId: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   placeholder="Leave empty to use first available user"
                 />
               </div>
@@ -1005,7 +1005,7 @@ export default function MailDomainManagementPage() {
                 <select
                   value={mailboxForm.ownerType}
                   onChange={(e) => setMailboxForm({ ...mailboxForm, ownerType: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                 >
                   <option value="user">User</option>
                   <option value="group">Group</option>
@@ -1017,7 +1017,7 @@ export default function MailDomainManagementPage() {
                   type="number"
                   value={(mailboxForm.storageQuota / 1000000000).toFixed(2)}
                   onChange={(e) => setMailboxForm({ ...mailboxForm, storageQuota: parseFloat(e.target.value) * 1000000000 })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   step="0.01"
                 />
               </div>
@@ -1070,7 +1070,7 @@ export default function MailDomainManagementPage() {
                   type="number"
                   value={((selectedMailbox.storageQuota || 0) / 1000000000).toFixed(2)}
                   onChange={(e) => setSelectedMailbox({ ...selectedMailbox, storageQuota: parseFloat(e.target.value) * 1000000000 })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   step="0.01"
                 />
               </div>
@@ -1133,14 +1133,14 @@ export default function MailDomainManagementPage() {
                     type="text"
                     value={newAlias.name}
                     onChange={(e) => setNewAlias({ ...newAlias, name: e.target.value })}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                     placeholder="alias"
                   />
                   <input
                     type="text"
                     value={newAlias.domain}
                     onChange={(e) => setNewAlias({ ...newAlias, domain: e.target.value })}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                     placeholder="domain.com"
                   />
                   <button
@@ -1213,7 +1213,7 @@ export default function MailDomainManagementPage() {
                   type="text"
                   value={listForm.name}
                   onChange={(e) => setListForm({ ...listForm, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                   placeholder="listname"
                   required
                 />
@@ -1225,7 +1225,7 @@ export default function MailDomainManagementPage() {
                     type="email"
                     value={newMember}
                     onChange={(e) => setNewMember(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                     placeholder="member@example.com"
                   />
                   <button
@@ -1315,7 +1315,7 @@ export default function MailDomainManagementPage() {
                     type="email"
                     value={newMember}
                     onChange={(e) => setNewMember(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-gray-900"
                     placeholder="member@example.com"
                   />
                   <button
