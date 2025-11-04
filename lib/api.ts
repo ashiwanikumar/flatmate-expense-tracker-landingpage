@@ -313,6 +313,80 @@ export const cloudronAPI = {
     api.post(`/cloudron/servers/${serverId}/mailserver/virtual_all_mail`, { enabled }),
   getMailserverUsage: (serverId: string) =>
     api.get(`/cloudron/servers/${serverId}/mailserver/usage`),
+
+  // Network management
+  getBlocklist: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/network/blocklist`),
+  setBlocklist: (serverId: string, blocklist: string) =>
+    api.post(`/cloudron/servers/${serverId}/network/blocklist`, { blocklist }),
+  getDynamicDns: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/network/dynamic-dns`),
+  setDynamicDns: (serverId: string, enabled: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/network/dynamic-dns`, { enabled }),
+  getIpv4Config: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/network/ipv4-config`),
+  setIpv4Config: (serverId: string, data: { provider: string; ip?: string }) =>
+    api.post(`/cloudron/servers/${serverId}/network/ipv4-config`, data),
+  getIpv6Config: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/network/ipv6-config`),
+  setIpv6Config: (serverId: string, data: { provider: string; ip?: string }) =>
+    api.post(`/cloudron/servers/${serverId}/network/ipv6-config`, data),
+  getIpv4Address: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/network/ipv4`),
+  getIpv6Address: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/network/ipv6`),
+
+  // Notification management
+  getNotifications: (serverId: string, params?: any) =>
+    api.get(`/cloudron/servers/${serverId}/notifications`, { params }),
+  getNotification: (serverId: string, notificationId: string) =>
+    api.get(`/cloudron/servers/${serverId}/notifications/${notificationId}`),
+  updateNotification: (serverId: string, notificationId: string, data: { acknowledged: boolean }) =>
+    api.post(`/cloudron/servers/${serverId}/notifications/${notificationId}`, data),
+
+  // Profile management
+  getProfile: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/profile`),
+  updateProfile: (serverId: string, data: { email?: string; fallbackEmail?: string; password?: string; displayName?: string }) =>
+    api.post(`/cloudron/servers/${serverId}/profile`, data),
+  updateAvatar: (serverId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return api.post(`/cloudron/servers/${serverId}/profile/avatar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+  getAvatar: (serverId: string, userId: string) =>
+    api.get(`/cloudron/servers/${serverId}/profile/avatar/${userId}`, {
+      responseType: 'blob'
+    }),
+  getBackgroundImage: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/profile/background_image`, {
+      responseType: 'blob'
+    }),
+  setBackgroundImage: (serverId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('backgroundImage', file);
+    return api.post(`/cloudron/servers/${serverId}/profile/background_image`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+  updatePassword: (serverId: string, data: { password: string; newPassword: string }) =>
+    api.post(`/cloudron/servers/${serverId}/profile/password`, data),
+  set2FASecret: (serverId: string) =>
+    api.post(`/cloudron/servers/${serverId}/profile/twofactorauthentication_secret`),
+  enable2FA: (serverId: string, totpToken: string) =>
+    api.post(`/cloudron/servers/${serverId}/profile/twofactorauthentication_enable`, { totpToken }),
+  disable2FA: (serverId: string, password: string) =>
+    api.post(`/cloudron/servers/${serverId}/profile/twofactorauthentication_disable`, { password }),
+
+  // Provision management
+  configureInitialDomain: (serverId: string, data: { domainConfig: any; ipv4Config?: any; ipv6Config?: any }) =>
+    api.post(`/cloudron/servers/${serverId}/provision`, data),
 };
 
 export default api;
