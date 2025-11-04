@@ -97,143 +97,183 @@ export default function CloudronServerDetailPage() {
           ) : (
             <>
               {/* Server Header */}
-              <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{server?.domain}</h1>
-                    <p className="text-sm text-gray-600 mt-1">{server?.serverUrl}</p>
+              <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 rounded-xl shadow-sm p-8 mb-6 border border-purple-100">
+                <div className="flex items-start justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-bold text-gray-900">{server?.domain}</h1>
+                      <p className="text-sm text-gray-600 mt-1 flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        {server?.serverUrl}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={handleSync}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Sync Server
+                  </button>
+                </div>
+
+                {/* Quick Action Buttons - Organized Grid */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Quick Actions</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                     <Link
                       href={`/cloudron-servers/${serverId}/branding`}
-                      className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-purple-700 rounded-lg hover:bg-purple-50 transition-all duration-200 text-sm font-medium text-center border border-purple-200 shadow-sm hover:shadow"
                       title="Branding Settings"
                     >
                       Branding
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/notifications`}
-                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all duration-200 font-medium flex items-center gap-2"
+                      className="px-3 py-2 bg-white text-yellow-700 rounded-lg hover:bg-yellow-50 transition-all duration-200 text-sm font-medium text-center border border-yellow-200 shadow-sm hover:shadow"
                       title="View Notifications"
                     >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                      </svg>
                       Notifications
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/eventlogs`}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium flex items-center gap-2"
+                      className="px-3 py-2 bg-white text-red-700 rounded-lg hover:bg-red-50 transition-all duration-200 text-sm font-medium text-center border border-red-200 shadow-sm hover:shadow"
                       title="View Eventlogs"
                     >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
                       Eventlogs
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/mailserver`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 text-sm font-medium text-center border border-blue-200 shadow-sm hover:shadow"
                     >
                       Mailserver
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/network`}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-green-700 rounded-lg hover:bg-green-50 transition-all duration-200 text-sm font-medium text-center border border-green-200 shadow-sm hover:shadow"
                     >
                       Network
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/reverseproxy`}
-                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-orange-700 rounded-lg hover:bg-orange-50 transition-all duration-200 text-sm font-medium text-center border border-orange-200 shadow-sm hover:shadow"
                     >
                       Reverse Proxy
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/system`}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-indigo-700 rounded-lg hover:bg-indigo-50 transition-all duration-200 text-sm font-medium text-center border border-indigo-200 shadow-sm hover:shadow"
                     >
                       System Info
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/provision`}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-indigo-700 rounded-lg hover:bg-indigo-50 transition-all duration-200 text-sm font-medium text-center border border-indigo-200 shadow-sm hover:shadow"
                     >
                       Provision
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/services`}
-                      className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-cyan-700 rounded-lg hover:bg-cyan-50 transition-all duration-200 text-sm font-medium text-center border border-cyan-200 shadow-sm hover:shadow"
                       title="Manage Services"
                     >
                       Services
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/tasks`}
-                      className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-pink-700 rounded-lg hover:bg-pink-50 transition-all duration-200 text-sm font-medium text-center border border-pink-200 shadow-sm hover:shadow"
                       title="View Tasks"
                     >
                       Tasks
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/volumes`}
-                      className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-teal-700 rounded-lg hover:bg-teal-50 transition-all duration-200 text-sm font-medium text-center border border-teal-200 shadow-sm hover:shadow"
                       title="Manage Storage Volumes"
                     >
                       Volumes
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/user-directory`}
-                      className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-violet-700 rounded-lg hover:bg-violet-50 transition-all duration-200 text-sm font-medium text-center border border-violet-200 shadow-sm hover:shadow"
                       title="User Directory Settings"
                     >
                       User Directory
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/updater`}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-red-700 rounded-lg hover:bg-red-50 transition-all duration-200 text-sm font-medium text-center border border-red-200 shadow-sm hover:shadow"
                       title="Update Manager"
                     >
                       Updater
                     </Link>
                     <Link
                       href={`/cloudron-servers/${serverId}/users`}
-                      className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all duration-200 font-medium"
+                      className="px-3 py-2 bg-white text-amber-700 rounded-lg hover:bg-amber-50 transition-all duration-200 text-sm font-medium text-center border border-amber-200 shadow-sm hover:shadow"
                       title="User Management"
                     >
                       Users
                     </Link>
-                    <button
-                      onClick={handleSync}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 font-medium"
-                    >
-                      Sync Server
-                    </button>
                   </div>
                 </div>
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Version</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats?.server?.version || server?.metadata?.version || 'N/A'}</p>
+                  <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-gray-600">Version</p>
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900">{stats?.server?.version || server?.metadata?.version || 'N/A'}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Apps</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {stats?.apps?.total || 0}
-                      {stats?.apps?.running > 0 && (
-                        <span className="text-sm text-green-600 ml-2">{stats.apps.running} running</span>
-                      )}
-                    </p>
+                  <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-gray-600">Apps</p>
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900">{stats?.apps?.total || 0}</p>
+                    {stats?.apps?.running > 0 && (
+                      <p className="text-xs text-green-600 mt-1 font-medium">{stats.apps.running} running</p>
+                    )}
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Mailboxes</p>
-                    <p className="text-2xl font-bold text-gray-900">{mailboxes.length || 0}</p>
+                  <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-gray-600">Mailboxes</p>
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900">{mailboxes.length || 0}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Domains</p>
-                    <p className="text-2xl font-bold text-gray-900">{domains.length || 0}</p>
+                  <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-gray-600">Domains</p>
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900">{domains.length || 0}</p>
                   </div>
                 </div>
               </div>

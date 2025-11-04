@@ -16,6 +16,10 @@ export default function CloudronServersPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
   const [addingServer, setAddingServer] = useState(false);
+  const [syncingServerId, setSyncingServerId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [serverToDelete, setServerToDelete] = useState<{ id: string; domain: string } | null>(null);
   const [serverForm, setServerForm] = useState({
     domain: '',
     serverUrl: '',
@@ -97,6 +101,7 @@ export default function CloudronServersPage() {
   };
 
   const handleSyncServer = async (serverId: string) => {
+    setSyncingServerId(serverId);
     try {
       await cloudronAPI.syncServer(serverId);
       toast.success('Server synced successfully!');
@@ -104,17 +109,29 @@ export default function CloudronServersPage() {
     } catch (error: any) {
       console.error('Error syncing server:', error);
       toast.error(error.response?.data?.message || 'Failed to sync server');
+    } finally {
+      setSyncingServerId(null);
     }
   };
 
-  const handleDeleteServer = async (serverId: string, domain: string) => {
-    if (!confirm(`Are you sure you want to delete server "${domain}"?`)) {
+  const handleDeleteClick = (serverId: string, domain: string) => {
+    setServerToDelete({ id: serverId, domain });
+    setDeleteConfirmText('');
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!serverToDelete || deleteConfirmText.toUpperCase() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm');
       return;
     }
 
     try {
-      await cloudronAPI.deleteServer(serverId);
+      await cloudronAPI.deleteServer(serverToDelete.id);
       toast.success('Server deleted successfully!');
+      setShowDeleteModal(false);
+      setServerToDelete(null);
+      setDeleteConfirmText('');
       fetchServers();
     } catch (error: any) {
       console.error('Error deleting server:', error);
@@ -231,15 +248,16 @@ export default function CloudronServersPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleSyncServer(server._id)}
-                        className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                        disabled={syncingServerId === server._id}
+                        className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Sync Server"
                       >
-                        <svg className="w-5 h-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className={`w-5 h-5 mx-auto ${syncingServerId === server._id ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleDeleteServer(server._id, server.domain)}
+                        onClick={() => handleDeleteClick(server._id, server.domain)}
                         className="flex-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
                         title="Delete Server"
                       >
@@ -377,6 +395,78 @@ export default function CloudronServersPage() {
                 className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {addingServer ? 'Adding Server...' : 'Add Server'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Syncing Modal */}
+      {syncingServerId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="mb-4">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600 mx-auto"></div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Syncing Server</h3>
+              <p className="text-gray-600">Please wait while we sync the server data...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && serverToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Confirm Deletion</h3>
+            </div>
+
+            <div className="px-6 py-5">
+              <div className="mb-4">
+                <p className="text-gray-700 mb-2">
+                  Are you sure you want to delete server <span className="font-bold">"{serverToDelete.domain}"</span>?
+                </p>
+                <p className="text-sm text-red-600">
+                  This action cannot be undone. All associated data will be permanently removed.
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="deleteConfirm" className="block text-sm font-medium text-gray-700 mb-2">
+                  Type <span className="font-bold text-red-600">DELETE</span> to confirm:
+                </label>
+                <input
+                  type="text"
+                  id="deleteConfirm"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition"
+                  placeholder="Type DELETE here"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setServerToDelete(null);
+                  setDeleteConfirmText('');
+                }}
+                className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deleteConfirmText.toUpperCase() !== 'DELETE'}
+                className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Delete Server
               </button>
             </div>
           </div>
