@@ -138,6 +138,13 @@ export default function CloudronServerDetailPage() {
                     >
                       Provision
                     </Link>
+                    <Link
+                      href={`/cloudron-servers/${serverId}/services`}
+                      className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all duration-200 font-medium"
+                      title="Manage Services"
+                    >
+                      Services
+                    </Link>
                     <button
                       onClick={handleSync}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 font-medium"

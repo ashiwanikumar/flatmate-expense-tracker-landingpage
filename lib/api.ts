@@ -414,6 +414,30 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/reverseproxy/trusted-ips`),
   setTrustedIps: (serverId: string, trustedIps: string) =>
     api.post(`/cloudron/servers/${serverId}/reverseproxy/trusted-ips`, { trustedIps }),
+
+  // Services management
+  listServices: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/services`),
+  getPlatformStatus: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/services/platform_status`),
+  getService: (serverId: string, serviceName: string) =>
+    api.get(`/cloudron/servers/${serverId}/services/${serviceName}`),
+  configureService: (serverId: string, serviceName: string, config: { memoryLimit: number; recoveryMode: boolean }) =>
+    api.post(`/cloudron/servers/${serverId}/services/${serviceName}`, config),
+  getServiceGraphs: (serverId: string, serviceName: string, fromMinutes: number) =>
+    api.get(`/cloudron/servers/${serverId}/services/${serviceName}/graphs`, { params: { fromMinutes } }),
+  getServiceLogs: (serverId: string, serviceName: string, lines: number, format?: string) =>
+    api.get(`/cloudron/servers/${serverId}/services/${serviceName}/logs`, { params: { lines, format: format || 'json' } }),
+  getServiceLogstream: (serverId: string, serviceName: string, lines: number, format?: string) =>
+    api.get(`/cloudron/servers/${serverId}/services/${serviceName}/logstream`, { params: { lines, format: format || 'json' } }),
+  restartService: (serverId: string, serviceName: string) =>
+    api.post(`/cloudron/servers/${serverId}/services/${serviceName}/restart`),
+  rebuildService: (serverId: string, serviceName: string) =>
+    api.post(`/cloudron/servers/${serverId}/services/${serviceName}/rebuild`),
+
+  // System information
+  getSystemInfo: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/system/info`),
 };
 
 export default api;
