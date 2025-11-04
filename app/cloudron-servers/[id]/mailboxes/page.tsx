@@ -119,7 +119,7 @@ export default function MailboxesPage() {
   const handleDeleteMailbox = async () => {
     if (!mailboxToDelete) return;
 
-    if (deleteConfirmText !== 'DELETE') {
+    if (deleteConfirmText.toUpperCase() !== 'DELETE') {
       toast.error('Please type DELETE to confirm');
       return;
     }
@@ -537,9 +537,9 @@ export default function MailboxesPage() {
               </button>
               <button
                 onClick={handleDeleteMailbox}
-                disabled={deleting || deleteConfirmText !== 'DELETE'}
+                disabled={deleting || deleteConfirmText.toUpperCase() !== 'DELETE'}
                 className={`px-5 py-2.5 rounded-lg transition font-medium ${
-                  deleteConfirmText === 'DELETE' && !deleting
+                  deleteConfirmText.toUpperCase() === 'DELETE' && !deleting
                     ? 'bg-red-600 text-white hover:bg-red-700'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}

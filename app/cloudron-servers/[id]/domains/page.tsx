@@ -58,6 +58,12 @@ export default function DomainsPage() {
     type: '',
   });
 
+  // Delete confirmation states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [domainToDelete, setDomainToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -120,18 +126,37 @@ export default function DomainsPage() {
     }
   };
 
-  const handleDeleteDomain = async (domain: string) => {
-    if (!confirm(`Are you sure you want to delete domain "${domain}"?`)) {
+  const openDeleteModal = (domain: string) => {
+    setDomainToDelete(domain);
+    setShowDeleteModal(true);
+    setDeleteConfirmText('');
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDomainToDelete(null);
+    setDeleteConfirmText('');
+  };
+
+  const handleDeleteDomain = async () => {
+    if (!domainToDelete) return;
+
+    if (deleteConfirmText.toUpperCase() !== 'DELETE') {
+      toast.error('Please type DELETE to confirm');
       return;
     }
 
+    setDeleting(true);
     try {
-      await cloudronAPI.deleteDomain(serverId, domain);
+      await cloudronAPI.deleteDomain(serverId, domainToDelete);
       toast.success('Domain deleted successfully!');
+      closeDeleteModal();
       fetchServerAndDomains();
     } catch (error: any) {
       console.error('Error deleting domain:', error);
       toast.error(error.response?.data?.message || 'Failed to delete domain');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -362,7 +387,7 @@ export default function DomainsPage() {
                         Mail Config
                       </Link>
                       <button
-                        onClick={() => handleDeleteDomain(domain.domain)}
+                        onClick={() => openDeleteModal(domain.domain)}
                         className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
                         title="Delete Domain"
                       >
@@ -542,6 +567,67 @@ export default function DomainsPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && domainToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Delete Domain</h3>
+            </div>
+
+            <div className="px-6 py-5">
+              <div className="mb-4">
+                <p className="text-gray-700 mb-2">
+                  Are you sure you want to delete domain:
+                </p>
+                <p className="text-lg font-bold text-red-600 mb-4">
+                  {domainToDelete}
+                </p>
+                <p className="text-sm text-gray-600 mb-4">
+                  This action cannot be undone. All domain configuration will be permanently deleted.
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type <span className="font-bold text-red-600">DELETE</span> to confirm:
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  placeholder="Type DELETE"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 bg-gray-50">
+              <button
+                onClick={closeDeleteModal}
+                disabled={deleting}
+                className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteDomain}
+                disabled={deleting || deleteConfirmText.toUpperCase() !== 'DELETE'}
+                className={`px-5 py-2.5 rounded-lg transition font-medium ${
+                  deleteConfirmText.toUpperCase() === 'DELETE' && !deleting
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {deleting ? 'Deleting...' : 'Delete Domain'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
