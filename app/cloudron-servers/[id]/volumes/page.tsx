@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { cloudronAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import NavigationMenu from '@/components/NavigationMenu';
+import Footer from '@/components/Footer';
 
 // Mount type constants
 const MOUNT_TYPES = [
@@ -746,6 +747,7 @@ export default function VolumesPage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

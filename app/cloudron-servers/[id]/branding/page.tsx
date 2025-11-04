@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { cloudronAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import NavigationMenu from '@/components/NavigationMenu';
+import Footer from '@/components/Footer';
 
 export default function CloudronBrandingPage() {
   const router = useRouter();
@@ -372,6 +373,7 @@ export default function CloudronBrandingPage() {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { cloudronAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import NavigationMenu from '@/components/NavigationMenu';
+import Footer from '@/components/Footer';
 
 // Action filter options based on Cloudron API
 const ACTION_FILTERS = [
@@ -405,6 +406,7 @@ export default function EventlogsPage() {
           </div>
         </div>
       </main>
+      <Footer />
 
       {/* Event Detail Modal */}
       {showEventModal && selectedEvent && (

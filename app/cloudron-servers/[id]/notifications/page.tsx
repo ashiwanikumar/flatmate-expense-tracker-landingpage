@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { cloudronAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import NavigationMenu from '@/components/NavigationMenu';
+import Footer from '@/components/Footer';
 
 interface Notification {
   id: string;
@@ -448,6 +449,7 @@ export default function NotificationsPage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { cloudronAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import NavigationMenu from '@/components/NavigationMenu';
+import Footer from '@/components/Footer';
 
 export default function MailboxesPage() {
   const router = useRouter();
@@ -466,6 +467,7 @@ export default function MailboxesPage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

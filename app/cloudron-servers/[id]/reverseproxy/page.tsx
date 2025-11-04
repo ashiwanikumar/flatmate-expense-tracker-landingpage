@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { cloudronAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import NavigationMenu from '@/components/NavigationMenu';
+import Footer from '@/components/Footer';
 
 export default function ReverseProxyPage() {
   const router = useRouter();
@@ -321,6 +322,7 @@ export default function ReverseProxyPage() {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
