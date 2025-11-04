@@ -560,8 +560,6 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/eventlogs/${eventId}`),
 
   // User management
-  listUsers: (serverId: string, params?: any) =>
-    api.get(`/cloudron/servers/${serverId}/users`, { params }),
   addUser: (serverId: string, data: any) =>
     api.post(`/cloudron/servers/${serverId}/users`, data),
   getUser: (serverId: string, userId: string) =>
@@ -586,7 +584,7 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/users/${userId}/invite_link`),
   sendInviteEmail: (serverId: string, userId: string, email: string) =>
     api.post(`/cloudron/servers/${serverId}/users/${userId}/send_invite_email`, { email }),
-  disable2FA: (serverId: string, userId: string) =>
+  disableUser2FA: (serverId: string, userId: string) =>
     api.delete(`/cloudron/servers/${serverId}/users/${userId}/twofactorauthentication`),
   impersonateUser: (serverId: string, userId: string, data: any) =>
     api.post(`/cloudron/servers/${serverId}/users/${userId}/ghost`, data),
