@@ -133,6 +133,12 @@ export default function CloudronServerDetailPage() {
                       Reverse Proxy
                     </Link>
                     <Link
+                      href={`/cloudron-servers/${serverId}/system`}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 font-medium"
+                    >
+                      System Info
+                    </Link>
+                    <Link
                       href={`/cloudron-servers/${serverId}/provision`}
                       className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 font-medium"
                     >

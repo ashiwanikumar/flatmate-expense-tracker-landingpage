@@ -438,6 +438,22 @@ export const cloudronAPI = {
   // System information
   getSystemInfo: (serverId: string) =>
     api.get(`/cloudron/servers/${serverId}/system/info`),
+  rebootSystem: (serverId: string) =>
+    api.post(`/cloudron/servers/${serverId}/system/reboot`),
+  getSystemCpus: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/system/cpus`),
+  getSystemDiskUsage: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/system/disk-usage`),
+  updateSystemDiskUsage: (serverId: string) =>
+    api.post(`/cloudron/servers/${serverId}/system/disk-usage`),
+  getSystemBlockDevices: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/system/block-devices`),
+  getSystemMemory: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/system/memory`),
+  getSystemLogs: (serverId: string, unit: string, lines?: number, format?: string) =>
+    api.get(`/cloudron/servers/${serverId}/system/logs/${unit}`, { params: { lines: lines || 100, format: format || 'json' } }),
+  getSystemLogStreamUrl: (serverId: string, unit: string, lines?: number, format?: string) =>
+    api.get(`/cloudron/servers/${serverId}/system/logstream/${unit}`, { params: { lines: lines || 100, format: format || 'json' } }),
 };
 
 export default api;
