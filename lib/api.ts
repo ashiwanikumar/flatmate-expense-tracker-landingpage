@@ -251,6 +251,8 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}`),
   updateMailboxInDomain: (serverId: string, domain: string, name: string, data: any) =>
     api.post(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}`, data),
+  setMailboxPassword: (serverId: string, domain: string, name: string, password: string) =>
+    api.post(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}/password`, { password }),
   deleteMailboxFromDomain: (serverId: string, domain: string, name: string, deleteMails: boolean = false) =>
     api.delete(`/cloudron/servers/${serverId}/mail/${domain}/mailboxes/${name}`, {
       data: { deleteMails }
@@ -556,6 +558,38 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/eventlogs`, { params }),
   getEventlog: (serverId: string, eventId: string) =>
     api.get(`/cloudron/servers/${serverId}/eventlogs/${eventId}`),
+
+  // User management
+  listUsers: (serverId: string, params?: any) =>
+    api.get(`/cloudron/servers/${serverId}/users`, { params }),
+  addUser: (serverId: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/users`, data),
+  getUser: (serverId: string, userId: string) =>
+    api.get(`/cloudron/servers/${serverId}/users/${userId}`),
+  deleteUser: (serverId: string, userId: string) =>
+    api.delete(`/cloudron/servers/${serverId}/users/${userId}`),
+  setUserRole: (serverId: string, userId: string, role: string) =>
+    api.put(`/cloudron/servers/${serverId}/users/${userId}/role`, { role }),
+  setUserActive: (serverId: string, userId: string, active: boolean) =>
+    api.put(`/cloudron/servers/${serverId}/users/${userId}/active`, { active }),
+  updateUserProfile: (serverId: string, userId: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/users/${userId}/profile`, data),
+  setUserPassword: (serverId: string, userId: string, password: string) =>
+    api.post(`/cloudron/servers/${serverId}/users/${userId}/password`, { password }),
+  getPasswordResetLink: (serverId: string, userId: string) =>
+    api.get(`/cloudron/servers/${serverId}/users/${userId}/password_reset_link`),
+  sendPasswordResetEmail: (serverId: string, userId: string, email: string) =>
+    api.post(`/cloudron/servers/${serverId}/users/${userId}/send_password_reset_email`, { email }),
+  setUserGroups: (serverId: string, userId: string, groupIds: string[]) =>
+    api.put(`/cloudron/servers/${serverId}/users/${userId}/groups`, { groupIds }),
+  getInviteLink: (serverId: string, userId: string) =>
+    api.get(`/cloudron/servers/${serverId}/users/${userId}/invite_link`),
+  sendInviteEmail: (serverId: string, userId: string, email: string) =>
+    api.post(`/cloudron/servers/${serverId}/users/${userId}/send_invite_email`, { email }),
+  disable2FA: (serverId: string, userId: string) =>
+    api.delete(`/cloudron/servers/${serverId}/users/${userId}/twofactorauthentication`),
+  impersonateUser: (serverId: string, userId: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/users/${userId}/ghost`, data),
 };
 
 export default api;

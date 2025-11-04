@@ -82,6 +82,12 @@ export default function MailDomainManagementPage() {
   const [showTestMailModal, setShowTestMailModal] = useState(false);
   const [testMailAddress, setTestMailAddress] = useState('');
 
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    password: '',
+    confirmPassword: '',
+  });
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -241,6 +247,30 @@ export default function MailDomainManagementPage() {
       fetchData();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to delete mailbox');
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (passwordForm.password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
+    if (passwordForm.password !== passwordForm.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    try {
+      await cloudronAPI.setMailboxPassword(serverId, domain, selectedMailbox.name, passwordForm.password);
+      toast.success('Mailbox password updated successfully!');
+      setShowPasswordModal(false);
+      setSelectedMailbox(null);
+      setPasswordForm({ password: '', confirmPassword: '' });
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update password');
     }
   };
 
@@ -508,6 +538,16 @@ export default function MailDomainManagementPage() {
                                     className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
                                   >
                                     Edit
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedMailbox(mailbox);
+                                      setPasswordForm({ password: '', confirmPassword: '' });
+                                      setShowPasswordModal(true);
+                                    }}
+                                    className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm font-medium"
+                                  >
+                                    Reset Password
                                   </button>
                                   <button
                                     onClick={() => handleDeleteMailbox(mailbox.name, false)}
@@ -847,6 +887,79 @@ export default function MailDomainManagementPage() {
                 className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg"
               >
                 Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Password Modal */}
+      {showPasswordModal && selectedMailbox && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-gray-900">Reset Mailbox Password</h3>
+              <button onClick={() => {
+                setShowPasswordModal(false);
+                setSelectedMailbox(null);
+                setPasswordForm({ password: '', confirmPassword: '' });
+              }} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleResetPassword} className="px-6 py-5 space-y-4">
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  Resetting password for: <strong>{selectedMailbox.name}@{domain}</strong>
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">New Password *</label>
+                <input
+                  type="password"
+                  value={passwordForm.password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  placeholder="Enter new password (min. 8 characters)"
+                  minLength={8}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
+                <input
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                  placeholder="Confirm new password"
+                  minLength={8}
+                  required
+                />
+              </div>
+              {passwordForm.password && passwordForm.confirmPassword && passwordForm.password !== passwordForm.confirmPassword && (
+                <p className="text-sm text-red-600">Passwords do not match</p>
+              )}
+            </form>
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setSelectedMailbox(null);
+                  setPasswordForm({ password: '', confirmPassword: '' });
+                }}
+                className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResetPassword}
+                disabled={!passwordForm.password || !passwordForm.confirmPassword || passwordForm.password !== passwordForm.confirmPassword}
+                className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Reset Password
               </button>
             </div>
           </div>

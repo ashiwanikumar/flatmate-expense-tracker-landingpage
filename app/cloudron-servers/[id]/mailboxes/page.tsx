@@ -245,7 +245,7 @@ export default function MailboxesPage() {
                         <span className="text-gray-600 block mb-1">Aliases:</span>
                         <div className="space-y-1">
                           {mailbox.aliases.slice(0, 2).map((alias: string, idx: number) => (
-                            <span key={idx} className="block text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                            <span key={`${mailbox.id}-alias-${idx}`} className="block text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
                               {alias}
                             </span>
                           ))}

@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 import { cloudronAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import NavigationMenu from '@/components/NavigationMenu';
-import Footer from '@/components/Footer';
 
 export default function CloudronUsersPage() {
   const router = useRouter();
@@ -19,10 +18,29 @@ export default function CloudronUsersPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<boolean | undefined>(undefined);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const perPage = 25;
+
+  // Modals
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
+  const [showPasswordResetLinkModal, setShowPasswordResetLinkModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [passwordResetLink, setPasswordResetLink] = useState('');
+
+  // Form states
+  const [userForm, setUserForm] = useState({
+    email: '',
+    username: '',
+    password: '',
+    displayName: '',
+    role: 'user',
+    fallbackEmail: '',
+  });
+
+  const [passwordForm, setPasswordForm] = useState({
+    password: '',
+    confirmPassword: '',
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -32,40 +50,22 @@ export default function CloudronUsersPage() {
       return;
     }
     setUser(JSON.parse(userData));
+    fetchData();
   }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user, currentPage, searchQuery, activeFilter]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-
-      const [serverRes, usersRes] = await Promise.allSettled([
+      const [serverRes, usersRes] = await Promise.all([
         cloudronAPI.getServer(serverId),
-        cloudronAPI.listUsers(serverId, {
-          page: currentPage,
-          per_page: perPage,
-          search: searchQuery || undefined,
-          active: activeFilter,
-        }),
+        cloudronAPI.listUsers(serverId, { per_page: 100 }),
       ]);
 
-      if (serverRes.status === 'fulfilled') {
-        setServer(serverRes.value.data.data);
+      if (serverRes.data) {
+        setServer(serverRes.data.data);
       }
-
-      if (usersRes.status === 'fulfilled') {
-        const data = usersRes.value.data.data;
-        setUsers(data.users || []);
-
-        // Calculate total pages if pagination info is available
-        if (data.total && data.per_page) {
-          setTotalPages(Math.ceil(data.total / data.per_page));
-        }
+      if (usersRes.data) {
+        setUsers(usersRes.data.data.users || []);
       }
     } catch (error: any) {
       console.error('Error fetching data:', error);
@@ -75,16 +75,142 @@ export default function CloudronUsersPage() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
-    fetchData();
+    try {
+      await cloudronAPI.addUser(serverId, userForm);
+      toast.success('User added successfully!');
+      setShowAddUserModal(false);
+      setUserForm({
+        email: '',
+        username: '',
+        password: '',
+        displayName: '',
+        role: 'user',
+        fallbackEmail: '',
+      });
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to add user');
+    }
   };
 
-  const handleFilterChange = (filter: boolean | undefined) => {
-    setActiveFilter(filter);
-    setCurrentPage(1);
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+
+    try {
+      await cloudronAPI.updateUserProfile(serverId, selectedUser.id, {
+        email: userForm.email,
+        displayName: userForm.displayName,
+        fallbackEmail: userForm.fallbackEmail,
+      });
+      toast.success('User updated successfully!');
+      setShowEditUserModal(false);
+      setSelectedUser(null);
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update user');
+    }
   };
+
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    if (!confirm(`Are you sure you want to delete user "${userEmail}"?`)) {
+      return;
+    }
+
+    try {
+      await cloudronAPI.deleteUser(serverId, userId);
+      toast.success('User deleted successfully!');
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+
+    if (passwordForm.password !== passwordForm.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    if (passwordForm.password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
+    try {
+      await cloudronAPI.setUserPassword(serverId, selectedUser.id, passwordForm.password);
+      toast.success('Password set successfully!');
+      setShowSetPasswordModal(false);
+      setSelectedUser(null);
+      setPasswordForm({ password: '', confirmPassword: '' });
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to set password');
+    }
+  };
+
+  const handleGetPasswordResetLink = async (userId: string) => {
+    try {
+      const response = await cloudronAPI.getPasswordResetLink(serverId, userId);
+      setPasswordResetLink(response.data.data.passwordResetLink);
+      setShowPasswordResetLinkModal(true);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to get password reset link');
+    }
+  };
+
+  const handleSendPasswordResetEmail = async (userId: string, userEmail: string) => {
+    try {
+      await cloudronAPI.sendPasswordResetEmail(serverId, userId, userEmail);
+      toast.success(`Password reset email sent to ${userEmail}!`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to send password reset email');
+    }
+  };
+
+  const handleToggleUserActive = async (userId: string, currentStatus: boolean) => {
+    try {
+      await cloudronAPI.setUserActive(serverId, userId, !currentStatus);
+      toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update user status');
+    }
+  };
+
+  const openEditModal = (userToEdit: any) => {
+    setSelectedUser(userToEdit);
+    setUserForm({
+      email: userToEdit.email || '',
+      username: userToEdit.username || '',
+      password: '',
+      displayName: userToEdit.displayName || '',
+      role: userToEdit.role || 'user',
+      fallbackEmail: userToEdit.fallbackEmail || '',
+    });
+    setShowEditUserModal(true);
+  };
+
+  const openSetPasswordModal = (userToEdit: any) => {
+    setSelectedUser(userToEdit);
+    setPasswordForm({ password: '', confirmPassword: '' });
+    setShowSetPasswordModal(true);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard!');
+  };
+
+  const filteredUsers = users.filter((u) =>
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -100,210 +226,455 @@ export default function CloudronUsersPage() {
             </Link>
             <span>/</span>
             <Link href={`/cloudron-servers/${serverId}`} className="hover:text-purple-600">
-              {server?.domain || 'Server'}
+              {server?.domain || serverId}
             </Link>
             <span>/</span>
             <span className="text-gray-900 font-medium">Users</span>
           </div>
 
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Users Directory</h1>
-                <p className="text-sm text-gray-600 mt-1">{server?.domain}</p>
-              </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
             </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Manage users for {server?.domain}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setUserForm({
+                        email: '',
+                        username: '',
+                        password: '',
+                        displayName: '',
+                        role: 'user',
+                        fallbackEmail: '',
+                      });
+                      setShowAddUserModal(true);
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium"
+                  >
+                    Add User
+                  </button>
+                </div>
 
-            {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <form onSubmit={handleSearch} className="flex-1">
+                {/* Search */}
                 <div className="relative">
                   <input
                     type="text"
+                    placeholder="Search users..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by username, email, or display name..."
-                    className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                   />
+                  <svg
+                    className="absolute right-3 top-3 w-5 h-5 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Users List */}
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                {filteredUsers.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No users found</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            User
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Username
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Role
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            2FA
+                          </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredUsers.map((u) => (
+                          <tr key={u.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {u.displayName || u.email}
+                                </div>
+                                <div className="text-sm text-gray-500">{u.email}</div>
+                                {u.fallbackEmail && (
+                                  <div className="text-xs text-gray-400">
+                                    Fallback: {u.fallbackEmail}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="text-sm text-gray-900">
+                                {u.username || '-'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <button
+                                onClick={() => handleToggleUserActive(u.id, u.active)}
+                                className={`px-2 py-1 text-xs font-medium rounded-full cursor-pointer ${
+                                  u.active
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}
+                              >
+                                {u.active ? 'Active' : 'Inactive'}
+                              </button>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  u.twoFactorAuthenticationEnabled
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}
+                              >
+                                {u.twoFactorAuthenticationEnabled ? 'Enabled' : 'Disabled'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => openEditModal(u)}
+                                  className="text-blue-600 hover:text-blue-900"
+                                  title="Edit User"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => openSetPasswordModal(u)}
+                                  className="text-purple-600 hover:text-purple-900"
+                                  title="Set Password"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => handleGetPasswordResetLink(u.id)}
+                                  className="text-indigo-600 hover:text-indigo-900"
+                                  title="Get Password Reset Link"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => handleSendPasswordResetEmail(u.id, u.email)}
+                                  className="text-green-600 hover:text-green-900"
+                                  title="Send Password Reset Email"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteUser(u.id, u.email)}
+                                  className="text-red-600 hover:text-red-900"
+                                  title="Delete User"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Add New User</h2>
+              <form onSubmit={handleAddUser} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={userForm.email}
+                    onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                  <input
+                    type="text"
+                    value={userForm.username}
+                    onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <input
+                    type="password"
+                    value={userForm.password}
+                    onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Leave blank to send an invite email</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+                  <input
+                    type="text"
+                    value={userForm.displayName}
+                    onChange={(e) => setUserForm({ ...userForm, displayName: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                  <select
+                    value={userForm.role}
+                    onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  >
+                    <option value="user">User</option>
+                    <option value="mailmanager">Mail Manager</option>
+                    <option value="usermanager">User Manager</option>
+                    <option value="admin">Admin</option>
+                    <option value="owner">Owner</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Fallback Email
+                  </label>
+                  <input
+                    type="email"
+                    value={userForm.fallbackEmail}
+                    onChange={(e) => setUserForm({ ...userForm, fallbackEmail: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">For password recovery</p>
+                </div>
+                <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium"
                   >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                    Add User
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddUserModal(false)}
+                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  >
+                    Cancel
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
 
-              <div className="flex gap-2">
+      {/* Edit User Modal */}
+      {showEditUserModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Edit User</h2>
+              <form onSubmit={handleUpdateUser} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={userForm.email}
+                    onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+                  <input
+                    type="text"
+                    value={userForm.displayName}
+                    onChange={(e) => setUserForm({ ...userForm, displayName: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Fallback Email
+                  </label>
+                  <input
+                    type="email"
+                    value={userForm.fallbackEmail}
+                    onChange={(e) => setUserForm({ ...userForm, fallbackEmail: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium"
+                  >
+                    Update User
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEditUserModal(false);
+                      setSelectedUser(null);
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Set Password Modal */}
+      {showSetPasswordModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Set Password for {selectedUser.email}
+              </h2>
+              <form onSubmit={handleSetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    New Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={passwordForm.password}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium"
+                  >
+                    Set Password
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSetPasswordModal(false);
+                      setSelectedUser(null);
+                      setPasswordForm({ password: '', confirmPassword: '' });
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Password Reset Link Modal */}
+      {showPasswordResetLinkModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Password Reset Link</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Share this link with the user to reset their password:
+              </p>
+              <div className="bg-gray-50 p-4 rounded-lg break-all">
+                <code className="text-sm text-gray-800">{passwordResetLink}</code>
+              </div>
+              <div className="flex gap-3 pt-4">
                 <button
-                  onClick={() => handleFilterChange(undefined)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    activeFilter === undefined
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                  onClick={() => copyToClipboard(passwordResetLink)}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium"
                 >
-                  All
+                  Copy Link
                 </button>
                 <button
-                  onClick={() => handleFilterChange(true)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    activeFilter === true
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                  onClick={() => {
+                    setShowPasswordResetLinkModal(false);
+                    setPasswordResetLink('');
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                 >
-                  Active
-                </button>
-                <button
-                  onClick={() => handleFilterChange(false)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    activeFilter === false
-                      ? 'bg-red-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Inactive
+                  Close
                 </button>
               </div>
             </div>
           </div>
-
-          {/* Users List */}
-          <div className="bg-white rounded-lg shadow-sm">
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
-              </div>
-            ) : users.length === 0 ? (
-              <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <p className="text-gray-500">No users found</p>
-              </div>
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          User
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Email
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Role
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          2FA
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {users.map((userItem: any) => (
-                        <tr key={userItem.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold">
-                                  {(userItem.displayName || userItem.username || userItem.email).charAt(0).toUpperCase()}
-                                </div>
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {userItem.displayName || userItem.username}
-                                </div>
-                                <div className="text-sm text-gray-500">@{userItem.username}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{userItem.email}</div>
-                            {userItem.alternateEmail && (
-                              <div className="text-sm text-gray-500">{userItem.alternateEmail}</div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                userItem.role === 'admin'
-                                  ? 'bg-purple-100 text-purple-800'
-                                  : userItem.role === 'owner'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}
-                            >
-                              {userItem.role || 'user'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                userItem.active
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}
-                            >
-                              {userItem.active ? 'Active' : 'Inactive'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {userItem.twoFactorAuthenticationEnabled ? (
-                              <span className="text-green-600 font-medium flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                Enabled
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">Disabled</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                    <div className="text-sm text-gray-700">
-                      Page {currentPage} of {totalPages}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Previous
-                      </button>
-                      <button
-                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
         </div>
-      </main>
-      <Footer />
+      )}
     </div>
   );
 }
