@@ -165,6 +165,13 @@ export default function CloudronServerDetailPage() {
                     >
                       Volumes
                     </Link>
+                    <Link
+                      href={`/cloudron-servers/${serverId}/user-directory`}
+                      className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all duration-200 font-medium"
+                      title="User Directory Settings"
+                    >
+                      User Directory
+                    </Link>
                     <button
                       onClick={handleSync}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 font-medium"

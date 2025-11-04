@@ -486,6 +486,12 @@ export const cloudronAPI = {
     api.get(`/cloudron/servers/${serverId}/volumes/${volumeId}/files/${filename}`, {
       responseType: 'blob'
     }),
+
+  // User directory management
+  getUserDirectoryProfileConfig: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/user-directory/profile-config`),
+  setUserDirectoryProfileConfig: (serverId: string, data: { lockUserProfiles: boolean; mandatory2FA: boolean }) =>
+    api.post(`/cloudron/servers/${serverId}/user-directory/profile-config`, data),
 };
 
 export default api;
