@@ -21,6 +21,10 @@ export default function MailboxesPage() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addingMailbox, setAddingMailbox] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [mailboxToDelete, setMailboxToDelete] = useState<{id: string, name: string, domain: string} | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [mailboxForm, setMailboxForm] = useState({
     name: '',
@@ -100,18 +104,37 @@ export default function MailboxesPage() {
     }
   };
 
-  const handleDeleteMailbox = async (mailboxId: string, mailboxName: string, domain: string) => {
-    if (!confirm(`Are you sure you want to delete mailbox "${mailboxName}@${domain}"?`)) {
+  const openDeleteModal = (mailboxId: string, mailboxName: string, domain: string) => {
+    setMailboxToDelete({ id: mailboxId, name: mailboxName, domain });
+    setShowDeleteModal(true);
+    setDeleteConfirmText('');
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setMailboxToDelete(null);
+    setDeleteConfirmText('');
+  };
+
+  const handleDeleteMailbox = async () => {
+    if (!mailboxToDelete) return;
+
+    if (deleteConfirmText !== 'DELETE') {
+      toast.error('Please type DELETE to confirm');
       return;
     }
 
+    setDeleting(true);
     try {
-      await cloudronAPI.deleteMailbox(serverId, mailboxId, domain);
+      await cloudronAPI.deleteMailbox(serverId, mailboxToDelete.id, mailboxToDelete.domain);
       toast.success('Mailbox deleted successfully!');
+      closeDeleteModal();
       fetchData();
     } catch (error: any) {
       console.error('Error deleting mailbox:', error);
       toast.error(error.response?.data?.message || 'Failed to delete mailbox');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -203,8 +226,8 @@ export default function MailboxesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mailboxes.map((mailbox) => (
-                <div key={mailbox.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-6">
+              {mailboxes.map((mailbox, index) => (
+                <div key={mailbox.id || `${mailbox.name}-${mailbox.domain}-${index}`} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900">
@@ -259,7 +282,7 @@ export default function MailboxesPage() {
 
                   {/* Actions */}
                   <button
-                    onClick={() => handleDeleteMailbox(mailbox.id, mailbox.name, mailbox.domain)}
+                    onClick={() => openDeleteModal(mailbox.id, mailbox.name, mailbox.domain)}
                     className="w-full px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
                   >
                     Delete Mailbox
@@ -462,6 +485,66 @@ export default function MailboxesPage() {
                 className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-medium"
               >
                 {addingMailbox ? 'Creating...' : 'Create Mailbox'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && mailboxToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Delete Mailbox</h3>
+            </div>
+
+            <div className="px-6 py-5">
+              <div className="mb-4">
+                <p className="text-gray-700 mb-2">
+                  Are you sure you want to delete mailbox:
+                </p>
+                <p className="text-lg font-bold text-red-600 mb-4">
+                  {mailboxToDelete.name}@{mailboxToDelete.domain}
+                </p>
+                <p className="text-sm text-gray-600 mb-4">
+                  This action cannot be undone. All emails in this mailbox will be permanently deleted.
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type <span className="font-bold text-red-600">DELETE</span> to confirm:
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white text-gray-900 text-base font-medium"
+                  placeholder="Type DELETE"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 bg-gray-50">
+              <button
+                onClick={closeDeleteModal}
+                disabled={deleting}
+                className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteMailbox}
+                disabled={deleting || deleteConfirmText !== 'DELETE'}
+                className={`px-5 py-2.5 rounded-lg transition font-medium ${
+                  deleteConfirmText === 'DELETE' && !deleting
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {deleting ? 'Deleting...' : 'Delete Mailbox'}
               </button>
             </div>
           </div>
