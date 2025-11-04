@@ -15,27 +15,47 @@ export default function CloudronProvisionPage() {
 
   const [user, setUser] = useState<any>(null);
   const [server, setServer] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'setup' | 'restore' | 'admin'>('setup');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Provision form state
-  const [provisionForm, setProvisionForm] = useState({
-    // Domain config
-    domain: '',
-    provider: 'manual',
-    zoneName: '',
-    config: {} as any,
-    tlsProvider: 'letsencrypt-prod',
-    wildcard: false,
-    fallbackCertificate: '',
+  // Setup form state
+  const [setupForm, setSetupForm] = useState({
+    domainConfig: {
+      provider: '',
+      domain: '',
+      zoneName: '',
+      config: {},
+      tlsConfig: {
+        provider: 'letsencrypt-prod',
+        wildcard: false
+      }
+    },
+    ipv4Config: {},
+    ipv6Config: {}
+  });
 
-    // IPv4 config
-    ipv4Provider: 'manual',
-    ipv4Address: '',
+  // Restore form state
+  const [restoreForm, setRestoreForm] = useState({
+    backupConfig: {
+      provider: 'AWS',
+      format: 'tar',
+      password: ''
+    },
+    encryptedFilenames: true,
+    remotePath: '',
+    version: '1.0.0',
+    ipv4Config: {},
+    ipv6Config: {},
+    skipDnsSetup: false
+  });
 
-    // IPv6 config
-    ipv6Provider: 'manual',
-    ipv6Address: ''
+  // Admin form state
+  const [adminForm, setAdminForm] = useState({
+    username: '',
+    password: '',
+    email: '',
+    displayName: ''
   });
 
   useEffect(() => {
@@ -46,57 +66,132 @@ export default function CloudronProvisionPage() {
       return;
     }
     setUser(JSON.parse(userData));
-    fetchData();
+    fetchServer();
   }, []);
 
-  const fetchData = async () => {
+  const fetchServer = async () => {
     try {
       setLoading(true);
-      const serverRes = await cloudronAPI.getServer(serverId);
-      setServer(serverRes.data.data);
+      const response = await cloudronAPI.getServer(serverId);
+      setServer(response.data.data);
     } catch (error: any) {
-      console.error('Error fetching data:', error);
-      toast.error(error.response?.data?.message || 'Failed to fetch server data');
+      console.error('Error fetching server:', error);
+      toast.error(error.response?.data?.message || 'Failed to fetch server');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleProvision = async (e: React.FormEvent) => {
+  const handleSetupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-
     try {
-      const provisionData = {
+      setSubmitting(true);
+
+      // Validate required fields
+      if (!setupForm.domainConfig.provider || !setupForm.domainConfig.domain) {
+        toast.error('Provider and domain are required');
+        return;
+      }
+
+      await cloudronAPI.provisionSetup(serverId, setupForm);
+      toast.success('Provision setup completed successfully!');
+
+      // Reset form
+      setSetupForm({
         domainConfig: {
-          domain: provisionForm.domain,
-          provider: provisionForm.provider,
-          zoneName: provisionForm.zoneName || provisionForm.domain,
-          config: provisionForm.config,
+          provider: '',
+          domain: '',
+          zoneName: '',
+          config: {},
           tlsConfig: {
-            provider: provisionForm.tlsProvider,
-            wildcard: provisionForm.wildcard,
-            ...(provisionForm.fallbackCertificate && {
-              fallbackCertificate: provisionForm.fallbackCertificate
-            })
+            provider: 'letsencrypt-prod',
+            wildcard: false
           }
         },
-        ipv4Config: {
-          provider: provisionForm.ipv4Provider,
-          ...(provisionForm.ipv4Address && { ip: provisionForm.ipv4Address })
-        },
-        ipv6Config: {
-          provider: provisionForm.ipv6Provider,
-          ...(provisionForm.ipv6Address && { ip: provisionForm.ipv6Address })
-        }
-      };
-
-      await cloudronAPI.configureInitialDomain(serverId, provisionData);
-      toast.success('Domain provisioned successfully!');
-      router.push(`/cloudron-servers/${serverId}`);
+        ipv4Config: {},
+        ipv6Config: {}
+      });
     } catch (error: any) {
-      console.error('Error provisioning domain:', error);
-      toast.error(error.response?.data?.message || 'Failed to provision domain');
+      console.error('Error in provision setup:', error);
+      toast.error(error.response?.data?.message || 'Failed to setup provision');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRestoreSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setSubmitting(true);
+
+      // Validate required fields
+      if (!restoreForm.backupConfig.provider || !restoreForm.remotePath) {
+        toast.error('Backup provider and remote path are required');
+        return;
+      }
+
+      await cloudronAPI.provisionRestore(serverId, restoreForm);
+      toast.success('Provision restore initiated successfully!');
+
+      // Reset form
+      setRestoreForm({
+        backupConfig: {
+          provider: 'AWS',
+          format: 'tar',
+          password: ''
+        },
+        encryptedFilenames: true,
+        remotePath: '',
+        version: '1.0.0',
+        ipv4Config: {},
+        ipv6Config: {},
+        skipDnsSetup: false
+      });
+    } catch (error: any) {
+      console.error('Error in provision restore:', error);
+      toast.error(error.response?.data?.message || 'Failed to restore from backup');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAdminSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setSubmitting(true);
+
+      // Validate required fields
+      if (!adminForm.username || !adminForm.password || !adminForm.email) {
+        toast.error('Username, password, and email are required');
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(adminForm.email)) {
+        toast.error('Invalid email format');
+        return;
+      }
+
+      // Validate password strength
+      if (adminForm.password.length < 8) {
+        toast.error('Password must be at least 8 characters long');
+        return;
+      }
+
+      await cloudronAPI.provisionCreateAdmin(serverId, adminForm);
+      toast.success('Admin account created successfully!');
+
+      // Reset form
+      setAdminForm({
+        username: '',
+        password: '',
+        email: '',
+        displayName: ''
+      });
+    } catch (error: any) {
+      console.error('Error creating admin:', error);
+      toast.error(error.response?.data?.message || 'Failed to create admin account');
     } finally {
       setSubmitting(false);
     }
@@ -108,18 +203,25 @@ export default function CloudronProvisionPage() {
       <NavigationMenu />
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-            <Link href="/cloudron-servers" className="hover:text-purple-600">
-              Servers
+            <Link href="/cloudron-servers" className="hover:text-purple-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Servers
             </Link>
-            <span>/</span>
-            <Link href={`/cloudron-servers/${serverId}`} className="hover:text-purple-600">
-              {server?.domain || 'Server'}
-            </Link>
-            <span>/</span>
-            <span className="text-gray-900">Provision</span>
+            {server && (
+              <>
+                <span>/</span>
+                <Link href={`/cloudron-servers/${serverId}`} className="hover:text-purple-600">
+                  {server.domain}
+                </Link>
+                <span>/</span>
+                <span className="text-gray-900 font-medium">Provision</span>
+              </>
+            )}
           </div>
 
           {loading ? (
@@ -130,199 +232,383 @@ export default function CloudronProvisionPage() {
             <>
               {/* Page Header */}
               <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Provision Initial Domain</h1>
-                <p className="text-sm text-gray-600 mt-1">
-                  Configure the initial domain settings for your Cloudron server
-                </p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Provision Management</h1>
+                <p className="text-sm text-gray-600 mt-1">Configure and manage Cloudron server provision</p>
+                {server && <p className="text-xs text-gray-500 mt-2">Server: {server.domain}</p>}
               </div>
 
-              {/* Provision Form */}
-              <form onSubmit={handleProvision} className="bg-white rounded-lg shadow-sm p-6 space-y-6">
-                {/* Domain Configuration */}
-                <div className="border-b pb-6">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">Domain Configuration</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Domain <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={provisionForm.domain}
-                        onChange={(e) => setProvisionForm({ ...provisionForm, domain: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="example.com"
-                        required
-                      />
-                    </div>
+              {/* Tabs */}
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="border-b border-gray-200">
+                  <nav className="flex space-x-8 px-6" aria-label="Tabs">
+                    <button
+                      onClick={() => setActiveTab('setup')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'setup'
+                          ? 'border-purple-600 text-purple-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Setup
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('restore')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'restore'
+                          ? 'border-purple-600 text-purple-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Restore
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('admin')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'admin'
+                          ? 'border-purple-600 text-purple-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Create Admin
+                    </button>
+                  </nav>
+                </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">DNS Provider</label>
-                      <select
-                        value={provisionForm.provider}
-                        onChange={(e) => setProvisionForm({ ...provisionForm, provider: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      >
-                        <option value="manual">Manual</option>
-                        <option value="route53">AWS Route53</option>
-                        <option value="cloudflare">Cloudflare</option>
-                        <option value="gandi">Gandi</option>
-                        <option value="godaddy">GoDaddy</option>
-                        <option value="digitalocean">DigitalOcean</option>
-                        <option value="googleclouddns">Google Cloud DNS</option>
-                        <option value="namecheap">Namecheap</option>
-                        <option value="namecom">Name.com</option>
-                        <option value="vultr">Vultr</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Zone Name</label>
-                      <input
-                        type="text"
-                        value={provisionForm.zoneName}
-                        onChange={(e) => setProvisionForm({ ...provisionForm, zoneName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="Defaults to domain"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">TLS Provider</label>
-                      <select
-                        value={provisionForm.tlsProvider}
-                        onChange={(e) => setProvisionForm({ ...provisionForm, tlsProvider: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      >
-                        <option value="letsencrypt-prod">Let's Encrypt (Production)</option>
-                        <option value="letsencrypt-staging">Let's Encrypt (Staging)</option>
-                        <option value="zerossl-prod">ZeroSSL (Production)</option>
-                        <option value="zerossl-staging">ZeroSSL (Staging)</option>
-                        <option value="fallback">Fallback Certificate</option>
-                      </select>
-                    </div>
-
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="wildcard"
-                        checked={provisionForm.wildcard}
-                        onChange={(e) => setProvisionForm({ ...provisionForm, wildcard: e.target.checked })}
-                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                      />
-                      <label htmlFor="wildcard" className="ml-2 block text-sm text-gray-700">
-                        Use Wildcard Certificate
-                      </label>
-                    </div>
-
-                    {provisionForm.tlsProvider === 'fallback' && (
+                <div className="p-6">
+                  {/* Setup Tab */}
+                  {activeTab === 'setup' && (
+                    <form onSubmit={handleSetupSubmit} className="space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Fallback Certificate (PEM format)
-                        </label>
-                        <textarea
-                          value={provisionForm.fallbackCertificate}
-                          onChange={(e) => setProvisionForm({ ...provisionForm, fallbackCertificate: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          rows={6}
-                          placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
-                        />
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">Domain Configuration</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Provider <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={setupForm.domainConfig.provider}
+                              onChange={(e) => setSetupForm({
+                                ...setupForm,
+                                domainConfig: { ...setupForm.domainConfig, provider: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="e.g., cloudflare, route53, gcp"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Domain <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={setupForm.domainConfig.domain}
+                              onChange={(e) => setSetupForm({
+                                ...setupForm,
+                                domainConfig: { ...setupForm.domainConfig, domain: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="example.com"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Zone Name
+                            </label>
+                            <input
+                              type="text"
+                              value={setupForm.domainConfig.zoneName}
+                              onChange={(e) => setSetupForm({
+                                ...setupForm,
+                                domainConfig: { ...setupForm.domainConfig, zoneName: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="Optional zone name"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              TLS Provider
+                            </label>
+                            <select
+                              value={setupForm.domainConfig.tlsConfig.provider}
+                              onChange={(e) => setSetupForm({
+                                ...setupForm,
+                                domainConfig: {
+                                  ...setupForm.domainConfig,
+                                  tlsConfig: { ...setupForm.domainConfig.tlsConfig, provider: e.target.value }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                            >
+                              <option value="letsencrypt-prod">Let's Encrypt Production</option>
+                              <option value="letsencrypt-staging">Let's Encrypt Staging</option>
+                              <option value="zerossl-prod">ZeroSSL Production</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="mt-4">
+                          <label className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={setupForm.domainConfig.tlsConfig.wildcard}
+                              onChange={(e) => setSetupForm({
+                                ...setupForm,
+                                domainConfig: {
+                                  ...setupForm.domainConfig,
+                                  tlsConfig: { ...setupForm.domainConfig.tlsConfig, wildcard: e.target.checked }
+                                }
+                              })}
+                              className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            />
+                            <span className="text-sm text-gray-700">Wildcard Certificate</span>
+                          </label>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* IPv4 Configuration */}
-                <div className="border-b pb-6">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">IPv4 Configuration</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">IPv4 Provider</label>
-                      <select
-                        value={provisionForm.ipv4Provider}
-                        onChange={(e) => setProvisionForm({ ...provisionForm, ipv4Provider: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      >
-                        <option value="manual">Manual</option>
-                        <option value="auto">Auto-detect</option>
-                        <option value="netlink">Netlink</option>
-                      </select>
-                    </div>
+                      <div className="flex justify-end gap-3 pt-4 border-t">
+                        <button
+                          type="button"
+                          onClick={() => router.back()}
+                          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                          disabled={submitting}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? 'Provisioning...' : 'Provision Setup'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
 
-                    {provisionForm.ipv4Provider === 'manual' && (
+                  {/* Restore Tab */}
+                  {activeTab === 'restore' && (
+                    <form onSubmit={handleRestoreSubmit} className="space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">IPv4 Address</label>
-                        <input
-                          type="text"
-                          value={provisionForm.ipv4Address}
-                          onChange={(e) => setProvisionForm({ ...provisionForm, ipv4Address: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          placeholder="192.0.2.1"
-                        />
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">Backup Configuration</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Backup Provider <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                              value={restoreForm.backupConfig.provider}
+                              onChange={(e) => setRestoreForm({
+                                ...restoreForm,
+                                backupConfig: { ...restoreForm.backupConfig, provider: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              required
+                            >
+                              <option value="AWS">AWS S3</option>
+                              <option value="GCP">Google Cloud Storage</option>
+                              <option value="Azure">Azure Blob Storage</option>
+                              <option value="filesystem">Local Filesystem</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Backup Format
+                            </label>
+                            <select
+                              value={restoreForm.backupConfig.format}
+                              onChange={(e) => setRestoreForm({
+                                ...restoreForm,
+                                backupConfig: { ...restoreForm.backupConfig, format: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                            >
+                              <option value="tar">TAR</option>
+                              <option value="tgz">TGZ</option>
+                              <option value="rsync">Rsync</option>
+                            </select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Remote Path <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={restoreForm.remotePath}
+                              onChange={(e) => setRestoreForm({ ...restoreForm, remotePath: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="s3://mybucket/backups/"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Backup Password
+                            </label>
+                            <input
+                              type="password"
+                              value={restoreForm.backupConfig.password}
+                              onChange={(e) => setRestoreForm({
+                                ...restoreForm,
+                                backupConfig: { ...restoreForm.backupConfig, password: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="Enter backup password"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Version
+                            </label>
+                            <input
+                              type="text"
+                              value={restoreForm.version}
+                              onChange={(e) => setRestoreForm({ ...restoreForm, version: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="1.0.0"
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-4 space-y-2">
+                          <label className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={restoreForm.encryptedFilenames}
+                              onChange={(e) => setRestoreForm({ ...restoreForm, encryptedFilenames: e.target.checked })}
+                              className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            />
+                            <span className="text-sm text-gray-700">Encrypted Filenames</span>
+                          </label>
+                          <label className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={restoreForm.skipDnsSetup}
+                              onChange={(e) => setRestoreForm({ ...restoreForm, skipDnsSetup: e.target.checked })}
+                              className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            />
+                            <span className="text-sm text-gray-700">Skip DNS Setup</span>
+                          </label>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* IPv6 Configuration */}
-                <div className="pb-6">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">IPv6 Configuration</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">IPv6 Provider</label>
-                      <select
-                        value={provisionForm.ipv6Provider}
-                        onChange={(e) => setProvisionForm({ ...provisionForm, ipv6Provider: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      >
-                        <option value="manual">Manual</option>
-                        <option value="auto">Auto-detect</option>
-                        <option value="netlink">Netlink</option>
-                      </select>
-                    </div>
+                      <div className="flex justify-end gap-3 pt-4 border-t">
+                        <button
+                          type="button"
+                          onClick={() => router.back()}
+                          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                          disabled={submitting}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? 'Restoring...' : 'Restore from Backup'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
 
-                    {provisionForm.ipv6Provider === 'manual' && (
+                  {/* Create Admin Tab */}
+                  {activeTab === 'admin' && (
+                    <form onSubmit={handleAdminSubmit} className="space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">IPv6 Address</label>
-                        <input
-                          type="text"
-                          value={provisionForm.ipv6Address}
-                          onChange={(e) => setProvisionForm({ ...provisionForm, ipv6Address: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          placeholder="2001:db8::1"
-                        />
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">Admin Account Details</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Username <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={adminForm.username}
+                              onChange={(e) => setAdminForm({ ...adminForm, username: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="admin"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Email <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="email"
+                              value={adminForm.email}
+                              onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="admin@example.com"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Password <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="password"
+                              value={adminForm.password}
+                              onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="Minimum 8 characters"
+                              minLength={8}
+                              required
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters long</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Display Name
+                            </label>
+                            <input
+                              type="text"
+                              value={adminForm.displayName}
+                              onChange={(e) => setAdminForm({ ...adminForm, displayName: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              placeholder="Administrator"
+                            />
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Submit Button */}
-                <div className="flex gap-4">
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {submitting ? 'Provisioning...' : 'Provision Domain'}
-                  </button>
-                  <Link
-                    href={`/cloudron-servers/${serverId}`}
-                    className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                  >
-                    Cancel
-                  </Link>
-                </div>
-              </form>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-semibold text-blue-900">Important Information</h4>
+                            <p className="text-sm text-blue-800 mt-1">
+                              This will create the initial admin account for your Cloudron server. Make sure to use a strong password and keep the credentials secure.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
 
-              {/* Info Box */}
-              <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="text-sm font-bold text-blue-900 mb-2">ℹ️ Important Notes</h3>
-                <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                  <li>Provisioning sets up the initial domain configuration for your Cloudron server</li>
-                  <li>Make sure DNS records are properly configured before provisioning</li>
-                  <li>This operation may take several minutes to complete</li>
-                  <li>Only administrators can perform this operation</li>
-                </ul>
+                      <div className="flex justify-end gap-3 pt-4 border-t">
+                        <button
+                          type="button"
+                          onClick={() => router.back()}
+                          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                          disabled={submitting}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? 'Creating...' : 'Create Admin Account'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
               </div>
             </>
           )}

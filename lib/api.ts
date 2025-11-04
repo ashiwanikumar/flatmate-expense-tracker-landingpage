@@ -387,6 +387,33 @@ export const cloudronAPI = {
   // Provision management
   configureInitialDomain: (serverId: string, data: { domainConfig: any; ipv4Config?: any; ipv6Config?: any }) =>
     api.post(`/cloudron/servers/${serverId}/provision`, data),
+  provisionSetup: (serverId: string, data: { domainConfig: any; ipv4Config?: any; ipv6Config?: any }) =>
+    api.post(`/cloudron/servers/${serverId}/provision/setup`, data),
+  provisionRestore: (serverId: string, data: {
+    backupConfig: any;
+    encryptedFilenames?: boolean;
+    remotePath: string;
+    version?: string;
+    ipv4Config?: any;
+    ipv6Config?: any;
+    skipDnsSetup?: boolean
+  }) =>
+    api.post(`/cloudron/servers/${serverId}/provision/restore`, data),
+  provisionCreateAdmin: (serverId: string, data: {
+    username: string;
+    password: string;
+    email: string;
+    displayName?: string
+  }) =>
+    api.post(`/cloudron/servers/${serverId}/provision/create-admin`, data),
+
+  // Reverse proxy management
+  renewCerts: (serverId: string, rebuild?: boolean) =>
+    api.post(`/cloudron/servers/${serverId}/reverseproxy/renew-certs`, { rebuild: rebuild || false }),
+  getTrustedIps: (serverId: string) =>
+    api.get(`/cloudron/servers/${serverId}/reverseproxy/trusted-ips`),
+  setTrustedIps: (serverId: string, trustedIps: string) =>
+    api.post(`/cloudron/servers/${serverId}/reverseproxy/trusted-ips`, { trustedIps }),
 };
 
 export default api;
