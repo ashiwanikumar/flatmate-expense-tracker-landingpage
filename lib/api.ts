@@ -550,6 +550,12 @@ export const cloudronAPI = {
   // Cloudron status
   getCloudronStatus: (serverId: string) =>
     api.get(`/cloudron/servers/${serverId}/cloudron/status`),
+
+  // Eventlog management
+  getEventlogs: (serverId: string, params?: any) =>
+    api.get(`/cloudron/servers/${serverId}/eventlogs`, { params }),
+  getEventlog: (serverId: string, eventId: string) =>
+    api.get(`/cloudron/servers/${serverId}/eventlogs/${eventId}`),
 };
 
 export default api;
