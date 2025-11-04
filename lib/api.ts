@@ -176,4 +176,37 @@ export const architectureAPI = {
   delete: (id: string) => api.delete(`/architecture/${id}`),
 };
 
+// Cloudron API
+export const cloudronAPI = {
+  // Server management
+  testConnection: (data: { serverUrl: string; apiToken: string }) =>
+    api.post('/cloudron/test-connection', data),
+  addServer: (data: any) => api.post('/cloudron/servers', data),
+  getServers: () => api.get('/cloudron/servers'),
+  getServer: (id: string) => api.get(`/cloudron/servers/${id}`),
+  updateServer: (id: string, data: any) => api.put(`/cloudron/servers/${id}`, data),
+  deleteServer: (id: string) => api.delete(`/cloudron/servers/${id}`),
+  syncServer: (id: string) => api.post(`/cloudron/servers/${id}/sync`),
+  getServerStats: (id: string) => api.get(`/cloudron/servers/${id}/stats`),
+
+  // Apps management
+  getApps: (serverId: string) => api.get(`/cloudron/servers/${serverId}/apps`),
+  getApp: (serverId: string, appId: string) =>
+    api.get(`/cloudron/servers/${serverId}/apps/${appId}`),
+
+  // Mailboxes management
+  getMailboxes: (serverId: string) => api.get(`/cloudron/servers/${serverId}/mailboxes`),
+  createMailbox: (serverId: string, data: any) =>
+    api.post(`/cloudron/servers/${serverId}/mailboxes`, data),
+  updateMailbox: (serverId: string, mailboxId: string, data: any) =>
+    api.put(`/cloudron/servers/${serverId}/mailboxes/${mailboxId}`, data),
+  deleteMailbox: (serverId: string, mailboxId: string, domain: string) =>
+    api.delete(`/cloudron/servers/${serverId}/mailboxes/${mailboxId}?domain=${encodeURIComponent(domain)}`),
+
+  // Domains management
+  getDomains: (serverId: string) => api.get(`/cloudron/servers/${serverId}/domains`),
+  getMailConfig: (serverId: string, domain: string) =>
+    api.get(`/cloudron/servers/${serverId}/domains/${domain}/mail-config`),
+};
+
 export default api;

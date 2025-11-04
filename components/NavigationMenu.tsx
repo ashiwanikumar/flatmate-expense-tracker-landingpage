@@ -36,6 +36,12 @@ export default function NavigationMenu({ currentPath }: NavigationMenuProps) {
       ],
     },
     {
+      label: 'Email Servers',
+      subItems: [
+        { label: 'Cloudron Servers', href: '/cloudron-servers' },
+      ],
+    },
+    {
       label: 'CMDB',
       subItems: [
         { label: 'CMDB Infrastructure', href: '/cmdb-infrastructure' },
