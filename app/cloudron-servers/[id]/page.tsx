@@ -21,6 +21,7 @@ export default function CloudronServerDetailPage() {
   const [mailboxes, setMailboxes] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'mailboxes' | 'domains' | 'email-config'>('overview');
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -66,6 +67,7 @@ export default function CloudronServerDetailPage() {
   };
 
   const handleSync = async () => {
+    setSyncing(true);
     try {
       await cloudronAPI.syncServer(serverId);
       toast.success('Server synced successfully!');
@@ -73,6 +75,8 @@ export default function CloudronServerDetailPage() {
     } catch (error: any) {
       console.error('Error syncing server:', error);
       toast.error(error.response?.data?.message || 'Failed to sync server');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -205,12 +209,15 @@ export default function CloudronServerDetailPage() {
                   </div>
                   <button
                     onClick={handleSync}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl flex items-center gap-2"
+                    disabled={syncing}
+                    className={`px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 ${
+                      syncing ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                    Sync Server
+                    {syncing ? 'Syncing...' : 'Sync Server'}
                   </button>
                 </div>
 
