@@ -312,7 +312,7 @@ export default function CloudronUpdaterPage() {
                     value={scheduleForm}
                     onChange={(e) => setScheduleForm(e.target.value)}
                     placeholder="00 00 1,3,5,23 * * *"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-gray-900"
                     required
                   />
                   <p className="mt-2 text-sm text-gray-500">

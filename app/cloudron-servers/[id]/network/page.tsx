@@ -249,7 +249,7 @@ export default function NetworkConfigPage() {
                       <select
                         value={ipv4Form.provider}
                         onChange={(e) => setIpv4Form({ ...ipv4Form, provider: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                       >
                         <option value="noop">Noop - Disable DNS record</option>
                         <option value="fixed">Fixed - Use static IP</option>
@@ -266,7 +266,7 @@ export default function NetworkConfigPage() {
                           value={ipv4Form.ip}
                           onChange={(e) => setIpv4Form({ ...ipv4Form, ip: e.target.value })}
                           placeholder="e.g., 192.168.1.100"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                         />
                       </div>
                     )}
@@ -334,7 +334,7 @@ export default function NetworkConfigPage() {
                       <select
                         value={ipv6Form.provider}
                         onChange={(e) => setIpv6Form({ ...ipv6Form, provider: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                       >
                         <option value="noop">Noop - Disable DNS record</option>
                         <option value="fixed">Fixed - Use static IP</option>
@@ -351,7 +351,7 @@ export default function NetworkConfigPage() {
                           value={ipv6Form.ip}
                           onChange={(e) => setIpv6Form({ ...ipv6Form, ip: e.target.value })}
                           placeholder="e.g., 2001:0db8:85a3::8a2e:0370:7334"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                         />
                       </div>
                     )}
@@ -419,7 +419,7 @@ export default function NetworkConfigPage() {
                       onChange={(e) => setBlocklistForm(e.target.value)}
                       placeholder="# IPv4 range&#10;5.75.0.0/16&#10;# IPv6 address&#10;2604:a880:1:4a::2:7000"
                       rows={10}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent font-mono text-sm"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent font-mono text-sm text-gray-900"
                     />
                     <div className="flex gap-2 mt-4">
                       <button

@@ -470,7 +470,7 @@ export default function SystemInfoPage() {
                             placeholder="Enter unit name (e.g., box, nginx, docker)"
                             value={logUnit}
                             onChange={(e) => setLogUnit(e.target.value)}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                           />
                           <button
                             onClick={handleFetchLogs}

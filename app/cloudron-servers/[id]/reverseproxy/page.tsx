@@ -223,7 +223,7 @@ export default function ReverseProxyPage() {
                       value={trustedIps}
                       onChange={(e) => setTrustedIps(e.target.value)}
                       rows={10}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent font-mono text-sm"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent font-mono text-sm text-gray-900"
                       placeholder="# This is a IPv4 range&#10;5.75.0.0/16&#10;# This is an IPv6 address&#10;2604:a880:1:4a::2:7000"
                     />
                     <p className="text-xs text-gray-500 mt-2">

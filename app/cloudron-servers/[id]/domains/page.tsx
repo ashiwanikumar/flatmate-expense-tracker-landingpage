@@ -204,7 +204,7 @@ export default function DomainsPage() {
                     config: { ...domainForm.config, email: e.target.value },
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                 placeholder="your@email.com"
               />
             </div>
@@ -219,7 +219,7 @@ export default function DomainsPage() {
                     config: { ...domainForm.config, apiKey: e.target.value },
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                 placeholder="Cloudflare API Key"
               />
             </div>
@@ -239,7 +239,7 @@ export default function DomainsPage() {
                     config: { ...domainForm.config, accessKeyId: e.target.value },
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                 placeholder="AWS Access Key ID"
               />
             </div>
@@ -254,7 +254,7 @@ export default function DomainsPage() {
                     config: { ...domainForm.config, secretAccessKey: e.target.value },
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                 placeholder="AWS Secret Access Key"
               />
             </div>
@@ -273,7 +273,7 @@ export default function DomainsPage() {
                   config: { ...domainForm.config, token: e.target.value },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
               placeholder="DigitalOcean API Token"
             />
           </div>
@@ -291,7 +291,7 @@ export default function DomainsPage() {
                   // Invalid JSON, ignore
                 }
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none font-mono text-sm"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none font-mono text-sm text-gray-900"
               rows={4}
               placeholder='{"key": "value"}'
             />
@@ -425,7 +425,7 @@ export default function DomainsPage() {
                     type="text"
                     value={domainForm.domain}
                     onChange={(e) => setDomainForm({ ...domainForm, domain: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                     placeholder="example.com"
                   />
                 </div>
@@ -436,7 +436,7 @@ export default function DomainsPage() {
                     type="text"
                     value={domainForm.zoneName}
                     onChange={(e) => setDomainForm({ ...domainForm, zoneName: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                     placeholder="Leave empty to use domain"
                   />
                 </div>
@@ -448,7 +448,7 @@ export default function DomainsPage() {
                   <select
                     value={domainForm.provider}
                     onChange={(e) => setDomainForm({ ...domainForm, provider: e.target.value, config: {} })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                   >
                     {DNS_PROVIDERS.map((provider) => (
                       <option key={provider.value} value={provider.value}>
@@ -465,7 +465,7 @@ export default function DomainsPage() {
                   <select
                     value={domainForm.tlsProvider}
                     onChange={(e) => setDomainForm({ ...domainForm, tlsProvider: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                   >
                     <option value="letsencrypt-prod">Let's Encrypt (Production)</option>
                     <option value="letsencrypt-staging">Let's Encrypt (Staging)</option>
@@ -523,7 +523,7 @@ export default function DomainsPage() {
                   <select
                     value={syncForm.domain}
                     onChange={(e) => setSyncForm({ ...syncForm, domain: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                   >
                     <option value="">All Domains</option>
                     {domains.map((d) => (
@@ -539,7 +539,7 @@ export default function DomainsPage() {
                   <select
                     value={syncForm.type}
                     onChange={(e) => setSyncForm({ ...syncForm, type: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-900"
                   >
                     <option value="">All Records</option>
                     <option value="mail">Mail Records Only</option>
@@ -597,7 +597,7 @@ export default function DomainsPage() {
                   type="text"
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-gray-900"
                   placeholder="Type DELETE"
                   autoFocus
                 />

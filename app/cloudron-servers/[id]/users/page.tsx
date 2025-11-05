@@ -272,7 +272,7 @@ export default function CloudronUsersPage() {
                     placeholder="Search users..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                   <svg
                     className="absolute right-3 top-3 w-5 h-5 text-gray-400"
@@ -445,7 +445,7 @@ export default function CloudronUsersPage() {
                     required
                     value={userForm.email}
                     onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                 </div>
                 <div>
@@ -454,7 +454,7 @@ export default function CloudronUsersPage() {
                     type="text"
                     value={userForm.username}
                     onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                 </div>
                 <div>
@@ -463,7 +463,7 @@ export default function CloudronUsersPage() {
                     type="password"
                     value={userForm.password}
                     onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                   <p className="text-xs text-gray-500 mt-1">Leave blank to send an invite email</p>
                 </div>
@@ -473,7 +473,7 @@ export default function CloudronUsersPage() {
                     type="text"
                     value={userForm.displayName}
                     onChange={(e) => setUserForm({ ...userForm, displayName: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                 </div>
                 <div>
@@ -481,7 +481,7 @@ export default function CloudronUsersPage() {
                   <select
                     value={userForm.role}
                     onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   >
                     <option value="user">User</option>
                     <option value="mailmanager">Mail Manager</option>
@@ -498,7 +498,7 @@ export default function CloudronUsersPage() {
                     type="email"
                     value={userForm.fallbackEmail}
                     onChange={(e) => setUserForm({ ...userForm, fallbackEmail: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                   <p className="text-xs text-gray-500 mt-1">For password recovery</p>
                 </div>
@@ -536,7 +536,7 @@ export default function CloudronUsersPage() {
                     type="email"
                     value={userForm.email}
                     onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                 </div>
                 <div>
@@ -545,7 +545,7 @@ export default function CloudronUsersPage() {
                     type="text"
                     value={userForm.displayName}
                     onChange={(e) => setUserForm({ ...userForm, displayName: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                 </div>
                 <div>
@@ -556,7 +556,7 @@ export default function CloudronUsersPage() {
                     type="email"
                     value={userForm.fallbackEmail}
                     onChange={(e) => setUserForm({ ...userForm, fallbackEmail: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                 </div>
                 <div className="flex gap-3 pt-4">
@@ -601,7 +601,7 @@ export default function CloudronUsersPage() {
                     required
                     value={passwordForm.password}
                     onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                   <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
                 </div>
@@ -614,7 +614,7 @@ export default function CloudronUsersPage() {
                     required
                     value={passwordForm.confirmPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                 </div>
                 <div className="flex gap-3 pt-4">

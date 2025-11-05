@@ -247,7 +247,7 @@ export default function CloudronBrandingPage() {
                     onChange={(e) => setCloudronName(e.target.value)}
                     placeholder="Enter Cloudron name (1-64 characters)"
                     maxLength={64}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                   <button
                     onClick={handleSaveName}
@@ -358,7 +358,7 @@ export default function CloudronBrandingPage() {
                     onChange={(e) => setCloudronFooter(e.target.value)}
                     placeholder="Enter footer text (markdown supported)"
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   />
                   <button
                     onClick={handleSaveFooter}
