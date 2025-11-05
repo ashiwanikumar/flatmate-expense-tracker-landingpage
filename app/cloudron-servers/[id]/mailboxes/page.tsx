@@ -121,8 +121,8 @@ export default function MailboxesPage() {
     }
   };
 
-  const openDeleteModal = (mailboxId: string, mailboxName: string, domain: string) => {
-    setMailboxToDelete({ id: mailboxId, name: mailboxName, domain });
+  const openDeleteModal = (mailboxName: string, domain: string) => {
+    setMailboxToDelete({ id: mailboxName, name: mailboxName, domain });
     setShowDeleteModal(true);
     setDeleteConfirmText('');
   };
@@ -446,7 +446,7 @@ export default function MailboxesPage() {
 
                   {/* Actions */}
                   <button
-                    onClick={() => openDeleteModal(mailbox.id, mailbox.name, mailbox.domain)}
+                    onClick={() => openDeleteModal(mailbox.name, mailbox.domain)}
                     className="w-full px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium flex items-center justify-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -540,7 +540,7 @@ export default function MailboxesPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
-                            onClick={() => openDeleteModal(mailbox.id, mailbox.name, mailbox.domain)}
+                            onClick={() => openDeleteModal(mailbox.name, mailbox.domain)}
                             className="text-red-600 hover:text-red-900 inline-flex items-center gap-1"
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
