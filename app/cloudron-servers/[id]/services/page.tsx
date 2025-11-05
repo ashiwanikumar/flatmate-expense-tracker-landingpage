@@ -473,7 +473,7 @@ export default function ServicesPage() {
                                   type="number"
                                   value={logsLines}
                                   onChange={(e) => setLogsLines(parseInt(e.target.value) || 100)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                                   min="1"
                                   max="10000"
                                 />
@@ -483,7 +483,7 @@ export default function ServicesPage() {
                                 <select
                                   value={logsFormat}
                                   onChange={(e) => setLogsFormat(e.target.value)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                                 >
                                   <option value="json">JSON</option>
                                   <option value="short">Short</option>
@@ -518,7 +518,7 @@ export default function ServicesPage() {
                                 type="number"
                                 value={graphsMinutes}
                                 onChange={(e) => setGraphsMinutes(parseInt(e.target.value) || 60)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                                 min="1"
                                 max="1440"
                               />
@@ -585,7 +585,7 @@ export default function ServicesPage() {
                   type="number"
                   value={configForm.memoryLimit}
                   onChange={(e) => setConfigForm({ ...configForm, memoryLimit: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-gray-900"
                   required
                   min="0"
                 />

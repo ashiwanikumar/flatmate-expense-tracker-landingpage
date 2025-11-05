@@ -293,7 +293,7 @@ export default function CloudronProvisionPage() {
                                 ...setupForm,
                                 domainConfig: { ...setupForm.domainConfig, provider: e.target.value }
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="e.g., cloudflare, route53, gcp"
                               required
                             />
@@ -309,7 +309,7 @@ export default function CloudronProvisionPage() {
                                 ...setupForm,
                                 domainConfig: { ...setupForm.domainConfig, domain: e.target.value }
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="example.com"
                               required
                             />
@@ -325,7 +325,7 @@ export default function CloudronProvisionPage() {
                                 ...setupForm,
                                 domainConfig: { ...setupForm.domainConfig, zoneName: e.target.value }
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="Optional zone name"
                             />
                           </div>
@@ -342,7 +342,7 @@ export default function CloudronProvisionPage() {
                                   tlsConfig: { ...setupForm.domainConfig.tlsConfig, provider: e.target.value }
                                 }
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                             >
                               <option value="letsencrypt-prod">Let's Encrypt Production</option>
                               <option value="letsencrypt-staging">Let's Encrypt Staging</option>
@@ -405,7 +405,7 @@ export default function CloudronProvisionPage() {
                                 ...restoreForm,
                                 backupConfig: { ...restoreForm.backupConfig, provider: e.target.value }
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               required
                             >
                               <option value="AWS">AWS S3</option>
@@ -424,7 +424,7 @@ export default function CloudronProvisionPage() {
                                 ...restoreForm,
                                 backupConfig: { ...restoreForm.backupConfig, format: e.target.value }
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                             >
                               <option value="tar">TAR</option>
                               <option value="tgz">TGZ</option>
@@ -439,7 +439,7 @@ export default function CloudronProvisionPage() {
                               type="text"
                               value={restoreForm.remotePath}
                               onChange={(e) => setRestoreForm({ ...restoreForm, remotePath: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="s3://mybucket/backups/"
                               required
                             />
@@ -455,7 +455,7 @@ export default function CloudronProvisionPage() {
                                 ...restoreForm,
                                 backupConfig: { ...restoreForm.backupConfig, password: e.target.value }
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="Enter backup password"
                             />
                           </div>
@@ -467,7 +467,7 @@ export default function CloudronProvisionPage() {
                               type="text"
                               value={restoreForm.version}
                               onChange={(e) => setRestoreForm({ ...restoreForm, version: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="1.0.0"
                             />
                           </div>
@@ -528,7 +528,7 @@ export default function CloudronProvisionPage() {
                               type="text"
                               value={adminForm.username}
                               onChange={(e) => setAdminForm({ ...adminForm, username: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="admin"
                               required
                             />
@@ -541,7 +541,7 @@ export default function CloudronProvisionPage() {
                               type="email"
                               value={adminForm.email}
                               onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="admin@example.com"
                               required
                             />
@@ -554,7 +554,7 @@ export default function CloudronProvisionPage() {
                               type="password"
                               value={adminForm.password}
                               onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="Minimum 8 characters"
                               minLength={8}
                               required
@@ -569,7 +569,7 @@ export default function CloudronProvisionPage() {
                               type="text"
                               value={adminForm.displayName}
                               onChange={(e) => setAdminForm({ ...adminForm, displayName: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-900"
                               placeholder="Administrator"
                             />
                           </div>
