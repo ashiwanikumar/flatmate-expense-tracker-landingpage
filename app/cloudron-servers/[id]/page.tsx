@@ -19,8 +19,10 @@ export default function CloudronServerDetailPage() {
   const [stats, setStats] = useState<any>(null);
   const [domains, setDomains] = useState<any[]>([]);
   const [mailboxes, setMailboxes] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'mailboxes' | 'domains'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'mailboxes' | 'domains' | 'email-config'>('overview');
   const [loading, setLoading] = useState(true);
+  const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -72,6 +74,91 @@ export default function CloudronServerDetailPage() {
       console.error('Error syncing server:', error);
       toast.error(error.response?.data?.message || 'Failed to sync server');
     }
+  };
+
+  const toggleDomain = (domainName: string) => {
+    const newExpanded = new Set(expandedDomains);
+    if (newExpanded.has(domainName)) {
+      newExpanded.delete(domainName);
+    } else {
+      newExpanded.add(domainName);
+    }
+    setExpandedDomains(newExpanded);
+  };
+
+  const toggleAllDomains = () => {
+    if (expandedDomains.size === domains.length) {
+      setExpandedDomains(new Set());
+    } else {
+      setExpandedDomains(new Set(domains.map(d => d.domain)));
+    }
+  };
+
+  const getSortedDomains = () => {
+    return [...domains].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.domain.localeCompare(b.domain);
+      } else {
+        return b.domain.localeCompare(a.domain);
+      }
+    });
+  };
+
+  const copyAllEmailConfigs = () => {
+    const sortedDomains = getSortedDomains();
+    let configText = '# Email Client Configuration\n\n';
+
+    sortedDomains.forEach((domain: any) => {
+      configText += `## ${domain.domain}\n\n`;
+      configText += `### Username\n`;
+      configText += `mailboxname@${domain.domain}\n`;
+      configText += `(Replace "mailboxname" with your actual mailbox name)\n\n`;
+
+      configText += `### Password\n`;
+      configText += `Password of the owner of the mailbox\n\n`;
+
+      configText += `### Incoming Mail (IMAP)\n`;
+      configText += `Server: mail.${domain.domain}\n`;
+      configText += `Port: 993 (TLS)\n\n`;
+
+      configText += `### Outgoing Mail (SMTP)\n`;
+      configText += `Server: mail.${domain.domain}\n`;
+      configText += `Port: 587 (STARTTLS) or 465 (TLS)\n\n`;
+
+      configText += `### ManageSieve\n`;
+      configText += `Server: mail.${domain.domain}\n`;
+      configText += `Port: 4190 (STARTTLS)\n\n`;
+      configText += `---\n\n`;
+    });
+
+    navigator.clipboard.writeText(configText);
+    toast.success('All email configurations copied to clipboard!');
+  };
+
+  const copySingleDomainConfig = (domain: any) => {
+    let configText = `# Email Client Configuration for ${domain.domain}\n\n`;
+
+    configText += `## Username\n`;
+    configText += `mailboxname@${domain.domain}\n`;
+    configText += `(Replace "mailboxname" with your actual mailbox name)\n\n`;
+
+    configText += `## Password\n`;
+    configText += `Password of the owner of the mailbox\n\n`;
+
+    configText += `## Incoming Mail (IMAP)\n`;
+    configText += `Server: mail.${domain.domain}\n`;
+    configText += `Port: 993 (TLS)\n\n`;
+
+    configText += `## Outgoing Mail (SMTP)\n`;
+    configText += `Server: mail.${domain.domain}\n`;
+    configText += `Port: 587 (STARTTLS) or 465 (TLS)\n\n`;
+
+    configText += `## ManageSieve\n`;
+    configText += `Server: mail.${domain.domain}\n`;
+    configText += `Port: 4190 (STARTTLS)\n`;
+
+    navigator.clipboard.writeText(configText);
+    toast.success(`Configuration for ${domain.domain} copied!`);
   };
 
   return (
@@ -313,6 +400,16 @@ export default function CloudronServerDetailPage() {
                     >
                       Domains
                     </button>
+                    <button
+                      onClick={() => setActiveTab('email-config')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'email-config'
+                          ? 'border-purple-600 text-purple-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Configuring Email Clients
+                    </button>
                   </nav>
                 </div>
 
@@ -471,6 +568,232 @@ export default function CloudronServerDetailPage() {
                               </div>
                             </div>
                           ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Email Configuration Tab */}
+                  {activeTab === 'email-config' && (
+                    <div>
+                      <div className="mb-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                          <div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">Configuring Email Clients</h3>
+                            <p className="text-gray-600">Use the settings below to configure email clients for your domains.</p>
+                          </div>
+                          {domains.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium flex items-center gap-2"
+                              >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                </svg>
+                                Sort {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+                              </button>
+                              <button
+                                onClick={toggleAllDomains}
+                                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition font-medium flex items-center gap-2"
+                              >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  {expandedDomains.size === domains.length ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  )}
+                                </svg>
+                                {expandedDomains.size === domains.length ? 'Collapse All' : 'Expand All'}
+                              </button>
+                              <button
+                                onClick={copyAllEmailConfigs}
+                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition font-medium flex items-center gap-2"
+                              >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Copy All Configs
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {domains.length === 0 ? (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                          <svg className="w-12 h-12 text-yellow-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <p className="text-yellow-800 font-medium">No domains configured</p>
+                          <p className="text-yellow-700 text-sm mt-2">Please add a domain first to configure email clients.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {getSortedDomains().map((domain: any, index: number) => {
+                            const isExpanded = expandedDomains.has(domain.domain);
+                            return (
+                            <div key={domain.domain || `config-${index}`} className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+                              {/* Domain Header */}
+                              <div
+                                className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4 cursor-pointer hover:from-purple-700 hover:to-blue-700 transition-all"
+                                onClick={() => toggleDomain(domain.domain)}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <h4 className="text-xl font-bold text-white">{domain.domain}</h4>
+                                    <p className="text-purple-100 text-sm">Email client configuration</p>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copySingleDomainConfig(domain);
+                                      }}
+                                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                                      title="Copy this domain's configuration"
+                                    >
+                                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                      </svg>
+                                    </button>
+                                    <svg
+                                      className={`w-6 h-6 text-white transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {isExpanded && (
+                                <div className="p-6 space-y-6">
+                                {/* Username */}
+                                <div>
+                                  <label className="block text-sm font-bold text-gray-900 mb-3">Username</label>
+                                  <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
+                                    <p className="font-mono text-gray-900">mailboxname@{domain.domain}</p>
+                                    <p className="text-xs text-gray-600 mt-1">Replace "mailboxname" with your actual mailbox name</p>
+                                  </div>
+                                </div>
+
+                                {/* Password */}
+                                <div>
+                                  <label className="block text-sm font-bold text-gray-900 mb-3">Password</label>
+                                  <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
+                                    <p className="text-gray-900">Password of the owner of the mailbox</p>
+                                  </div>
+                                </div>
+
+                                {/* Incoming Mail (IMAP) */}
+                                <div>
+                                  <h5 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                    Incoming Mail (IMAP)
+                                  </h5>
+                                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-5 space-y-3">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-gray-700">Server:</span>
+                                      <div className="flex items-center gap-2">
+                                        <code className="px-3 py-1 bg-white border border-blue-300 rounded text-blue-900 font-mono text-sm">mail.{domain.domain}</code>
+                                        <button
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(`mail.${domain.domain}`);
+                                            toast.success('IMAP server copied!');
+                                          }}
+                                          className="p-2 hover:bg-blue-100 rounded transition-colors"
+                                          title="Copy to clipboard"
+                                        >
+                                          <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-gray-700">Port:</span>
+                                      <code className="px-3 py-1 bg-white border border-blue-300 rounded text-blue-900 font-mono text-sm font-bold">993 (TLS)</code>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Outgoing Mail (SMTP) */}
+                                <div>
+                                  <h5 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                    </svg>
+                                    Outgoing Mail (SMTP)
+                                  </h5>
+                                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-5 space-y-3">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-gray-700">Server:</span>
+                                      <div className="flex items-center gap-2">
+                                        <code className="px-3 py-1 bg-white border border-green-300 rounded text-green-900 font-mono text-sm">mail.{domain.domain}</code>
+                                        <button
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(`mail.${domain.domain}`);
+                                            toast.success('SMTP server copied!');
+                                          }}
+                                          className="p-2 hover:bg-green-100 rounded transition-colors"
+                                          title="Copy to clipboard"
+                                        >
+                                          <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-gray-700">Port:</span>
+                                      <code className="px-3 py-1 bg-white border border-green-300 rounded text-green-900 font-mono text-sm font-bold">587 (STARTTLS) or 465 (TLS)</code>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* ManageSieve */}
+                                <div>
+                                  <h5 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                    </svg>
+                                    ManageSieve
+                                  </h5>
+                                  <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-5 space-y-3">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-gray-700">Server:</span>
+                                      <div className="flex items-center gap-2">
+                                        <code className="px-3 py-1 bg-white border border-purple-300 rounded text-purple-900 font-mono text-sm">mail.{domain.domain}</code>
+                                        <button
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(`mail.${domain.domain}`);
+                                            toast.success('ManageSieve server copied!');
+                                          }}
+                                          className="p-2 hover:bg-purple-100 rounded transition-colors"
+                                          title="Copy to clipboard"
+                                        >
+                                          <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-gray-700">Port:</span>
+                                      <code className="px-3 py-1 bg-white border border-purple-300 rounded text-purple-900 font-mono text-sm font-bold">4190 (STARTTLS)</code>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              )}
+                            </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

@@ -25,6 +25,9 @@ export default function MailboxesPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [mailboxToDelete, setMailboxToDelete] = useState<{id: string, name: string, domain: string} | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [selectedMailboxConfig, setSelectedMailboxConfig] = useState<{name: string, domain: string} | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
   // View and filter states
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -153,6 +156,20 @@ export default function MailboxesPage() {
     } finally {
       setDeleting(false);
     }
+  };
+
+  const openConfigModal = (mailboxName: string, domain: string) => {
+    setSelectedMailboxConfig({ name: mailboxName, domain });
+    setShowConfigModal(true);
+  };
+
+  const closeConfigModal = () => {
+    setShowConfigModal(false);
+    setSelectedMailboxConfig(null);
+  };
+
+  const toggleDropdown = (mailboxId: string) => {
+    setOpenDropdownId(openDropdownId === mailboxId ? null : mailboxId);
   };
 
   const resetMailboxForm = () => {
@@ -444,16 +461,48 @@ export default function MailboxesPage() {
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <button
-                    onClick={() => openDeleteModal(mailbox.name, mailbox.domain)}
-                    className="w-full px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Delete Mailbox
-                  </button>
+                  {/* Actions Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => toggleDropdown(`${mailbox.name}-${mailbox.domain}-${index}`)}
+                      className="w-full px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                      </svg>
+                      Actions
+                    </button>
+                    {openDropdownId === `${mailbox.name}-${mailbox.domain}-${index}` && (
+                      <div className="absolute bottom-full mb-2 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                        <button
+                          onClick={() => {
+                            openConfigModal(mailbox.name, mailbox.domain);
+                            setOpenDropdownId(null);
+                          }}
+                          className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Configure Email Client
+                        </button>
+                        <div className="border-t border-gray-200"></div>
+                        <button
+                          onClick={() => {
+                            openDeleteModal(mailbox.name, mailbox.domain);
+                            setOpenDropdownId(null);
+                          }}
+                          className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete Mailbox
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -539,15 +588,46 @@ export default function MailboxesPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => openDeleteModal(mailbox.name, mailbox.domain)}
-                            className="text-red-600 hover:text-red-900 inline-flex items-center gap-1"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Delete
-                          </button>
+                          <div className="relative inline-block">
+                            <button
+                              onClick={() => toggleDropdown(`${mailbox.name}-${mailbox.domain}-list-${index}`)}
+                              className="text-gray-600 hover:text-gray-900 inline-flex items-center gap-1"
+                            >
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                              </svg>
+                            </button>
+                            {openDropdownId === `${mailbox.name}-${mailbox.domain}-list-${index}` && (
+                              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                                <button
+                                  onClick={() => {
+                                    openConfigModal(mailbox.name, mailbox.domain);
+                                    setOpenDropdownId(null);
+                                  }}
+                                  className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors"
+                                >
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  </svg>
+                                  Configure Email Client
+                                </button>
+                                <div className="border-t border-gray-200"></div>
+                                <button
+                                  onClick={() => {
+                                    openDeleteModal(mailbox.name, mailbox.domain);
+                                    setOpenDropdownId(null);
+                                  }}
+                                  className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                                >
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  Delete Mailbox
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -824,6 +904,149 @@ export default function MailboxesPage() {
                 }`}
               >
                 {deleting ? 'Deleting...' : 'Delete Mailbox'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Configure Email Client Modal */}
+      {showConfigModal && selectedMailboxConfig && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white">
+              <h3 className="text-xl font-bold text-gray-900">Configure Email Client</h3>
+              <button onClick={closeConfigModal} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="px-6 py-5">
+              <p className="text-gray-700 mb-6">
+                Use the settings below to configure your email client for <span className="font-bold text-purple-600">{selectedMailboxConfig.name}@{selectedMailboxConfig.domain}</span>
+              </p>
+
+              {/* Username */}
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-900 mb-2">Username</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={`${selectedMailboxConfig.name}@${selectedMailboxConfig.domain}`}
+                    readOnly
+                    className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-900 font-medium"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${selectedMailboxConfig.name}@${selectedMailboxConfig.domain}`);
+                      toast.success('Username copied to clipboard!');
+                    }}
+                    className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-900 mb-2">Password</label>
+                <p className="text-sm text-gray-600">Password of the owner of the mailbox</p>
+              </div>
+
+              {/* Incoming Mail (IMAP) */}
+              <div className="mb-6">
+                <h4 className="text-lg font-bold text-gray-900 mb-3">Incoming Mail (IMAP)</h4>
+                <div className="space-y-3 bg-blue-50 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Server:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm text-gray-900">mail.{selectedMailboxConfig.domain}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(`mail.${selectedMailboxConfig.domain}`);
+                          toast.success('IMAP server copied!');
+                        }}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Port:</span>
+                    <span className="font-mono text-sm font-bold text-gray-900">993 (TLS)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Outgoing Mail (SMTP) */}
+              <div className="mb-6">
+                <h4 className="text-lg font-bold text-gray-900 mb-3">Outgoing Mail (SMTP)</h4>
+                <div className="space-y-3 bg-green-50 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Server:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm text-gray-900">mail.{selectedMailboxConfig.domain}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(`mail.${selectedMailboxConfig.domain}`);
+                          toast.success('SMTP server copied!');
+                        }}
+                        className="text-green-600 hover:text-green-700"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Port:</span>
+                    <span className="font-mono text-sm font-bold text-gray-900">587 (STARTTLS) or 465 (TLS)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ManageSieve */}
+              <div className="mb-6">
+                <h4 className="text-lg font-bold text-gray-900 mb-3">ManageSieve</h4>
+                <div className="space-y-3 bg-purple-50 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Server:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm text-gray-900">mail.{selectedMailboxConfig.domain}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(`mail.${selectedMailboxConfig.domain}`);
+                          toast.success('ManageSieve server copied!');
+                        }}
+                        className="text-purple-600 hover:text-purple-700"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Port:</span>
+                    <span className="font-mono text-sm font-bold text-gray-900">4190 (STARTTLS)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end sticky bottom-0 bg-white">
+              <button
+                onClick={closeConfigModal}
+                className="px-5 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
+              >
+                Close
               </button>
             </div>
           </div>
