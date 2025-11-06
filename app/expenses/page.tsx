@@ -174,6 +174,7 @@ export default function ExpensesPage() {
   };
 
   const changeMonth = (direction: 'prev' | 'next') => {
+    setLoading(true); // Show loading when changing months
     if (direction === 'prev') {
       if (currentMonth === 1) {
         setCurrentMonth(12);
