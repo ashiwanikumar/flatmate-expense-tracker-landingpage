@@ -31,6 +31,7 @@ export default function InvitationsPage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('user');
   const [sending, setSending] = useState(false);
+  const [invitationLink, setInvitationLink] = useState<string | null>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -63,14 +64,20 @@ export default function InvitationsPage() {
 
     try {
       setSending(true);
-      await invitationAPI.send({
+      const response = await invitationAPI.send({
         email: inviteEmail,
         role: inviteRole,
       });
-      toast.success('Invitation sent successfully!');
+
+      // Get the invitation link from response
+      const link = response.data.data.invitation?.invitationLink;
+      if (link) {
+        setInvitationLink(link);
+      }
+
+      toast.success('Invitation sent! An email has been sent to the recipient.');
       setInviteEmail('');
       setInviteRole('user');
-      setShowModal(false);
       fetchInvitations();
     } catch (err: any) {
       console.error('Failed to send invitation:', err);
@@ -236,56 +243,109 @@ export default function InvitationsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Send Invitation
             </h3>
-            <form onSubmit={handleSendInvitation}>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
-                  placeholder="flatmate@example.com"
-                  required
-                />
+
+            {invitationLink ? (
+              <div className="space-y-4">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm font-medium text-green-800 mb-2">
+                    ✓ Invitation sent successfully!
+                  </p>
+                  <p className="text-xs text-green-700">
+                    An email has been sent to the recipient with the invitation link.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Invitation Link (Backup)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={invitationLink}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 text-sm"
+                      onClick={(e) => (e.target as HTMLInputElement).select()}
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(invitationLink);
+                        toast.success('Link copied to clipboard!');
+                      }}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    You can also copy and share this link manually if needed.
+                  </p>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      setInvitationLink(null);
+                    }}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
-              <div className="mb-6">
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-                  Role
-                </label>
-                <select
-                  id="role"
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
-                >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setInviteEmail('');
-                    setInviteRole('user');
-                  }}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={sending}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-400 disabled:cursor-not-allowed"
-                >
-                  {sending ? 'Sending...' : 'Send Invitation'}
-                </button>
-              </div>
-            </form>
+            ) : (
+              <form onSubmit={handleSendInvitation}>
+                <div className="mb-4">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                    placeholder="flatmate@example.com"
+                    required
+                  />
+                </div>
+                <div className="mb-6">
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                    Role
+                  </label>
+                  <select
+                    id="role"
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      setInviteEmail('');
+                      setInviteRole('user');
+                    }}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-400 disabled:cursor-not-allowed"
+                  >
+                    {sending ? 'Creating...' : 'Create Invitation'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
