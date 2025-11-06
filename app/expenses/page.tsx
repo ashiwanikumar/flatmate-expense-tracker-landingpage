@@ -74,6 +74,7 @@ export default function ExpensesPage() {
   });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
+  const [balances, setBalances] = useState<{ [key: string]: { name: string; balance: number } }>({});
 
   // Get user from localStorage
   useEffect(() => {
@@ -97,13 +98,86 @@ export default function ExpensesPage() {
         sortOrder: 'desc',
       };
       const response = await expenseAPI.getAll(params);
-      setExpenses(response.data.data.expenses);
+      const fetchedExpenses = response.data.data.expenses;
+      setExpenses(fetchedExpenses);
+      calculateBalances(fetchedExpenses);
       setError('');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch expenses');
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateBalances = (expenses: Expense[]) => {
+    const userBalances: { [key: string]: { name: string; balance: number } } = {};
+
+    expenses.forEach((expense) => {
+      const paidById = expense.paidBy._id;
+      const paidByName = expense.paidBy.name;
+
+      // Initialize if not exists
+      if (!userBalances[paidById]) {
+        userBalances[paidById] = { name: paidByName, balance: 0 };
+      }
+
+      // User who paid gets positive balance
+      userBalances[paidById].balance += expense.amount;
+
+      // If there are splits, deduct the split amounts
+      if (expense.splitBetween && expense.splitBetween.length > 0) {
+        expense.splitBetween.forEach((split) => {
+          const splitUserId = split.user._id;
+          const splitUserName = split.user.name;
+
+          if (!userBalances[splitUserId]) {
+            userBalances[splitUserId] = { name: splitUserName, balance: 0 };
+          }
+
+          // User who owes gets negative balance
+          userBalances[splitUserId].balance -= split.amount;
+        });
+      } else {
+        // If no splits defined, assume equal split among all users in the system
+        // For now, just the person who paid owns the full amount
+      }
+    });
+
+    setBalances(userBalances);
+  };
+
+  const exportToExcel = () => {
+    // Prepare data for export
+    const exportData = expenses.map((expense) => ({
+      Date: formatDate(expense.expenseDate),
+      Description: expense.description,
+      Category: expense.category,
+      'Paid By': expense.paidBy.name,
+      Amount: expense.amount,
+      Currency: expense.currency,
+      Status: expense.status.replace('_', ' '),
+      Notes: expense.notes || '',
+    }));
+
+    // Convert to CSV
+    const headers = Object.keys(exportData[0] || {});
+    const csvContent = [
+      headers.join(','),
+      ...exportData.map((row) =>
+        headers.map((header) => `"${row[header as keyof typeof row]}"`).join(',')
+      ),
+    ].join('\n');
+
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `expenses_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const fetchStats = async () => {
@@ -180,12 +254,24 @@ export default function ExpensesPage() {
                 View all flatmate expenses - track who spent what
               </p>
             </div>
-            <button
-              onClick={() => router.push('/expenses/add')}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              + Add Expense
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={exportToExcel}
+                disabled={expenses.length === 0}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export to Excel
+              </button>
+              <button
+                onClick={() => router.push('/expenses/add')}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                + Add Expense
+              </button>
+            </div>
           </div>
         </div>
 
@@ -215,6 +301,56 @@ export default function ExpensesPage() {
               <div className="text-2xl font-bold text-gray-900">
                 {stats.overall.maxAmount ? stats.overall.maxAmount.toFixed(2) : '0.00'} AED
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Balance/Settlement Section */}
+        {Object.keys(balances).length > 0 && (
+          <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Balance & Settlements</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(balances).map(([userId, data]) => (
+                <div
+                  key={userId}
+                  className={`p-4 rounded-lg border-2 ${
+                    data.balance > 0
+                      ? 'bg-green-50 border-green-200'
+                      : data.balance < 0
+                      ? 'bg-red-50 border-red-200'
+                      : 'bg-gray-50 border-gray-200'
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="font-semibold text-gray-900">{data.name}</div>
+                      <div className="text-sm text-gray-600">
+                        {data.balance > 0 ? 'Gets back' : data.balance < 0 ? 'Owes' : 'Settled'}
+                      </div>
+                    </div>
+                    <div
+                      className={`text-xl font-bold ${
+                        data.balance > 0
+                          ? 'text-green-700'
+                          : data.balance < 0
+                          ? 'text-red-700'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {Math.abs(data.balance).toFixed(2)} AED
+                    </div>
+                  </div>
+                  {user && userId === user._id && (
+                    <div className="mt-2 text-xs font-medium text-purple-600">You</div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>How to settle:</strong> People who "Owe" money should pay the people who "Get back" money.
+                The amounts shown are net balances based on who paid for expenses.
+              </p>
             </div>
           </div>
         )}

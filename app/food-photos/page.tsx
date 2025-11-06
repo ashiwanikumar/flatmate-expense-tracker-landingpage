@@ -231,6 +231,11 @@ export default function FoodPhotosPage() {
   };
 
   const getImageUrl = (url: string) => {
+    // If URL is already a full URL (starts with http:// or https://), return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // Otherwise, prepend API base URL (for old local files)
     return getApiUrl().replace('/api/v1', '') + url;
   };
 
