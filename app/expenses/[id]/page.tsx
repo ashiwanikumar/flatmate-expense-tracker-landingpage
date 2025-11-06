@@ -30,9 +30,13 @@ interface Expense {
   paidBy: User;
   expenseDate: string;
   receipt?: {
-    filename: string;
+    s3Key?: string;
     originalName: string;
-    path: string;
+    cloudFrontUrl?: string;
+    s3Url?: string;
+    mimetype?: string;
+    size?: number;
+    uploadedAt?: string;
   };
   receiptUrl?: string;
   splitBetween: SplitBetween[];
@@ -53,6 +57,7 @@ export default function ExpenseDetailPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -116,6 +121,12 @@ export default function ExpenseDetailPage() {
       fully_paid: 'bg-green-100 text-green-800',
     };
     return colors[status] || colors.pending;
+  };
+
+  const getReceiptImageUrl = () => {
+    if (!expense?.receipt) return null;
+    // Priority: S3 URL -> CloudFront URL -> receiptUrl
+    return expense.receipt.s3Url || expense.receipt.cloudFrontUrl || expense.receiptUrl;
   };
 
   if (loading) {
@@ -241,14 +252,58 @@ export default function ExpenseDetailPage() {
                   📄 {expense.receipt.originalName}
                 </div>
               </div>
-              <a
-                href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${expense.receiptUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setShowReceiptModal(true)}
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
               >
                 View Receipt
-              </a>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Receipt Viewer Modal */}
+        {showReceiptModal && expense.receipt && getReceiptImageUrl() && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
+            <div className="relative max-w-5xl w-full">
+              <button
+                onClick={() => setShowReceiptModal(false)}
+                className="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full p-2 transition-all z-10"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="bg-white rounded-lg overflow-hidden max-h-[90vh] overflow-y-auto">
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Receipt: {expense.receipt.originalName}</h3>
+                </div>
+                <div className="p-4 flex items-center justify-center bg-gray-100">
+                  {expense.receipt.mimetype?.startsWith('image/') ? (
+                    <img
+                      src={getReceiptImageUrl()!}
+                      alt="Receipt"
+                      className="max-w-full max-h-[75vh] object-contain"
+                    />
+                  ) : (
+                    <div className="text-center py-12">
+                      <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      <p className="text-gray-600 mb-4">PDF Document</p>
+                      <a
+                        href={getReceiptImageUrl()!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors inline-block"
+                      >
+                        Open PDF in New Tab
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
