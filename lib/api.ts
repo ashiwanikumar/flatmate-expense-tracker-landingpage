@@ -128,6 +128,14 @@ export const userAvailabilityAPI = {
   getCurrentStatus: () => api.get('/user-availability/status/current'),
 };
 
+// Balance API
+export const balanceAPI = {
+  getMyBalance: (year: number, month: number) => api.get(`/balances/my-balance/${year}/${month}`),
+  getMonthlyBalances: (year: number, month: number) => api.get(`/balances/monthly/${year}/${month}`),
+  getSettlements: (year: number, month: number) => api.get(`/balances/settlements/${year}/${month}`),
+  getUserAvailability: (userId: string, year: number, month: number) => api.get(`/balances/availability/${userId}/${year}/${month}`),
+};
+
 // Meal Rating API
 export const mealRatingAPI = {
   create: (data: any) => api.post('/meal-ratings', data),
