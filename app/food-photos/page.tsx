@@ -53,6 +53,9 @@ export default function FoodPhotosPage() {
   const [selectedPhoto, setSelectedPhoto] = useState<FoodPhoto | null>(null);
   const [commentText, setCommentText] = useState('');
   const [user, setUser] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
@@ -99,10 +102,34 @@ export default function FoodPhotosPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+
+      // Validate file count
       if (filesArray.length > 10) {
         toast.error('Maximum 10 photos allowed');
+        e.target.value = ''; // Clear the input
         return;
       }
+
+      // Validate each file is an image
+      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const invalidFiles = filesArray.filter(file => !validImageTypes.includes(file.type));
+
+      if (invalidFiles.length > 0) {
+        toast.error('Only image files (JPEG, PNG, GIF, WebP) are allowed');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+
+      // Validate file size (10MB max per file)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const oversizedFiles = filesArray.filter(file => file.size > maxSize);
+
+      if (oversizedFiles.length > 0) {
+        toast.error('Each image must be less than 10MB');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+
       setUploadForm({ ...uploadForm, files: filesArray });
     }
   };
@@ -203,18 +230,38 @@ export default function FoodPhotosPage() {
     }
   };
 
-  const handleDeletePhoto = async (photoId: string) => {
-    if (!confirm('Are you sure you want to delete this photo?')) return;
+  const handleDeletePhoto = async () => {
+    if (!photoToDelete) return;
+
+    if (deleteConfirmText.toLowerCase() !== 'delete') {
+      toast.error('Please type "delete" to confirm');
+      return;
+    }
 
     try {
-      await foodPhotoAPI.delete(photoId);
+      await foodPhotoAPI.delete(photoToDelete);
       toast.success('Photo deleted successfully');
       setSelectedPhoto(null);
+      setShowDeleteModal(false);
+      setDeleteConfirmText('');
+      setPhotoToDelete(null);
       fetchPhotos();
     } catch (error: any) {
       console.error('Error deleting photo:', error);
       toast.error(error.response?.data?.message || 'Failed to delete photo');
     }
+  };
+
+  const initiateDelete = (photoId: string) => {
+    setPhotoToDelete(photoId);
+    setShowDeleteModal(true);
+    setDeleteConfirmText('');
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteConfirmText('');
+    setPhotoToDelete(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -340,7 +387,7 @@ export default function FoodPhotosPage() {
                     </label>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                       multiple
                       onChange={handleFileSelect}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
@@ -351,6 +398,9 @@ export default function FoodPhotosPage() {
                         {uploadForm.files.length} file(s) selected
                       </p>
                     )}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Only image files (JPEG, PNG, GIF, WebP) are allowed. Max 10MB per image.
+                    </p>
                   </div>
 
                   <div>
@@ -398,6 +448,44 @@ export default function FoodPhotosPage() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+            <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-2xl">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Confirm Deletion</h2>
+              <p className="text-gray-600 mb-4">
+                Are you sure you want to delete this photo? This action cannot be undone.
+              </p>
+              <p className="text-sm text-gray-700 mb-2 font-medium">
+                Type <span className="font-bold text-red-600">delete</span> to confirm:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type 'delete' here"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 placeholder-gray-400"
+                autoFocus
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelDelete}
+                  className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeletePhoto}
+                  disabled={deleteConfirmText.toLowerCase() !== 'delete'}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -465,7 +553,7 @@ export default function FoodPhotosPage() {
                     ❤️ {selectedPhoto.likesCount} Likes
                   </button>
                   <button
-                    onClick={() => handleDeletePhoto(selectedPhoto._id)}
+                    onClick={() => initiateDelete(selectedPhoto._id)}
                     className="ml-auto text-red-600 hover:text-red-700 text-sm"
                   >
                     Delete
