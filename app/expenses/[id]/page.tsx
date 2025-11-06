@@ -200,7 +200,7 @@ export default function ExpenseDetailPage() {
             <div>
               <label className="text-sm font-medium text-gray-500">Amount</label>
               <div className="mt-1 text-2xl font-bold text-gray-900">
-                {expense.amount.toFixed(2)} {expense.currency}
+                AED {expense.amount.toFixed(2)}
               </div>
             </div>
             <div>
@@ -325,7 +325,7 @@ export default function ExpenseDetailPage() {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <div className="font-semibold text-gray-900">
-                        {split.amount.toFixed(2)} {expense.currency}
+                        AED {split.amount.toFixed(2)}
                       </div>
                       {split.paid && split.paidAt && (
                         <div className="text-xs text-green-600">
@@ -350,7 +350,7 @@ export default function ExpenseDetailPage() {
               <div className="pt-3 mt-3 border-t border-gray-200">
                 <div className="flex justify-between text-lg font-semibold text-gray-900">
                   <span>Total Split Amount</span>
-                  <span>{expense.totalSplitAmount.toFixed(2)} {expense.currency}</span>
+                  <span>AED {expense.totalSplitAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>

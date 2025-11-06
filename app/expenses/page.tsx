@@ -281,7 +281,7 @@ export default function ExpensesPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                📋 Overview
+                Overview
               </button>
               <button
                 onClick={() => setActiveTab('settlements')}
@@ -291,7 +291,7 @@ export default function ExpensesPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                💰 Settlements
+                Settlements
               </button>
               <button
                 onClick={() => setActiveTab('mybalance')}
@@ -301,7 +301,7 @@ export default function ExpensesPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                👤 My Balance
+                My Balance
               </button>
             </nav>
           </div>
@@ -326,16 +326,14 @@ export default function ExpensesPage() {
                           <h4 className="text-lg font-bold text-gray-900">{balance.user.name}</h4>
                           <p className="text-sm text-gray-600">{balance.user.email}</p>
                         </div>
-                        <span className={`text-2xl ${balance.netBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {balance.netBalance >= 0 ? '✅' : '❌'}
-                        </span>
+                        <div className={`w-3 h-3 rounded-full ${balance.netBalance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
                       </div>
 
                       {/* Availability Info */}
                       {balance.availability.unavailableDays > 0 && (
                         <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
                           <p className="text-yellow-800">
-                            ⏰ Present: {balance.availability.availableDays}/{balance.availability.totalDays} days
+                            Present: {balance.availability.availableDays}/{balance.availability.totalDays} days
                           </p>
                         </div>
                       )}
@@ -364,11 +362,11 @@ export default function ExpensesPage() {
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         {balance.netBalance >= 0 ? (
                           <p className="text-sm font-medium text-green-700">
-                            💚 To Receive: {formatCurrency(balance.summary.toReceive)}
+                            To Receive: {formatCurrency(balance.summary.toReceive)}
                           </p>
                         ) : (
                           <p className="text-sm font-medium text-red-700">
-                            💔 To Pay: {formatCurrency(balance.summary.toPay)}
+                            To Pay: {formatCurrency(balance.summary.toPay)}
                           </p>
                         )}
                       </div>
@@ -381,7 +379,6 @@ export default function ExpensesPage() {
                   <h3 className="text-xl font-bold text-gray-900 mb-4">All Expenses This Month</h3>
                   {expenses.length === 0 ? (
                     <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="text-6xl mb-4">📝</div>
                       <h4 className="text-xl font-medium text-gray-700 mb-2">No expenses yet</h4>
                       <p className="text-gray-600">Add your first expense for this month</p>
                     </div>
@@ -470,13 +467,13 @@ export default function ExpensesPage() {
                     onClick={() => router.push('/user-availability')}
                     className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
                   >
-                    📅 Manage Availability
+                    Manage Availability
                   </button>
                   <button
                     onClick={() => router.push('/expenses/add')}
                     className="p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
                   >
-                    ➕ Add New Expense
+                    Add New Expense
                   </button>
                 </div>
               </div>
@@ -488,7 +485,6 @@ export default function ExpensesPage() {
                 <h3 className="text-xl font-bold text-gray-900 mb-6">Settlement Suggestions</h3>
                 {settlements.length === 0 ? (
                   <div className="text-center py-12 bg-green-50 rounded-lg border border-green-200">
-                    <div className="text-6xl mb-4">🎉</div>
                     <h4 className="text-xl font-bold text-green-800 mb-2">All Settled!</h4>
                     <p className="text-green-700">No pending settlements for this month.</p>
                   </div>
@@ -502,7 +498,7 @@ export default function ExpensesPage() {
                         <div className="flex items-center gap-4 flex-1">
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                              <span className="text-xl">👤</span>
+                              <span className="text-lg font-semibold text-red-700">{settlement.from.name.charAt(0)}</span>
                             </div>
                             <div>
                               <p className="font-semibold text-gray-900">{settlement.from.name}</p>
@@ -524,7 +520,7 @@ export default function ExpensesPage() {
 
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                              <span className="text-xl">👤</span>
+                              <span className="text-lg font-semibold text-green-700">{settlement.to.name.charAt(0)}</span>
                             </div>
                             <div>
                               <p className="font-semibold text-gray-900">{settlement.to.name}</p>
@@ -545,7 +541,7 @@ export default function ExpensesPage() {
                 )}
 
                 <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">💡 Pro Tip</h4>
+                  <h4 className="font-semibold text-blue-900 mb-2">Pro Tip</h4>
                   <p className="text-sm text-blue-800">
                     These settlements minimize the number of transactions needed to balance everyone's accounts.
                     Simply follow the suggestions above to settle all debts efficiently!
@@ -587,7 +583,7 @@ export default function ExpensesPage() {
                   {myBalance.availability.unavailableDays > 0 && (
                     <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
                       <p className="text-sm text-yellow-800">
-                        ⚡ Your grocery/household expenses are prorated based on {myBalance.availability.availableDays} days present
+                        Your grocery/household expenses are prorated based on {myBalance.availability.availableDays} days present
                       </p>
                     </div>
                   )}
@@ -618,14 +614,14 @@ export default function ExpensesPage() {
                     {myBalance.netBalance >= 0 ? (
                       <div>
                         <p className="text-2xl font-bold text-green-700 mb-2">
-                          💚 Others owe you {formatCurrency(myBalance.summary.toReceive)}
+                          Others owe you {formatCurrency(myBalance.summary.toReceive)}
                         </p>
                         <p className="text-sm text-gray-600">You'll receive this amount from your flatmates</p>
                       </div>
                     ) : (
                       <div>
                         <p className="text-2xl font-bold text-red-700 mb-2">
-                          💔 You need to pay {formatCurrency(myBalance.summary.toPay)}
+                          You need to pay {formatCurrency(myBalance.summary.toPay)}
                         </p>
                         <p className="text-sm text-gray-600">Check Settlements tab to see who to pay</p>
                       </div>
@@ -652,12 +648,12 @@ export default function ExpensesPage() {
                                 <p className="font-medium text-gray-900">{expense.description}</p>
                                 {expense.isProrated && (
                                   <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded">
-                                    ⚡ Prorated
+                                    Prorated
                                   </span>
                                 )}
                                 {expense.isPaid && (
                                   <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
-                                    ✓ Paid
+                                    Paid
                                   </span>
                                 )}
                               </div>

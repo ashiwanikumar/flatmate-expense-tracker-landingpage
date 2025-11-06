@@ -206,16 +206,13 @@ export default function UserAvailabilityPage() {
 
         {/* Info Banner */}
         <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 text-blue-600 text-2xl">ℹ️</div>
-            <div>
-              <h3 className="font-semibold text-blue-900 mb-2">Important Information</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• <strong>Minimum 7 days required:</strong> Only absences of 7 days or more are considered for expense calculations</li>
-                <li>• <strong>Automatic proration:</strong> Grocery and household expenses are automatically prorated based on days present</li>
-                <li>• <strong>Other expenses:</strong> Food, utilities, and other expenses are NOT prorated</li>
-              </ul>
-            </div>
+          <div>
+            <h3 className="font-semibold text-blue-900 mb-2">Important Information</h3>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• <strong>Minimum 7 days required:</strong> Only absences of 7 days or more are considered for expense calculations</li>
+              <li>• <strong>Automatic proration:</strong> Grocery and household expenses are automatically prorated based on days present</li>
+              <li>• <strong>Other expenses:</strong> Food, utilities, and other expenses are NOT prorated</li>
+            </ul>
           </div>
         </div>
 
@@ -235,9 +232,7 @@ export default function UserAvailabilityPage() {
                     <h4 className="font-bold text-gray-900">{status.user.name}</h4>
                     <p className="text-sm text-gray-600">{status.user.email}</p>
                   </div>
-                  <span className="text-3xl">
-                    {status.isAvailable ? '✅' : '🚫'}
-                  </span>
+                  <div className={`w-3 h-3 rounded-full ${status.isAvailable ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                 </div>
                 {status.currentAbsence ? (
                   <div className="mt-3 p-3 bg-white rounded border border-orange-200">
@@ -270,7 +265,6 @@ export default function UserAvailabilityPage() {
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             {availabilities.length === 0 ? (
               <div className="p-12 text-center text-gray-600">
-                <div className="text-6xl mb-4">📅</div>
                 <p className="text-lg font-medium mb-2">No absence records yet</p>
                 <p className="text-sm">Click "Mark Absence" to record when someone is away</p>
               </div>
@@ -396,7 +390,7 @@ export default function UserAvailabilityPage() {
 
               <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  ⚠️ Minimum 7 days required for expense calculations
+                  Minimum 7 days required for expense calculations
                 </p>
               </div>
 
