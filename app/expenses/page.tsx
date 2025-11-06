@@ -96,7 +96,7 @@ export default function ExpensesPage() {
         sortBy: 'expenseDate',
         sortOrder: 'desc',
       };
-      const response = await expenseAPI.getMyExpenses(params);
+      const response = await expenseAPI.getAll(params);
       setExpenses(response.data.data.expenses);
       setError('');
     } catch (err: any) {
@@ -175,9 +175,9 @@ export default function ExpensesPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
+              <h1 className="text-3xl font-bold text-gray-900">All Expenses</h1>
               <p className="mt-2 text-sm text-gray-600">
-                Track and manage your group expenses
+                View all flatmate expenses - track who spent what
               </p>
             </div>
             <button
