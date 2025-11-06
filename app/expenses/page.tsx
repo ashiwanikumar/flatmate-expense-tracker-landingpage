@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { expenseAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import NavigationMenu from '@/components/NavigationMenu';
 
 interface User {
   _id: string;
@@ -58,6 +61,7 @@ interface Stats {
 
 export default function ExpensesPage() {
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,6 +74,14 @@ export default function ExpensesPage() {
   });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
+
+  // Get user from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     fetchExpenses();
@@ -155,8 +167,10 @@ export default function ExpensesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {user && <Header user={user} />}
+      <NavigationMenu />
+      <div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
@@ -412,6 +426,7 @@ export default function ExpensesPage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

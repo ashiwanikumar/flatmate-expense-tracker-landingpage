@@ -33,7 +33,7 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
       toast.success('Login successful!');
-      router.push('/dashboard');
+      router.push('/expenses');
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(error.response?.data?.message || 'Login failed. Please try again.');
@@ -53,9 +53,9 @@ export default function LoginPage() {
           </div>
           <div className="flex-grow flex flex-col justify-center">
             <div className="mb-8">
-              <h1 className="text-5xl font-bold mb-4">Campaign Manager</h1>
+              <h1 className="text-5xl font-bold mb-4">Flatmate Expense Tracker</h1>
               <p className="text-xl text-purple-100">
-                AI-powered email campaign management
+                Manage shared expenses with your flatmates effortlessly
               </p>
             </div>
             <div className="mt-12 space-y-4">
@@ -66,8 +66,8 @@ export default function LoginPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Automated Scheduling</h3>
-                <p className="text-purple-100">Intelligent campaign automation and batch processing</p>
+                <h3 className="font-semibold text-lg">Track Expenses</h3>
+                <p className="text-purple-100">Add and manage all your shared expenses in one place</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -77,8 +77,8 @@ export default function LoginPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Real-time Analytics</h3>
-                <p className="text-purple-100">Track your campaign performance with detailed insights</p>
+                <h3 className="font-semibold text-lg">Split Bills Fairly</h3>
+                <p className="text-purple-100">Automatically split expenses among flatmates</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -88,8 +88,8 @@ export default function LoginPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Multi-tenant Support</h3>
-                <p className="text-purple-100">Manage multiple company accounts seamlessly</p>
+                <h3 className="font-semibold text-lg">Visual Reports</h3>
+                <p className="text-purple-100">Track spending patterns with beautiful charts</p>
               </div>
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h2>
               <p className="text-gray-600">
-                Welcome to Campaign Manager
+                Welcome to Flatmate Expense Tracker
               </p>
             </div>
 
