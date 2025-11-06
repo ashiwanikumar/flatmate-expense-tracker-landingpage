@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { activityLogAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
-import Footer from '@/components/Footer';
 import LoadingModal from '@/components/LoadingModal';
-import Header from '@/components/Header';
-import NavigationMenu from '@/components/NavigationMenu';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 export default function ActivityLogsPage() {
   const router = useRouter();
@@ -104,22 +102,21 @@ export default function ActivityLogsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'rgb(12, 190, 225)', boxShadow: 'rgb(12, 190, 225) 0px 0px 4px 0px' }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-white font-semibold text-sm sm:text-base">Loading activity logs...</p>
+      <LayoutWrapper user={user}>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent mb-4"></div>
+            <p className="text-gray-600">Loading activity logs...</p>
+          </div>
         </div>
-      </div>
+      </LayoutWrapper>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header user={user} />
-      <NavigationMenu />
-
+    <LayoutWrapper user={user}>
       {/* Main Content */}
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-4 sm:py-8 w-full max-w-7xl mx-auto">
+      <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-8 w-full max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
           <div className="flex items-center gap-2 sm:gap-3">
             <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +358,6 @@ export default function ActivityLogsPage() {
           </div>
         )}
       </main>
-      <Footer />
 
       {/* Loading Modal */}
       <LoadingModal
@@ -369,6 +365,6 @@ export default function ActivityLogsPage() {
         title="Exporting Activity Logs"
         subtitle="Preparing your CSV file and sending email notification..."
       />
-    </div>
+    </LayoutWrapper>
   );
 }

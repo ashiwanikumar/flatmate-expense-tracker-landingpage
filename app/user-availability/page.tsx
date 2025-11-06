@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react';
 import { userAvailabilityAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import NavigationMenu from '@/components/NavigationMenu';
+import LayoutWrapper from '@/components/LayoutWrapper';
 import { toast } from 'react-hot-toast';
 
 interface User {
@@ -170,26 +168,20 @@ export default function UserAvailabilityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        {user && <Header user={user} />}
-        <NavigationMenu />
-        <div className="flex-grow flex items-center justify-center">
+      <LayoutWrapper user={user}>
+        <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent mb-4"></div>
             <p className="text-gray-600">Loading availability data...</p>
           </div>
         </div>
-        <Footer />
-      </div>
+      </LayoutWrapper>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {user && <Header user={user} />}
-      <NavigationMenu />
-
-      <div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <LayoutWrapper user={user}>
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
@@ -416,8 +408,6 @@ export default function UserAvailabilityPage() {
           </div>
         </div>
       )}
-
-      <Footer />
-    </div>
+    </LayoutWrapper>
   );
 }

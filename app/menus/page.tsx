@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { dinnerMenuAPI } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import NavigationMenu from '@/components/NavigationMenu';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 interface MenuItem {
   name: string;
@@ -254,10 +252,8 @@ export default function MenusPage() {
   weekEnd.setDate(weekEnd.getDate() + 6);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {user && <Header user={user} />}
-      <NavigationMenu />
-      <div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <LayoutWrapper user={user}>
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Weekly Menu Planner</h1>
@@ -820,7 +816,6 @@ export default function MenusPage() {
           </div>
         )}
       </div>
-      <Footer />
-    </div>
+    </LayoutWrapper>
   );
 }

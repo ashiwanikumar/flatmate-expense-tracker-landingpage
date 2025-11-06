@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { foodPhotoAPI, dinnerMenuAPI } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import NavigationMenu from '@/components/NavigationMenu';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 interface Photo {
   url: string;
@@ -287,10 +285,8 @@ export default function FoodPhotosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {user && <Header user={user} />}
-      <NavigationMenu />
-      <div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <LayoutWrapper user={user}>
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
@@ -609,7 +605,6 @@ export default function FoodPhotosPage() {
           </div>
         )}
       </div>
-      <Footer />
-    </div>
+    </LayoutWrapper>
   );
 }
