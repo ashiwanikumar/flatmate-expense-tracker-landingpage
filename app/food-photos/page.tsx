@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { foodPhotoAPI, dinnerMenuAPI } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import NavigationMenu from '@/components/NavigationMenu';
 
 interface Photo {
   url: string;
@@ -49,6 +52,7 @@ export default function FoodPhotosPage() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<FoodPhoto | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [user, setUser] = useState<any>(null);
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
@@ -61,6 +65,13 @@ export default function FoodPhotosPage() {
   useEffect(() => {
     fetchPhotos();
     fetchMenus();
+  }, []);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const fetchPhotos = async () => {
@@ -224,8 +235,10 @@ export default function FoodPhotosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {user && <Header user={user} />}
+      <NavigationMenu />
+      <div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
@@ -304,7 +317,7 @@ export default function FoodPhotosPage() {
                     <select
                       value={uploadForm.menuId}
                       onChange={(e) => setUploadForm({ ...uploadForm, menuId: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                       required
                     >
                       <option value="">Choose a menu...</option>
@@ -325,7 +338,7 @@ export default function FoodPhotosPage() {
                       accept="image/*"
                       multiple
                       onChange={handleFileSelect}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                       required
                     />
                     {uploadForm.files.length > 0 && (
@@ -342,7 +355,7 @@ export default function FoodPhotosPage() {
                     <textarea
                       value={uploadForm.caption}
                       onChange={(e) => setUploadForm({ ...uploadForm, caption: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                       rows={3}
                       placeholder="Share your thoughts about this meal..."
                     />
@@ -356,7 +369,7 @@ export default function FoodPhotosPage() {
                       type="text"
                       value={uploadForm.tags}
                       onChange={(e) => setUploadForm({ ...uploadForm, tags: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                       placeholder="spicy, vegetarian, homemade"
                     />
                   </div>
@@ -483,7 +496,7 @@ export default function FoodPhotosPage() {
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
                       placeholder="Add a comment..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                       onKeyPress={(e) => {
                         if (e.key === 'Enter') {
                           handleAddComment(selectedPhoto._id);
@@ -503,6 +516,7 @@ export default function FoodPhotosPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

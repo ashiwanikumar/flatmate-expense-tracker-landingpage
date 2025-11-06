@@ -30,6 +30,22 @@ export default function NavigationMenu({ currentPath }: NavigationMenuProps) {
       href: '/expenses',
     },
     {
+      label: 'Meal Ratings',
+      href: '/meal-ratings',
+    },
+    {
+      label: 'Menus',
+      href: '/menus',
+    },
+    {
+      label: 'Food Photos',
+      href: '/food-photos',
+    },
+    {
+      label: 'Invitations',
+      href: '/invitations',
+    },
+    {
       label: 'Activity Logs',
       href: '/activity-logs',
     },
@@ -64,9 +80,9 @@ export default function NavigationMenu({ currentPath }: NavigationMenuProps) {
   };
 
   return (
-    <nav className="bg-white border-b">
+    <nav className="bg-white border-b overflow-x-auto">
       <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-center space-x-4 sm:space-x-8">
+        <div className="flex justify-start sm:justify-center space-x-2 sm:space-x-4 lg:space-x-8 min-w-max sm:min-w-0">
           {navItems.map((item) => {
             const hasSubItems = item.subItems && item.subItems.length > 0;
             const isItemActive = item.href
@@ -79,7 +95,7 @@ export default function NavigationMenu({ currentPath }: NavigationMenuProps) {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`px-2 sm:px-3 py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap transition-all duration-300 ease-in-out ${
+                  className={`px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap transition-all duration-300 ease-in-out ${
                     isItemActive
                       ? 'text-purple-600 border-purple-600'
                       : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-300'

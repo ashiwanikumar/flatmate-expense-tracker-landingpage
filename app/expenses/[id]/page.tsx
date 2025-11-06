@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { expenseAPI } from '@/lib/api';
+import { expenseAPI, authAPI } from '@/lib/api';
 import { useRouter, useParams } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import NavigationMenu from '@/components/NavigationMenu';
 
 interface User {
   _id: string;
@@ -47,8 +50,16 @@ export default function ExpenseDetailPage() {
   const expenseId = params.id as string;
 
   const [expense, setExpense] = useState<Expense | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     if (expenseId) {
@@ -109,16 +120,23 @@ export default function ExpenseDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading expense details...</div>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {currentUser && <Header user={currentUser} />}
+        <NavigationMenu />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-gray-500">Loading expense details...</div>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (error || !expense) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {currentUser && <Header user={currentUser} />}
+        <NavigationMenu />
+        <div className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
             {error || 'Expense not found'}
           </div>
@@ -129,13 +147,16 @@ export default function ExpenseDetailPage() {
             ← Back to Expenses
           </button>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {currentUser && <Header user={currentUser} />}
+      <NavigationMenu />
+      <div className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <button
@@ -296,6 +317,7 @@ export default function ExpenseDetailPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

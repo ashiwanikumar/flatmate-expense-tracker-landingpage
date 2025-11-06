@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { mealRatingAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import NavigationMenu from '@/components/NavigationMenu';
 
 export default function AddMealRatingPage() {
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -23,6 +27,13 @@ export default function AddMealRatingPage() {
     tags: '',
     isAnonymous: false,
   });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -118,8 +129,10 @@ export default function AddMealRatingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {user && <Header user={user} />}
+      <NavigationMenu />
+      <div className="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <button
@@ -179,7 +192,7 @@ export default function AddMealRatingPage() {
                   name="mealType"
                   value={formData.mealType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                 >
                   <option value="breakfast">Breakfast</option>
                   <option value="lunch">Lunch</option>
@@ -197,7 +210,7 @@ export default function AddMealRatingPage() {
                   name="mealDate"
                   value={formData.mealDate}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                 />
               </div>
             </div>
@@ -214,7 +227,7 @@ export default function AddMealRatingPage() {
                 value={formData.dishName}
                 onChange={handleInputChange}
                 maxLength={200}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                 placeholder="e.g., Chicken Biryani"
               />
             </div>
@@ -231,7 +244,7 @@ export default function AddMealRatingPage() {
                 onChange={handleInputChange}
                 rows={4}
                 maxLength={1000}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                 placeholder="Share your thoughts about this meal..."
               />
               <div className="text-right text-xs text-gray-500 mt-1">
@@ -292,7 +305,7 @@ export default function AddMealRatingPage() {
                 name="tags"
                 value={formData.tags}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                 placeholder="e.g., spicy, vegetarian, rice (comma-separated)"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -335,6 +348,7 @@ export default function AddMealRatingPage() {
           </div>
         </form>
       </div>
+      <Footer />
     </div>
   );
 }

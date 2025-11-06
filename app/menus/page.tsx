@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { dinnerMenuAPI, foodPhotoAPI } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import NavigationMenu from '@/components/NavigationMenu';
 
 interface MenuItem {
   name: string;
@@ -36,6 +39,7 @@ export default function MenusPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [viewMode, setViewMode] = useState<'upcoming' | 'all'>('upcoming');
   const [days, setDays] = useState(7);
+  const [user, setUser] = useState<any>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -50,6 +54,13 @@ export default function MenusPage() {
   useEffect(() => {
     fetchMenus();
   }, [viewMode, days]);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
 
   const fetchMenus = async () => {
     try {
@@ -183,8 +194,10 @@ export default function MenusPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {user && <Header user={user} />}
+      <NavigationMenu />
+      <div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dinner Menu</h1>
@@ -224,7 +237,7 @@ export default function MenusPage() {
               <select
                 value={days}
                 onChange={(e) => setDays(parseInt(e.target.value))}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900"
               >
                 <option value={3}>3 days</option>
                 <option value={7}>7 days</option>
@@ -363,7 +376,7 @@ export default function MenusPage() {
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                         required
                       />
                     </div>
@@ -375,7 +388,7 @@ export default function MenusPage() {
                       <select
                         value={formData.mealType}
                         onChange={(e) => setFormData({ ...formData, mealType: e.target.value as 'dinner' | 'lunch' })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                       >
                         <option value="dinner">Dinner</option>
                         <option value="lunch">Lunch</option>
@@ -395,13 +408,13 @@ export default function MenusPage() {
                             placeholder="Item name"
                             value={item.name}
                             onChange={(e) => updateMenuItem(index, 'name', e.target.value)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg"
+                            className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                             required
                           />
                           <select
                             value={item.category}
                             onChange={(e) => updateMenuItem(index, 'category', e.target.value)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg"
+                            className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                           >
                             <option value="main">Main</option>
                             <option value="side">Side</option>
@@ -416,7 +429,7 @@ export default function MenusPage() {
                             placeholder="Description (optional)"
                             value={item.description}
                             onChange={(e) => updateMenuItem(index, 'description', e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                           />
                           {formData.menuItems.length > 1 && (
                             <button
@@ -448,7 +461,7 @@ export default function MenusPage() {
                         type="number"
                         value={formData.estimatedCost}
                         onChange={(e) => setFormData({ ...formData, estimatedCost: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                         min="0"
                         step="0.01"
                       />
@@ -462,7 +475,7 @@ export default function MenusPage() {
                         type="number"
                         value={formData.servings}
                         onChange={(e) => setFormData({ ...formData, servings: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                         min="1"
                       />
                     </div>
@@ -475,7 +488,7 @@ export default function MenusPage() {
                     <textarea
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                       rows={3}
                       placeholder="Any special notes or instructions..."
                     />
@@ -505,6 +518,7 @@ export default function MenusPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

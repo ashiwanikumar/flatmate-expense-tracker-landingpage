@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { mealRatingAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import NavigationMenu from '@/components/NavigationMenu';
 
 interface User {
   _id: string;
@@ -52,6 +55,7 @@ interface Stats {
 
 export default function MealRatingsPage() {
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [ratings, setRatings] = useState<MealRating[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,6 +69,13 @@ export default function MealRatingsPage() {
   });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [ratingToDelete, setRatingToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     fetchRatings();
@@ -159,8 +170,10 @@ export default function MealRatingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {user && <Header user={user} />}
+      <NavigationMenu />
+      <div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
@@ -219,7 +232,7 @@ export default function MealRatingsPage() {
               <select
                 value={filter.mealType}
                 onChange={(e) => setFilter({ ...filter, mealType: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="">All Types</option>
                 <option value="breakfast">Breakfast</option>
@@ -236,7 +249,7 @@ export default function MealRatingsPage() {
                 type="date"
                 value={filter.startDate}
                 onChange={(e) => setFilter({ ...filter, startDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               />
             </div>
             <div>
@@ -247,7 +260,7 @@ export default function MealRatingsPage() {
                 type="date"
                 value={filter.endDate}
                 onChange={(e) => setFilter({ ...filter, endDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               />
             </div>
             <div>
@@ -257,7 +270,7 @@ export default function MealRatingsPage() {
               <select
                 value={filter.minRating}
                 onChange={(e) => setFilter({ ...filter, minRating: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="">Any</option>
                 <option value="1">1★</option>
@@ -274,7 +287,7 @@ export default function MealRatingsPage() {
               <select
                 value={filter.maxRating}
                 onChange={(e) => setFilter({ ...filter, maxRating: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="">Any</option>
                 <option value="1">1★</option>
@@ -440,6 +453,8 @@ export default function MealRatingsPage() {
           </div>
         </div>
       )}
+      </div>
+      <Footer />
     </div>
   );
 }
