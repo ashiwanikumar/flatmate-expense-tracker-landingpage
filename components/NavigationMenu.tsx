@@ -30,6 +30,10 @@ export default function NavigationMenu({ currentPath }: NavigationMenuProps) {
       href: '/expenses',
     },
     {
+      label: 'Availability',
+      href: '/user-availability',
+    },
+    {
       label: 'Meal Ratings',
       href: '/meal-ratings',
     },

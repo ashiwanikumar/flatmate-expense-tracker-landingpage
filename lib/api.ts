@@ -113,6 +113,19 @@ export const expenseAPI = {
   delete: (id: string) => api.delete(`/expenses/${id}`),
   markSplitAsPaid: (expenseId: string, userId: string) => api.post(`/expenses/${expenseId}/mark-paid/${userId}`),
   getStats: (params?: any) => api.get('/expenses/stats/summary', { params }),
+  getAvailableUsers: (date: string) => api.get(`/expenses/available-users/${date}`),
+};
+
+// User Availability API
+export const userAvailabilityAPI = {
+  create: (data: any) => api.post('/user-availability', data),
+  getAll: (params?: any) => api.get('/user-availability', { params }),
+  getById: (id: string) => api.get(`/user-availability/${id}`),
+  update: (id: string, data: any) => api.put(`/user-availability/${id}`, data),
+  delete: (id: string) => api.delete(`/user-availability/${id}`),
+  checkAvailability: (userId: string, date: string) => api.get(`/user-availability/check/${userId}/${date}`),
+  getAvailableUsers: (date: string) => api.get(`/user-availability/available/${date}`),
+  getCurrentStatus: () => api.get('/user-availability/status/current'),
 };
 
 // Meal Rating API
