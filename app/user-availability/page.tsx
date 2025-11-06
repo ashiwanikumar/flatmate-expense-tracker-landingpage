@@ -183,48 +183,53 @@ export default function UserAvailabilityPage() {
     <LayoutWrapper user={user}>
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Member Availability</h1>
-            <p className="mt-2 text-gray-600">Track when members are away to ensure fair expense splitting</p>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Member Availability</h1>
+              <p className="mt-2 text-sm sm:text-base text-gray-600">Track when members are away to ensure fair expense splitting</p>
+            </div>
+            <button
+              onClick={() => setShowModal(true)}
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all whitespace-nowrap text-sm sm:text-base"
+            >
+              + Mark Absence
+            </button>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-          >
-            + Mark Absence
-          </button>
         </div>
 
         {/* Info Banner */}
-        <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-          <div>
-            <h3 className="font-semibold text-blue-900 mb-2">Important Information</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• <strong>Minimum 7 days required:</strong> Only absences of 7 days or more are considered for expense calculations</li>
-              <li>• <strong>Automatic proration:</strong> Grocery and household expenses are automatically prorated based on days present</li>
-              <li>• <strong>Other expenses:</strong> Food, utilities, and other expenses are NOT prorated</li>
-            </ul>
+        <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <div className="flex-shrink-0 text-blue-600 text-xl sm:text-2xl">ℹ️</div>
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-2 text-sm sm:text-base">Important Information</h3>
+              <ul className="text-xs sm:text-sm text-blue-800 space-y-1.5">
+                <li>• <strong>Minimum 7 days required:</strong> Only absences of 7 days or more are considered for expense calculations</li>
+                <li>• <strong>Automatic proration:</strong> Grocery and household expenses are automatically prorated based on days present</li>
+                <li>• <strong>Other expenses:</strong> Food, utilities, and other expenses are NOT prorated</li>
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Current Status Grid */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Current Status</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Current Status</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {currentStatus.map((status) => (
               <div
                 key={status.user._id}
-                className={`p-6 rounded-lg border-2 ${
+                className={`p-4 sm:p-6 rounded-lg border-2 ${
                   status.isAvailable ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h4 className="font-bold text-gray-900">{status.user.name}</h4>
-                    <p className="text-sm text-gray-600">{status.user.email}</p>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-gray-900 text-sm sm:text-base truncate">{status.user.name}</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">{status.user.email}</p>
                   </div>
-                  <div className={`w-3 h-3 rounded-full ${status.isAvailable ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                  <div className={`w-3 h-3 rounded-full flex-shrink-0 ml-2 ${status.isAvailable ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                 </div>
                 {status.currentAbsence ? (
                   <div className="mt-3 p-3 bg-white rounded border border-orange-200">
@@ -253,34 +258,35 @@ export default function UserAvailabilityPage() {
 
         {/* Absence Records */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Absence Records</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Absence Records</h2>
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             {availabilities.length === 0 ? (
-              <div className="p-12 text-center text-gray-600">
-                <p className="text-lg font-medium mb-2">No absence records yet</p>
-                <p className="text-sm">Click "Mark Absence" to record when someone is away</p>
+              <div className="p-8 sm:p-12 text-center text-gray-600">
+                <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">📅</div>
+                <p className="text-base sm:text-lg font-medium mb-2">No absence records yet</p>
+                <p className="text-xs sm:text-sm">Click "Mark Absence" to record when someone is away</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Member
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Period
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Duration
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Reason
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -288,36 +294,36 @@ export default function UserAvailabilityPage() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {availabilities.map((availability) => (
                       <tr key={availability._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{availability.userId.name}</div>
-                            <div className="text-sm text-gray-500">{availability.userId.email}</div>
+                            <div className="text-xs sm:text-sm font-medium text-gray-900">{availability.userId.name}</div>
+                            <div className="text-xs sm:text-sm text-gray-500">{availability.userId.email}</div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <div className="text-xs sm:text-sm text-gray-900">
                             {formatDate(availability.startDate)}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs sm:text-sm text-gray-500">
                             to {formatDate(availability.endDate)}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-purple-100 text-purple-800">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="px-2 sm:px-3 py-1 inline-flex text-xs sm:text-sm font-semibold rounded-full bg-purple-100 text-purple-800">
                             {availability.durationDays} days
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 max-w-xs truncate">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <div className="text-xs sm:text-sm text-gray-900 max-w-xs truncate">
                             {availability.reason || '-'}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-3 py-1 inline-flex text-xs font-medium rounded-full ${getStatusBadgeColor(availability.status)}`}>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className={`px-2 sm:px-3 py-1 inline-flex text-xs font-medium rounded-full ${getStatusBadgeColor(availability.status)}`}>
                             {availability.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
                           <button
                             onClick={() => handleDelete(availability._id)}
                             className="text-red-600 hover:text-red-900"
@@ -338,58 +344,61 @@ export default function UserAvailabilityPage() {
       {/* Add Absence Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Mark Absence Period</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 shadow-2xl">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Mark Absence Period</h2>
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date *
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Start Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 text-base text-gray-900 bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                  style={{ colorScheme: 'light' }}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Date *
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  End Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
                   value={formData.endDate}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 text-base text-gray-900 bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                  style={{ colorScheme: 'light' }}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Reason (Optional)
                 </label>
                 <textarea
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 text-base text-gray-900 bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all resize-none"
                   rows={3}
                   placeholder="e.g., Business trip, Vacation, Family visit..."
                 />
               </div>
 
-              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  Minimum 7 days required for expense calculations
+              <div className="p-3 sm:p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+                <p className="text-sm font-semibold text-yellow-900 flex items-center gap-2">
+                  <span className="text-lg">⚠️</span>
+                  <span>Minimum 7 days required for expense calculations</span>
                 </p>
               </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                  className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-base shadow-md hover:shadow-lg"
                 >
                   Save Absence
                 </button>
@@ -399,7 +408,7 @@ export default function UserAvailabilityPage() {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-base"
                 >
                   Cancel
                 </button>
