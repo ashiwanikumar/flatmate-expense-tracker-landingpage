@@ -26,33 +26,24 @@ export default function NavigationMenu({ currentPath }: NavigationMenuProps) {
 
   const navItems: NavItem[] = [
     {
-      label: 'Email Campaign',
-      subItems: [
-        { label: 'CSV Files', href: '/csv' },
-        { label: 'Campaigns', href: '/campaigns' },
-        { label: 'Company Accounts', href: '/company-accounts' },
-        { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Calendar', href: '/calendar' },
-      ],
+      label: 'Expenses',
+      href: '/expenses',
     },
     {
-      label: 'Email Servers',
-      subItems: [
-        { label: 'Cloudron Servers', href: '/cloudron-servers' },
-      ],
+      label: 'Meal Ratings',
+      href: '/meal-ratings',
     },
     {
-      label: 'CMDB',
-      subItems: [
-        { label: 'CMDB Infrastructure', href: '/cmdb-infrastructure' },
-        { label: 'Architecture', href: '/architecture' },
-      ],
+      label: 'Dinner Menu',
+      href: '/menus',
     },
     {
-      label: 'Audit',
-      subItems: [
-        { label: 'Activity Logs', href: '/activity-logs' },
-      ],
+      label: 'Food Photos',
+      href: '/food-photos',
+    },
+    {
+      label: 'Activity Logs',
+      href: '/activity-logs',
     },
   ];
 
