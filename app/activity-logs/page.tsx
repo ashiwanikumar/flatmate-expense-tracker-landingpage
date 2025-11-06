@@ -114,12 +114,12 @@ export default function ActivityLogsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col pb-24">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header user={user} />
       <NavigationMenu />
 
       {/* Main Content */}
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-4 sm:py-8 w-full">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-4 sm:py-8 w-full max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
           <div className="flex items-center gap-2 sm:gap-3">
             <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
