@@ -155,68 +155,70 @@ export default function ActivityLogsPage() {
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {/* Desktop Table View - Hidden on Mobile */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+            <div className="hidden md:block">
+              <table className="w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
                       Time
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
                       Action
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%]">
                       Description
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
                       IP Address
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      City
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      State
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Country
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Country Code
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%]">
+                      Location
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {logs.map((log) => (
-                    <tr key={log._id} className="hover:bg-gray-50">
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                        {new Date(log.createdAt).toLocaleString()}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getActionBadgeColor(log.action)}`}>
-                          <span>{getActionIcon(log.action)}</span>
-                          {log.action.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 text-xs sm:text-sm text-gray-900">
-                        {log.description || '-'}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                        {log.ipAddress || '-'}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                        {log.location?.city || '-'}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                        {log.location?.region || '-'}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                        {log.location?.country || '-'}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                        {log.location?.countryCode || '-'}
-                      </td>
-                    </tr>
-                  ))}
+                  {logs.map((log) => {
+                    const locationParts = [
+                      log.location?.city,
+                      log.location?.region,
+                      log.location?.country
+                    ].filter(Boolean);
+                    const locationText = locationParts.length > 0 ? locationParts.join(', ') : '-';
+
+                    return (
+                      <tr key={log._id} className="hover:bg-gray-50">
+                        <td className="px-3 py-4 text-xs text-gray-900">
+                          <div className="whitespace-nowrap">
+                            {new Date(log.createdAt).toLocaleDateString()}
+                          </div>
+                          <div className="whitespace-nowrap text-gray-500">
+                            {new Date(log.createdAt).toLocaleTimeString()}
+                          </div>
+                        </td>
+                        <td className="px-3 py-4">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getActionBadgeColor(log.action)} whitespace-nowrap`}>
+                            <span>{getActionIcon(log.action)}</span>
+                            <span className="hidden lg:inline">{log.action.replace(/_/g, ' ')}</span>
+                          </span>
+                        </td>
+                        <td className="px-3 py-4 text-xs text-gray-900">
+                          <div className="max-w-xs truncate" title={log.description || '-'}>
+                            {log.description || '-'}
+                          </div>
+                        </td>
+                        <td className="px-3 py-4 text-xs text-gray-500">
+                          <div className="max-w-[120px] truncate" title={log.ipAddress || '-'}>
+                            {log.ipAddress || '-'}
+                          </div>
+                        </td>
+                        <td className="px-3 py-4 text-xs text-gray-500">
+                          <div className="max-w-xs truncate" title={locationText}>
+                            {locationText}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
