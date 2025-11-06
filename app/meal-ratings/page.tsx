@@ -453,7 +453,6 @@ export default function MealRatingsPage() {
           </div>
         </div>
       )}
-      </div>
       <Footer />
     </div>
   );
