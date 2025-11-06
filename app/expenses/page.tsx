@@ -229,7 +229,7 @@ export default function ExpensesPage() {
               <select
                 value={filter.category}
                 onChange={(e) => setFilter({ ...filter, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="">All Categories</option>
                 <option value="groceries">Groceries</option>
@@ -246,7 +246,7 @@ export default function ExpensesPage() {
               <select
                 value={filter.status}
                 onChange={(e) => setFilter({ ...filter, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
@@ -262,7 +262,7 @@ export default function ExpensesPage() {
                 type="date"
                 value={filter.startDate}
                 onChange={(e) => setFilter({ ...filter, startDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               />
             </div>
             <div>
@@ -273,7 +273,7 @@ export default function ExpensesPage() {
                 type="date"
                 value={filter.endDate}
                 onChange={(e) => setFilter({ ...filter, endDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               />
             </div>
           </div>
