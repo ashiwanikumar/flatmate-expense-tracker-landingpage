@@ -277,8 +277,8 @@ export default function FoodPhotosPage() {
       return url;
     }
     // Otherwise, prepend API base URL (for old local files)
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8004/api/v1';
-    return apiUrl.replace('/api/v1', '') + url;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    return apiUrl?.replace('/api/v1', '') + url;
   };
 
   return (

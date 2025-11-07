@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { detectIPv4, getCachedIPv4 } from './ipv4Detection';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8004/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Create axios instance
 const api = axios.create({
