@@ -211,4 +211,13 @@ export const foodPhotoAPI = {
   getStats: (params?: any) => api.get('/food-photos/stats', { params }),
 };
 
+// Account Deletion API
+export const accountDeletionAPI = {
+  requestDeletion: (data: { deletionReason?: string; deletionReasonText?: string }) =>
+    api.post('/account/delete', data),
+  recoverAccount: () => api.post('/account/recover'),
+  getDeletionStatus: () => api.get('/account/deletion-status'),
+  cancelDeletion: () => api.delete('/account/cancel-deletion'),
+};
+
 export default api;

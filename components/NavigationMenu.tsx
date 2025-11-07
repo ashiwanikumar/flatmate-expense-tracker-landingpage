@@ -55,6 +55,10 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
       label: 'Activity Logs',
       href: '/activity-logs',
     },
+    {
+      label: 'Account Settings',
+      href: '/account/settings',
+    },
   ];
 
   // Close dropdown when clicking outside
