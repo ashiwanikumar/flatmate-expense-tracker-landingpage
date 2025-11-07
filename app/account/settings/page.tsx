@@ -243,7 +243,7 @@ export default function AccountSettings() {
           {organization && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Organization Information</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Organization Information</h2>
                 {canEditOrganization && !isEditingOrgName && (
                   <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
                     {userRole === 'owner' ? 'Owner' : 'Admin'}
@@ -251,7 +251,7 @@ export default function AccountSettings() {
                 )}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 text-gray-900">
                 <div>
                   <span className="text-gray-600">Organization Name:</span>
                   {isEditingOrgName ? (
@@ -261,7 +261,7 @@ export default function AccountSettings() {
                         value={newOrgName}
                         onChange={(e) => setNewOrgName(e.target.value)}
                         maxLength={100}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
                         placeholder="Enter organization name"
                       />
                       <button
@@ -281,7 +281,7 @@ export default function AccountSettings() {
                     </div>
                   ) : (
                     <div className="mt-1 flex items-center justify-between">
-                      <span className="ml-2 font-medium">{organization.name}</span>
+                      <span className="ml-2 font-medium text-gray-900">{organization.name}</span>
                       {canEditOrganization && (
                         <button
                           onClick={handleStartEditOrgName}
@@ -309,23 +309,23 @@ export default function AccountSettings() {
 
                 <div>
                   <span className="text-gray-600">Organization Type:</span>
-                  <span className="ml-2 font-medium capitalize">{organization.type}</span>
+                  <span className="ml-2 font-medium text-gray-900 capitalize">{organization.type}</span>
                 </div>
 
                 <div>
                   <span className="text-gray-600">Owner:</span>
-                  <span className="ml-2 font-medium">{organization.owner.name}</span>
-                  <span className="ml-1 text-sm text-gray-500">({organization.owner.email})</span>
+                  <span className="ml-2 font-medium text-gray-900">{organization.owner.name}</span>
+                  <span className="ml-1 text-sm text-gray-600">({organization.owner.email})</span>
                 </div>
 
                 <div>
                   <span className="text-gray-600">Total Members:</span>
-                  <span className="ml-2 font-medium">{organization.members.length}</span>
+                  <span className="ml-2 font-medium text-gray-900">{organization.members.length}</span>
                 </div>
 
                 <div>
                   <span className="text-gray-600">Created:</span>
-                  <span className="ml-2 font-medium">
+                  <span className="ml-2 font-medium text-gray-900">
                     {new Date(organization.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -348,15 +348,15 @@ export default function AccountSettings() {
           {/* Account Info */}
           {user && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
-              <div className="space-y-3">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
+              <div className="space-y-3 text-gray-900">
                 <div>
                   <span className="text-gray-600">Name:</span>
-                  <span className="ml-2 font-medium">{user.name}</span>
+                  <span className="ml-2 font-medium text-gray-900">{user.name}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">Email:</span>
-                  <span className="ml-2 font-medium">{user.email}</span>
+                  <span className="ml-2 font-medium text-gray-900">{user.email}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">Account Status:</span>
@@ -482,7 +482,7 @@ export default function AccountSettings() {
                   <select
                     value={deletionReason}
                     onChange={(e) => setDeletionReason(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
                   >
                     <option value="no_longer_needed">No longer needed</option>
                     <option value="switching_service">Switching to another service</option>
@@ -503,7 +503,7 @@ export default function AccountSettings() {
                     placeholder="Tell us more about your decision..."
                     rows={3}
                     maxLength={500}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     {deletionReasonText.length}/500 characters
