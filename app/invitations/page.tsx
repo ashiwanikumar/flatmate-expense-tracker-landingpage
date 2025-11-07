@@ -52,6 +52,8 @@ export default function InvitationsPage() {
   const [invitationLink, setInvitationLink] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('');
   const [workspaceInviteLink, setWorkspaceInviteLink] = useState<string | null>(null);
+  const [workspaceInviteRole, setWorkspaceInviteRole] = useState<'member' | 'admin'>('member');
+  const [workspaceInviteExpiry, setWorkspaceInviteExpiry] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState(false);
 
   useEffect(() => {
@@ -185,10 +187,12 @@ export default function InvitationsPage() {
   const handleGenerateWorkspaceLink = async () => {
     try {
       setGeneratingLink(true);
-      const response = await organizationAPI.generateInviteLink();
+      const response = await organizationAPI.generateInviteLink({ role: workspaceInviteRole });
       const link = response.data.data.inviteLink;
+      const expiresAt = response.data.data.expiresAt;
       setWorkspaceInviteLink(link);
-      toast.success('Workspace invite link generated!');
+      setWorkspaceInviteExpiry(expiresAt);
+      toast.success(`Workspace invite link generated for ${workspaceInviteRole} role!`);
     } catch (err: any) {
       console.error('Failed to generate workspace link:', err);
       toast.error(err.response?.data?.message || 'Failed to generate workspace link');
@@ -274,12 +278,28 @@ export default function InvitationsPage() {
                       <p className="text-gray-600 mb-4">
                         Generate a shareable link that can be used by anyone to join your workspace without needing an email invitation
                       </p>
+
+                      {/* Role Selection */}
+                      <div className="mb-4 max-w-md mx-auto">
+                        <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                          Select Role for New Members:
+                        </label>
+                        <select
+                          value={workspaceInviteRole}
+                          onChange={(e) => setWorkspaceInviteRole(e.target.value as 'member' | 'admin')}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        >
+                          <option value="member">Member - Can use all features but cannot invite or delete</option>
+                          <option value="admin">Admin - Can invite users and manage workspace</option>
+                        </select>
+                      </div>
+
                       <button
                         onClick={handleGenerateWorkspaceLink}
                         disabled={generatingLink}
                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {generatingLink ? 'Generating...' : '🔗 Generate Workspace Link'}
+                        {generatingLink ? 'Generating...' : 'Generate Workspace Link'}
                       </button>
                     </div>
                   ) : (
@@ -298,20 +318,30 @@ export default function InvitationsPage() {
                           onClick={() => copyToClipboard(workspaceInviteLink)}
                           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
                         >
-                          📋 Copy
+                          Copy
                         </button>
                         <button
                           onClick={handleGenerateWorkspaceLink}
                           className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-md"
                         >
-                          🔄 Regenerate
+                          Regenerate
                         </button>
                       </div>
                       <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm text-blue-800">
-                          <strong>Note:</strong> This link can be shared via WhatsApp, email, or any platform. Anyone with this link can join your workspace.
-                          Regenerating the link will invalidate the previous one.
-                        </p>
+                        <div className="space-y-2">
+                          <p className="text-sm text-blue-800">
+                            <strong>Role:</strong> New members will join as <span className="font-semibold">{workspaceInviteRole}</span>
+                          </p>
+                          {workspaceInviteExpiry && (
+                            <p className="text-sm text-blue-800">
+                              <strong>Expires:</strong> {new Date(workspaceInviteExpiry).toLocaleString()} (7 days from generation)
+                            </p>
+                          )}
+                          <p className="text-sm text-blue-800">
+                            <strong>Note:</strong> This link can be shared via WhatsApp, email, or any platform. Anyone with this link can join your workspace.
+                            Regenerating the link will invalidate the previous one.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -482,7 +512,7 @@ export default function InvitationsPage() {
               <div className="space-y-4">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <p className="text-sm font-medium text-green-800 mb-2">
-                    ✓ Invitation sent successfully!
+                    Invitation sent successfully!
                   </p>
                   <p className="text-xs text-green-700">
                     An email has been sent to the recipient with the invitation link.
@@ -560,11 +590,11 @@ export default function InvitationsPage() {
                   <p className="mt-2 text-xs text-gray-500">
                     {inviteRole === 'admin' ? (
                       <span className="text-purple-600 font-medium">
-                        ⭐ Admin: Can invite users, manage members, and access all features
+                        Admin: Can invite users, manage members, and access all features
                       </span>
                     ) : (
                       <span className="text-gray-600">
-                        👤 Member: Can use all features but cannot invite users or delete account
+                        Member: Can use all features but cannot invite users or delete account
                       </span>
                     )}
                   </p>

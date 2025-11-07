@@ -103,7 +103,7 @@ export const organizationAPI = {
     api.delete(`/organizations/invitations/${invitationId}`),
 
   // Workspace invite link
-  generateInviteLink: () => api.post('/organizations/generate-invite-link'),
+  generateInviteLink: (data?: { role?: 'member' | 'admin' }) => api.post('/organizations/generate-invite-link', data),
   getWorkspaceInfo: (token: string) => api.get(`/organizations/workspace-invite/${token}`),
   joinWorkspace: (token: string, data: { name: string; email: string; password: string }) =>
     api.post(`/organizations/join-workspace/${token}`, data),
