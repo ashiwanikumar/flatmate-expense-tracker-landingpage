@@ -253,46 +253,46 @@ export default function StaffSalariesPage() {
 
   return (
     <LayoutWrapper user={user}>
-      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
             Staff Salaries
           </h1>
-          <p className="mt-2 text-gray-600">Manage monthly staff salary payments and splits</p>
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">Manage monthly staff salary payments and splits</p>
         </div>
 
         {/* Summary Card */}
         {summary && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
-              <p className="text-sm text-gray-600 mb-1">Total Salaries</p>
-              <p className="text-3xl font-bold text-purple-600">{summary.totalSalaries || 0}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border-l-4 border-purple-500">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Salaries</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600">{summary.totalSalaries || 0}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-              <p className="text-sm text-gray-600 mb-1">Total Paid</p>
-              <p className="text-3xl font-bold text-green-600">AED {(summary.totalPaid || 0).toFixed(2)}</p>
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border-l-4 border-green-500">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Paid</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">AED {(summary.totalPaid || 0).toFixed(2)}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
-              <p className="text-sm text-gray-600 mb-1">Total Pending</p>
-              <p className="text-3xl font-bold text-orange-600">AED {(summary.totalPending || 0).toFixed(2)}</p>
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border-l-4 border-orange-500">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Pending</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600">AED {(summary.totalPending || 0).toFixed(2)}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-              <p className="text-sm text-gray-600 mb-1">Current Month</p>
-              <p className="text-3xl font-bold text-blue-600">AED {(summary.currentMonthTotal || 0).toFixed(2)}</p>
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border-l-4 border-blue-500">
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Current Month</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">AED {(summary.currentMonthTotal || 0).toFixed(2)}</p>
             </div>
           </div>
         )}
 
         {/* Salary Tiers Info */}
         {salaryTiers.length > 0 && (
-          <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl shadow-lg p-6 mb-8 text-white">
-            <h3 className="text-lg font-semibold mb-3">Salary Tiers</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 text-white">
+            <h3 className="text-base sm:text-lg font-semibold mb-3">Salary Tiers</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
               {salaryTiers.map((tier) => (
-                <div key={tier.persons} className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
-                  <p className="text-sm opacity-90">{tier.persons} persons</p>
-                  <p className="text-xl font-bold">AED {tier.amount}</p>
+                <div key={tier.persons} className="bg-white/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 text-center">
+                  <p className="text-xs sm:text-sm opacity-90">{tier.persons} persons</p>
+                  <p className="text-base sm:text-lg lg:text-xl font-bold">AED {tier.amount}</p>
                 </div>
               ))}
             </div>
@@ -300,55 +300,57 @@ export default function StaffSalariesPage() {
         )}
 
         {/* Filters and Add Button */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-end">
-            {/* Month Filter */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Month</label>
-              <select
-                value={filterMonth}
-                onChange={(e) => setFilterMonth(parseInt(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
-                {MONTHS.map((month, index) => (
-                  <option key={index} value={index + 1}>{month}</option>
-                ))}
-              </select>
-            </div>
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              {/* Month Filter */}
+              <div className="flex-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Month</label>
+                <select
+                  value={filterMonth}
+                  onChange={(e) => setFilterMonth(parseInt(e.target.value))}
+                  className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  {MONTHS.map((month, index) => (
+                    <option key={index} value={index + 1}>{month}</option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Year Filter */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
-              <select
-                value={filterYear}
-                onChange={(e) => setFilterYear(parseInt(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
-                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
+              {/* Year Filter */}
+              <div className="flex-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Year</label>
+                <select
+                  value={filterYear}
+                  onChange={(e) => setFilterYear(parseInt(e.target.value))}
+                  className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Status Filter */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="paid">Paid</option>
-              </select>
+              {/* Status Filter */}
+              <div className="flex-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as any)}
+                  className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
             </div>
 
             {/* Add Button */}
             {canManageSalaries && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg whitespace-nowrap"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg whitespace-nowrap"
               >
                 + Add Salary
               </button>
@@ -357,134 +359,227 @@ export default function StaffSalariesPage() {
         </div>
 
         {/* Salaries List */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center">
+            <div className="p-6 sm:p-8 text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-purple-600 border-t-transparent"></div>
-              <p className="mt-4 text-gray-600">Loading staff salaries...</p>
+              <p className="mt-4 text-sm sm:text-base text-gray-600">Loading staff salaries...</p>
             </div>
           ) : salaries.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <p className="text-lg">No staff salaries found</p>
-              <p className="text-sm mt-2">Add your first staff salary entry to get started</p>
+            <div className="p-6 sm:p-8 text-center text-gray-500">
+              <p className="text-base sm:text-lg">No staff salaries found</p>
+              <p className="text-xs sm:text-sm mt-2">Add your first staff salary entry to get started</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Staff Info</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Period</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Persons</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Receipt</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {salaries.map((salary) => (
-                    <React.Fragment key={salary._id}>
-                      <tr className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="font-semibold text-gray-900">{salary.staffName}</p>
-                            {salary.staffRole && (
-                              <p className="text-sm text-gray-500">{salary.staffRole}</p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {MONTHS[salary.month - 1]} {salary.year}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {salary.numberOfPersons}
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className="font-semibold text-gray-900">AED {(salary.salaryAmount || 0).toFixed(2)}</p>
-                          <p className="text-xs text-gray-500">
-                            AED {(salary.splitAmongMembers?.length ? (salary.salaryAmount / salary.splitAmongMembers.length) : 0).toFixed(2)}/person
-                          </p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            salary.status === 'paid'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-orange-100 text-orange-800'
-                          }`}>
-                            {salary.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          {salary.receipt ? (
-                            <a
-                              href={salary.receipt}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-purple-600 hover:text-purple-800 underline"
-                            >
-                              View
-                            </a>
-                          ) : (
-                            <span className="text-gray-400">No receipt</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-sm space-x-2">
-                          <button
-                            onClick={() => setSelectedSalary(selectedSalary?._id === salary._id ? null : salary)}
-                            className="text-blue-600 hover:text-blue-800 font-medium"
-                          >
-                            {selectedSalary?._id === salary._id ? 'Hide' : 'View'} Split
-                          </button>
-                          {canManageSalaries && salary.status === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => handleMarkAsPaid(salary._id)}
-                                className="text-green-600 hover:text-green-800 font-medium"
-                              >
-                                Mark Paid
-                              </button>
-                              <button
-                                onClick={() => handleDelete(salary._id)}
-                                className="text-red-600 hover:text-red-800 font-medium"
-                              >
-                                Delete
-                              </button>
-                            </>
-                          )}
-                        </td>
-                      </tr>
-                      {selectedSalary?._id === salary._id && (
-                        <tr>
-                          <td colSpan={7} className="px-6 py-4 bg-gray-50">
-                            <div className="space-y-2">
-                              <h4 className="font-semibold text-gray-900 mb-3">Split Among Members:</h4>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {salary.splitAmongMembers?.map((split, index) => (
-                                  <div key={index} className="bg-white p-3 rounded-lg border border-gray-200">
-                                    <p className="font-medium text-gray-900">{split.user?.name || 'Unknown'}</p>
-                                    <p className="text-sm text-gray-500">{split.user?.email || ''}</p>
-                                    <p className="text-lg font-semibold text-purple-600 mt-1">
-                                      AED {(split.shareAmount || 0).toFixed(2)}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                              {salary.notes && (
-                                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                                  <p className="text-sm font-medium text-gray-700">Notes:</p>
-                                  <p className="text-sm text-gray-600">{salary.notes}</p>
-                                </div>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Staff Info</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Period</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Persons</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Receipt</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {salaries.map((salary) => (
+                      <React.Fragment key={salary._id}>
+                        <tr className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="font-semibold text-gray-900">{salary.staffName}</p>
+                              {salary.staffRole && (
+                                <p className="text-sm text-gray-500">{salary.staffRole}</p>
                               )}
                             </div>
                           </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {MONTHS[salary.month - 1]} {salary.year}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {salary.numberOfPersons}
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="font-semibold text-gray-900">AED {(salary.salaryAmount || 0).toFixed(2)}</p>
+                            <p className="text-xs text-gray-500">
+                              AED {(salary.splitAmongMembers?.length ? (salary.salaryAmount / salary.splitAmongMembers.length) : 0).toFixed(2)}/person
+                            </p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              salary.status === 'paid'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-orange-100 text-orange-800'
+                            }`}>
+                              {salary.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            {salary.receipt ? (
+                              <a
+                                href={salary.receipt}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-purple-600 hover:text-purple-800 underline"
+                              >
+                                View
+                              </a>
+                            ) : (
+                              <span className="text-gray-400">No receipt</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm space-x-2">
+                            <button
+                              onClick={() => setSelectedSalary(selectedSalary?._id === salary._id ? null : salary)}
+                              className="text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                              {selectedSalary?._id === salary._id ? 'Hide' : 'View'} Split
+                            </button>
+                            {canManageSalaries && salary.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => handleMarkAsPaid(salary._id)}
+                                  className="text-green-600 hover:text-green-800 font-medium"
+                                >
+                                  Mark Paid
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(salary._id)}
+                                  className="text-red-600 hover:text-red-800 font-medium"
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </td>
                         </tr>
+                        {selectedSalary?._id === salary._id && (
+                          <tr>
+                            <td colSpan={7} className="px-6 py-4 bg-gray-50">
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-gray-900 mb-3">Split Among Members:</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                  {salary.splitAmongMembers?.map((split, index) => (
+                                    <div key={index} className="bg-white p-3 rounded-lg border border-gray-200">
+                                      <p className="font-medium text-gray-900">{split.user?.name || 'Unknown'}</p>
+                                      <p className="text-sm text-gray-500">{split.user?.email || ''}</p>
+                                      <p className="text-lg font-semibold text-purple-600 mt-1">
+                                        AED {(split.shareAmount || 0).toFixed(2)}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                                {salary.notes && (
+                                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                                    <p className="text-sm font-medium text-gray-700">Notes:</p>
+                                    <p className="text-sm text-gray-600">{salary.notes}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {salaries.map((salary) => (
+                  <div key={salary._id} className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{salary.staffName}</p>
+                        {salary.staffRole && (
+                          <p className="text-xs text-gray-500">{salary.staffRole}</p>
+                        )}
+                        <p className="text-xs text-gray-600 mt-1">
+                          {MONTHS[salary.month - 1]} {salary.year} • {salary.numberOfPersons} persons
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        salary.status === 'paid'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {salary.status}
+                      </span>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3 mb-3">
+                      <p className="text-lg font-bold text-purple-600">AED {(salary.salaryAmount || 0).toFixed(2)}</p>
+                      <p className="text-xs text-gray-600">
+                        AED {(salary.splitAmongMembers?.length ? (salary.salaryAmount / salary.splitAmongMembers.length) : 0).toFixed(2)}/person
+                      </p>
+                    </div>
+                    {salary.receipt && (
+                      <div className="mb-3">
+                        <a
+                          href={salary.receipt}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-purple-600 hover:text-purple-800 underline"
+                        >
+                          View Receipt
+                        </a>
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setSelectedSalary(selectedSalary?._id === salary._id ? null : salary)}
+                        className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                      >
+                        {selectedSalary?._id === salary._id ? 'Hide' : 'View'} Split
+                      </button>
+                      {canManageSalaries && salary.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleMarkAsPaid(salary._id)}
+                            className="flex-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                          >
+                            Mark Paid
+                          </button>
+                          <button
+                            onClick={() => handleDelete(salary._id)}
+                            className="flex-1 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </>
                       )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                    </div>
+                    {selectedSalary?._id === salary._id && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3">Split Among Members:</h4>
+                        <div className="space-y-2">
+                          {salary.splitAmongMembers?.map((split, index) => (
+                            <div key={index} className="bg-white p-3 rounded-lg border border-gray-200">
+                              <p className="text-sm font-medium text-gray-900">{split.user?.name || 'Unknown'}</p>
+                              <p className="text-xs text-gray-500">{split.user?.email || ''}</p>
+                              <p className="text-base font-semibold text-purple-600 mt-1">
+                                AED {(split.shareAmount || 0).toFixed(2)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        {salary.notes && (
+                          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <p className="text-xs font-medium text-gray-700">Notes:</p>
+                            <p className="text-xs text-gray-600">{salary.notes}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 

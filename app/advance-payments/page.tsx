@@ -204,19 +204,19 @@ export default function AdvancePaymentsPage() {
 
   return (
     <LayoutWrapper user={user}>
-      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Advance Payments</h1>
-              <p className="mt-2 text-sm text-gray-600">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Advance Payments</h1>
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
                 Track advance payments that reduce member balances
               </p>
             </div>
             <button
               onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+              className="px-4 py-2 text-sm sm:text-base bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium self-start sm:self-auto whitespace-nowrap"
             >
               + Add Payment
             </button>
@@ -224,14 +224,14 @@ export default function AdvancePaymentsPage() {
         </div>
 
         {/* Summary Card */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg shadow-lg p-6 mb-8 text-white">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100 text-sm font-medium">Total Approved Advance</p>
-              <p className="text-3xl font-bold mt-1">{formatCurrency(totalAdvance)}</p>
+              <p className="text-purple-100 text-xs sm:text-sm font-medium">Total Approved Advance</p>
+              <p className="text-2xl sm:text-3xl font-bold mt-1">{formatCurrency(totalAdvance)}</p>
             </div>
-            <div className="bg-white bg-opacity-20 rounded-lg p-4">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white bg-opacity-20 rounded-lg p-2 sm:p-3 lg:p-4">
+              <svg className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
@@ -240,13 +240,13 @@ export default function AdvancePaymentsPage() {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="all">All Statuses</option>
                 <option value="approved">Approved</option>
@@ -254,12 +254,12 @@ export default function AdvancePaymentsPage() {
                 <option value="rejected">Rejected</option>
               </select>
             </div>
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Member</label>
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Member</label>
               <select
                 value={filterUser}
                 onChange={(e) => setFilterUser(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="all">All Members</option>
                 {members.map((member) => (
@@ -275,114 +275,165 @@ export default function AdvancePaymentsPage() {
         {/* Payments List */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-gray-500">Loading payments...</div>
+            <div className="p-6 sm:p-8 text-center text-sm text-gray-500">Loading payments...</div>
           ) : filteredPayments.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-6 sm:p-8 text-center text-sm text-gray-500">
               No advance payments found. Add your first payment!
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Member
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Payment Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Receipt
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredPayments.map((payment) => (
-                    <tr key={payment._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{payment.user.name}</div>
-                        <div className="text-sm text-gray-500">{payment.user.email}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                        {formatCurrency(payment.amount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(payment.paymentDate)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                        {payment.description || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          payment.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {payment.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {payment.receipt ? (
-                          <a
-                            href={payment.receipt}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-purple-600 hover:text-purple-900"
-                          >
-                            View
-                          </a>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {(payment.user._id === user?.id || canAddForOthers) && (
-                          <button
-                            onClick={() => handleDelete(payment._id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </td>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Member
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Payment Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Description
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Receipt
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredPayments.map((payment) => (
+                      <tr key={payment._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{payment.user.name}</div>
+                          <div className="text-sm text-gray-500">{payment.user.email}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                          {formatCurrency(payment.amount)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {formatDate(payment.paymentDate)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                          {payment.description || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            payment.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {payment.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {payment.receipt ? (
+                            <a
+                              href={payment.receipt}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-600 hover:text-purple-900"
+                            >
+                              View
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          {(payment.user._id === user?.id || canAddForOthers) && (
+                            <button
+                              onClick={() => handleDelete(payment._id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {filteredPayments.map((payment) => (
+                  <div key={payment._id} className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{payment.user.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{payment.user.email}</p>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        payment.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {payment.status}
+                      </span>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3 mb-3">
+                      <p className="text-lg font-bold text-green-600">{formatCurrency(payment.amount)}</p>
+                      <p className="text-xs text-gray-600">Paid on {formatDate(payment.paymentDate)}</p>
+                    </div>
+                    {payment.description && (
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{payment.description}</p>
+                    )}
+                    <div className="flex gap-2">
+                      {payment.receipt && (
+                        <a
+                          href={payment.receipt}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 px-3 py-2 text-xs font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-center"
+                        >
+                          View Receipt
+                        </a>
+                      )}
+                      {(payment.user._id === user?.id || canAddForOthers) && (
+                        <button
+                          onClick={() => handleDelete(payment._id)}
+                          className="flex-1 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
         {/* Add Payment Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                 Add Advance Payment
               </h3>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {canAddForOthers && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Member *
                     </label>
                     <select
                       value={formData.userId}
                       onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                       required
                     >
                       {members.map((member) => (
@@ -395,7 +446,7 @@ export default function AdvancePaymentsPage() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Amount (AED) *
                   </label>
                   <input
@@ -404,68 +455,68 @@ export default function AdvancePaymentsPage() {
                     min="0"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                     placeholder="0.00"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Payment Date *
                   </label>
                   <input
                     type="date"
                     value={formData.paymentDate}
                     onChange={(e) => setFormData({ ...formData, paymentDate: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Description
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                     rows={3}
                     placeholder="Optional note about this payment"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Receipt (Optional)
                   </label>
                   <input
                     type="file"
                     accept="image/*,application/pdf"
                     onChange={handleFileChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Images or PDF, max 10MB
                   </p>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
                   <button
                     type="button"
                     onClick={() => {
                       setShowModal(false);
                       resetForm();
                     }}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-400 disabled:cursor-not-allowed"
+                    className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-400 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Adding...' : 'Add Payment'}
                   </button>
