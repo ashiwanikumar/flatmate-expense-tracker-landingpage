@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { invitationAPI } from '@/lib/api';
+import { invitationAPI, organizationAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import LayoutWrapper from '@/components/LayoutWrapper';
 import toast from 'react-hot-toast';
@@ -18,12 +18,32 @@ interface Invitation {
     name: string;
     email: string;
   };
+  acceptedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+}
+
+interface Member {
+  _id: string;
+  name: string;
+  email: string;
+  mobile?: string;
+  role: string;
+  joinedAt: string;
+  invitedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export default function InvitationsPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -37,17 +57,37 @@ export default function InvitationsPage() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    fetchInvitations();
+    fetchData();
   }, []);
 
-  const fetchInvitations = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await invitationAPI.getAll();
-      setInvitations(response.data.data.invitations);
+      const [invitationsRes, orgRes] = await Promise.all([
+        invitationAPI.getAll(),
+        organizationAPI.getMyOrganization()
+      ]);
+
+      setInvitations(invitationsRes.data.data.invitations);
+
+      // Extract members from organization response
+      const organization = orgRes.data.data;
+      if (organization && organization.members) {
+        // Map members to include all fields properly
+        const membersData = organization.members.map((m: any) => ({
+          _id: m.user._id,
+          name: m.user.name,
+          email: m.user.email,
+          mobile: m.user.mobile,
+          role: m.role,
+          joinedAt: m.joinedAt,
+          invitedBy: m.invitedBy
+        }));
+        setMembers(membersData);
+      }
     } catch (err: any) {
-      console.error('Failed to fetch invitations:', err);
-      toast.error('Failed to load invitations');
+      console.error('Failed to fetch data:', err);
+      toast.error('Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -77,7 +117,7 @@ export default function InvitationsPage() {
       toast.success('Invitation sent! An email has been sent to the recipient.');
       setInviteEmail('');
       setInviteRole('member');
-      fetchInvitations();
+      fetchData();
     } catch (err: any) {
       console.error('Failed to send invitation:', err);
       toast.error(err.response?.data?.message || 'Failed to send invitation');
@@ -94,7 +134,7 @@ export default function InvitationsPage() {
     try {
       await invitationAPI.cancel(id);
       toast.success('Invitation cancelled');
-      fetchInvitations();
+      fetchData();
     } catch (err: any) {
       console.error('Failed to cancel invitation:', err);
       toast.error(err.response?.data?.message || 'Failed to cancel invitation');
@@ -105,7 +145,7 @@ export default function InvitationsPage() {
     try {
       await invitationAPI.resend(id);
       toast.success('Invitation resent successfully!');
-      fetchInvitations();
+      fetchData();
     } catch (err: any) {
       console.error('Failed to resend invitation:', err);
       toast.error(err.response?.data?.message || 'Failed to resend invitation');
@@ -132,6 +172,15 @@ export default function InvitationsPage() {
     return colors[status] || colors.pending;
   };
 
+  const getRoleBadgeColor = (role: string) => {
+    const colors: { [key: string]: string } = {
+      owner: 'bg-purple-100 text-purple-800',
+      admin: 'bg-blue-100 text-blue-800',
+      member: 'bg-gray-100 text-gray-800',
+    };
+    return colors[role] || colors.member;
+  };
+
   return (
     <LayoutWrapper user={user}>
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -139,9 +188,9 @@ export default function InvitationsPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Flatmate Invitations</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Team & Invitations</h1>
               <p className="mt-2 text-sm text-gray-600">
-                Invite flatmates to join and share expenses
+                Manage team members and invite flatmates to join
               </p>
             </div>
             <button
@@ -153,84 +202,159 @@ export default function InvitationsPage() {
           </div>
         </div>
 
-        {/* Invitations List */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          {loading ? (
-            <div className="p-8 text-center text-gray-500">Loading invitations...</div>
-          ) : invitations.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No invitations yet. Send your first invitation to add flatmates!
+        {loading ? (
+          <div className="p-8 text-center text-gray-500">Loading...</div>
+        ) : (
+          <>
+            {/* Team Members Section */}
+            <div className="bg-white rounded-lg shadow overflow-hidden mb-8">
+              <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Team Members ({members.length})</h2>
+              </div>
+              {members.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  No team members found.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Member
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Role
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Invited By
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Joined Date
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {members.map((member) => (
+                        <tr key={member._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                <span className="text-purple-600 font-semibold">
+                                  {member.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">{member.name}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {member.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getRoleBadgeColor(member.role)}`}>
+                              {member.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {member.invitedBy ? member.invitedBy.name : <span className="text-gray-400 italic">Founder</span>}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatDate(member.joinedAt)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sent Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Expires
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {invitations.map((invitation) => (
-                    <tr key={invitation._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {invitation.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
-                        {invitation.role}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(invitation.status)}`}>
-                          {invitation.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(invitation.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(invitation.expiresAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {invitation.status === 'pending' && (
-                          <>
-                            <button
-                              onClick={() => handleResendInvitation(invitation._id)}
-                              className="text-blue-600 hover:text-blue-900 mr-3"
-                            >
-                              Resend
-                            </button>
-                            <button
-                              onClick={() => handleCancelInvitation(invitation._id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+            {/* Pending Invitations Section */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Pending Invitations ({invitations.length})</h2>
+              </div>
+              {invitations.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  No pending invitations. Send your first invitation to add flatmates!
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Role
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Invited By
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Sent Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Expires
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {invitations.map((invitation) => (
+                        <tr key={invitation._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {invitation.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getRoleBadgeColor(invitation.role)}`}>
+                              {invitation.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {invitation.invitedBy.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatDate(invitation.createdAt)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatDate(invitation.expiresAt)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            {invitation.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => handleResendInvitation(invitation._id)}
+                                  className="text-blue-600 hover:text-blue-900 mr-3"
+                                >
+                                  Resend
+                                </button>
+                                <button
+                                  onClick={() => handleCancelInvitation(invitation._id)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
 
       {/* Invite Modal */}
