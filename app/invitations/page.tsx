@@ -27,9 +27,10 @@ export default function InvitationsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('user');
+  const [inviteRole, setInviteRole] = useState('member');
   const [sending, setSending] = useState(false);
   const [invitationLink, setInvitationLink] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -75,7 +76,7 @@ export default function InvitationsPage() {
 
       toast.success('Invitation sent! An email has been sent to the recipient.');
       setInviteEmail('');
-      setInviteRole('user');
+      setInviteRole('member');
       fetchInvitations();
     } catch (err: any) {
       console.error('Failed to send invitation:', err);
@@ -316,9 +317,20 @@ export default function InvitationsPage() {
                     onChange={(e) => setInviteRole(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                   >
-                    <option value="user">User</option>
+                    <option value="member">Member</option>
                     <option value="admin">Admin</option>
                   </select>
+                  <p className="mt-2 text-xs text-gray-500">
+                    {inviteRole === 'admin' ? (
+                      <span className="text-purple-600 font-medium">
+                        ⭐ Admin: Can invite users, manage members, and access all features
+                      </span>
+                    ) : (
+                      <span className="text-gray-600">
+                        👤 Member: Can use all features but cannot invite users or delete account
+                      </span>
+                    )}
+                  </p>
                 </div>
                 <div className="flex justify-end gap-3">
                   <button
@@ -326,7 +338,7 @@ export default function InvitationsPage() {
                     onClick={() => {
                       setShowModal(false);
                       setInviteEmail('');
-                      setInviteRole('user');
+                      setInviteRole('member');
                     }}
                     className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                   >
