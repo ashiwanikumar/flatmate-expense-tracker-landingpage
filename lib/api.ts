@@ -166,6 +166,33 @@ export const balanceAPI = {
   getUserAvailability: (userId: string, year: number, month: number) => api.get(`/balances/availability/${userId}/${year}/${month}`),
 };
 
+// Advance Payment API
+export const advancePaymentAPI = {
+  create: (data: FormData) => api.post('/advance-payments', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getAll: (params?: any) => api.get('/advance-payments', { params }),
+  getMyPayments: (params?: any) => api.get('/advance-payments/my-payments', { params }),
+  getSummary: () => api.get('/advance-payments/summary'),
+  update: (id: string, data: any) => api.put(`/advance-payments/${id}`, data),
+  delete: (id: string) => api.delete(`/advance-payments/${id}`),
+};
+
+// Staff Salary API
+export const staffSalaryAPI = {
+  getTiers: () => api.get('/staff-salaries/tiers'),
+  calculate: (data: { numberOfPersons: number }) => api.post('/staff-salaries/calculate', data),
+  create: (data: FormData) => api.post('/staff-salaries', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getAll: (params?: any) => api.get('/staff-salaries', { params }),
+  getSummary: (params?: any) => api.get('/staff-salaries/summary', { params }),
+  getById: (id: string) => api.get(`/staff-salaries/${id}`),
+  update: (id: string, data: any) => api.put(`/staff-salaries/${id}`, data),
+  markAsPaid: (id: string, data?: { paymentMethod?: string }) => api.post(`/staff-salaries/${id}/mark-paid`, data),
+  delete: (id: string) => api.delete(`/staff-salaries/${id}`),
+};
+
 // Meal Rating API
 export const mealRatingAPI = {
   create: (data: any) => api.post('/meal-ratings', data),

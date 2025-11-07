@@ -52,6 +52,14 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
       href: '/invitations',
     },
     {
+      label: 'Advance Payments',
+      href: '/advance-payments',
+    },
+    {
+      label: 'Staff Salaries',
+      href: '/staff-salaries',
+    },
+    {
       label: 'Activity Logs',
       href: '/activity-logs',
     },
