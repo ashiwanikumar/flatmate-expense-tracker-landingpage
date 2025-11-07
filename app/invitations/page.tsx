@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { invitationAPI, organizationAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import LoadingModal from '@/components/LoadingModal';
 import toast from 'react-hot-toast';
 
 interface Invitation {
@@ -256,9 +257,7 @@ export default function InvitationsPage() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
-        ) : (
+        {!loading && (
           <>
             {/* Workspace Invite Link Section */}
             {(() => {
@@ -499,6 +498,13 @@ export default function InvitationsPage() {
           </>
         )}
       </div>
+
+      {/* Loading Modal */}
+      <LoadingModal
+        isOpen={loading}
+        title="Loading Team Data"
+        subtitle="Fetching team members and invitations..."
+      />
 
       {/* Invite Modal */}
       {showModal && (
