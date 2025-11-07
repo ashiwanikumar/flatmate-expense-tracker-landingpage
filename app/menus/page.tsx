@@ -177,7 +177,7 @@ export default function MenusPage() {
     setFormData({
       date: '',
       mealType: menu.mealType,
-      menuItems: menu.menuItems.map(item => ({ ...item })),
+      menuItems: menu.menuItems.map(item => ({ ...item, description: item.description || '' })),
       servings: menu.servings?.toString() || '',
       notes: menu.notes || '',
     });

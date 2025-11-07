@@ -217,7 +217,7 @@ export default function AccountSettings() {
   const canEditOrganization = userRole === 'owner' || userRole === 'admin';
 
   return (
-    <LayoutWrapper>
+    <LayoutWrapper user={user}>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-8 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
