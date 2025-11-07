@@ -64,13 +64,43 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
+  // Public signup
+  signup: (data: any) => api.post('/auth/signup', data),
+  activateAccount: (token: string) => api.get(`/auth/activate/${token}`),
+  resendActivation: (data: { email: string }) => api.post('/auth/resend-activation', data),
+
+  // Admin registration (internal)
   register: (data: any) => api.post('/auth/register', data),
+
+  // Authentication
   login: (data: any) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
   changePassword: (data: any) => api.put('/auth/change-password', data),
   forgotPassword: (data: any) => api.post('/auth/forgot-password', data),
   resetPassword: (token: string, data: any) => api.put(`/auth/reset-password/${token}`, data),
+};
+
+// Organization API
+export const organizationAPI = {
+  // Organization management
+  getMyOrganization: () => api.get('/organizations/my-organization'),
+  updateOrganization: (data: any) => api.put('/organizations/my-organization', data),
+
+  // Member management
+  getMembers: () => api.get('/organizations/members'),
+  inviteMember: (data: { email: string; name?: string; role?: string }) =>
+    api.post('/organizations/invite-member', data),
+  removeMember: (userId: string) => api.delete(`/organizations/members/${userId}`),
+  updateMemberRole: (userId: string, role: string) =>
+    api.put(`/organizations/members/${userId}/role`, { role }),
+
+  // Invitation management
+  getInvitations: () => api.get('/organizations/invitations'),
+  acceptInvitation: (token: string, data?: any) =>
+    api.post(`/organizations/accept-invitation/${token}`, data),
+  cancelInvitation: (invitationId: string) =>
+    api.delete(`/organizations/invitations/${invitationId}`),
 };
 
 // Activity Log API
