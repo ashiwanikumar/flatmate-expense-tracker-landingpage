@@ -101,6 +101,12 @@ export const organizationAPI = {
     api.post(`/organizations/accept-invitation/${token}`, data),
   cancelInvitation: (invitationId: string) =>
     api.delete(`/organizations/invitations/${invitationId}`),
+
+  // Workspace invite link
+  generateInviteLink: () => api.post('/organizations/generate-invite-link'),
+  getWorkspaceInfo: (token: string) => api.get(`/organizations/workspace-invite/${token}`),
+  joinWorkspace: (token: string, data: { name: string; email: string; password: string }) =>
+    api.post(`/organizations/join-workspace/${token}`, data),
 };
 
 // Activity Log API

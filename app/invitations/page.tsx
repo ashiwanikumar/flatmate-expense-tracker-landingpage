@@ -51,11 +51,15 @@ export default function InvitationsPage() {
   const [sending, setSending] = useState(false);
   const [invitationLink, setInvitationLink] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('');
+  const [workspaceInviteLink, setWorkspaceInviteLink] = useState<string | null>(null);
+  const [generatingLink, setGeneratingLink] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setUserRole(parsedUser.organizationRole ||'');
     }
     fetchData();
   }, []);
@@ -84,6 +88,32 @@ export default function InvitationsPage() {
           invitedBy: m.invitedBy
         }));
         setMembers(membersData);
+
+        // Find current user's role from members
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('Current user from localStorage:', currentUser);
+        console.log('All members:', membersData);
+
+        // Try multiple ways to find the user
+        let currentMember = membersData.find((m: any) => m._id === currentUser._id);
+
+        // If not found by _id, try by id
+        if (!currentMember && currentUser.id) {
+          currentMember = membersData.find((m: any) => m._id === currentUser.id);
+        }
+
+        // If still not found, try by email
+        if (!currentMember && currentUser.email) {
+          currentMember = membersData.find((m: any) => m.email === currentUser.email);
+        }
+
+        console.log('Found current member:', currentMember);
+        if (currentMember) {
+          console.log('Setting user role to:', currentMember.role);
+          setUserRole(currentMember.role);
+        } else {
+          console.log('Current user not found in members, user ID:', currentUser._id, 'email:', currentUser.email);
+        }
       }
     } catch (err: any) {
       console.error('Failed to fetch data:', err);
@@ -152,6 +182,26 @@ export default function InvitationsPage() {
     }
   };
 
+  const handleGenerateWorkspaceLink = async () => {
+    try {
+      setGeneratingLink(true);
+      const response = await organizationAPI.generateInviteLink();
+      const link = response.data.data.inviteLink;
+      setWorkspaceInviteLink(link);
+      toast.success('Workspace invite link generated!');
+    } catch (err: any) {
+      console.error('Failed to generate workspace link:', err);
+      toast.error(err.response?.data?.message || 'Failed to generate workspace link');
+    } finally {
+      setGeneratingLink(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Link copied to clipboard!');
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -206,6 +256,69 @@ export default function InvitationsPage() {
           <div className="p-8 text-center text-gray-500">Loading...</div>
         ) : (
           <>
+            {/* Workspace Invite Link Section */}
+            {(() => {
+              console.log('User Role for workspace link check:', userRole, 'Type:', typeof userRole);
+              return (userRole && (userRole.toLowerCase() === 'owner' || userRole.toLowerCase() === 'admin'));
+            })() && (
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow-lg overflow-hidden mb-8 border-2 border-blue-200">
+                <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600">
+                  <h2 className="text-lg font-semibold text-white">Shareable Workspace Link</h2>
+                  <p className="text-sm text-blue-100 mt-1">
+                    Generate a link that anyone can use to join your workspace via WhatsApp, social media, or any platform
+                  </p>
+                </div>
+                <div className="p-6">
+                  {!workspaceInviteLink ? (
+                    <div className="text-center">
+                      <p className="text-gray-600 mb-4">
+                        Generate a shareable link that can be used by anyone to join your workspace without needing an email invitation
+                      </p>
+                      <button
+                        onClick={handleGenerateWorkspaceLink}
+                        disabled={generatingLink}
+                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {generatingLink ? 'Generating...' : '🔗 Generate Workspace Link'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Workspace Invite Link:
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={workspaceInviteLink}
+                          readOnly
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <button
+                          onClick={() => copyToClipboard(workspaceInviteLink)}
+                          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
+                        >
+                          📋 Copy
+                        </button>
+                        <button
+                          onClick={handleGenerateWorkspaceLink}
+                          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-md"
+                        >
+                          🔄 Regenerate
+                        </button>
+                      </div>
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-800">
+                          <strong>Note:</strong> This link can be shared via WhatsApp, email, or any platform. Anyone with this link can join your workspace.
+                          Regenerating the link will invalidate the previous one.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Team Members Section */}
             <div className="bg-white rounded-lg shadow overflow-hidden mb-8">
               <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">

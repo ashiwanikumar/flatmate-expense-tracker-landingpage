@@ -22,12 +22,16 @@ interface Balance {
   };
   totalPaid: number;
   totalOwed: number;
+  totalAdvancePayments: number;
+  totalStaffSalaryShare: number;
   netBalance: number;
   summary: {
     toReceive: number;
     toPay: number;
   };
   expenseDetails: any[];
+  advancePaymentDetails: any[];
+  staffSalaryDetails: any[];
 }
 
 interface MonthlyBalances {
@@ -586,7 +590,7 @@ export default function ExpensesPage() {
                 <div className={`p-8 rounded-lg mb-6 ${
                   myBalance.netBalance >= 0 ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'
                 }`}>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
                     <div className="text-center">
                       <p className="text-sm font-medium text-gray-600 mb-2">You Paid</p>
                       <p className="text-3xl font-bold text-gray-900">{formatCurrency(myBalance.totalPaid)}</p>
@@ -596,6 +600,14 @@ export default function ExpensesPage() {
                       <p className="text-3xl font-bold text-gray-900">{formatCurrency(myBalance.totalOwed)}</p>
                     </div>
                     <div className="text-center">
+                      <p className="text-sm font-medium text-gray-600 mb-2">Advance Paid</p>
+                      <p className="text-3xl font-bold text-blue-600">+{formatCurrency(myBalance.totalAdvancePayments || 0)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-gray-600 mb-2">Staff Salary</p>
+                      <p className="text-3xl font-bold text-orange-600">-{formatCurrency(myBalance.totalStaffSalaryShare || 0)}</p>
+                    </div>
+                    <div className="text-center">
                       <p className="text-sm font-medium text-gray-600 mb-2">Net Balance</p>
                       <p className={`text-4xl font-bold ${myBalance.netBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {myBalance.netBalance >= 0 ? '+' : ''}{formatCurrency(myBalance.netBalance)}
@@ -603,16 +615,16 @@ export default function ExpensesPage() {
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t-2 border-gray-300 text-center">
+                  <div className="pt-6 border-t-2 border-gray-300">
                     {myBalance.netBalance >= 0 ? (
-                      <div>
+                      <div className="text-center">
                         <p className="text-2xl font-bold text-green-700 mb-2">
                           Others owe you {formatCurrency(myBalance.summary.toReceive)}
                         </p>
                         <p className="text-sm text-gray-600">You'll receive this amount from your flatmates</p>
                       </div>
                     ) : (
-                      <div>
+                      <div className="text-center">
                         <p className="text-2xl font-bold text-red-700 mb-2">
                           You need to pay {formatCurrency(myBalance.summary.toPay)}
                         </p>
@@ -621,6 +633,76 @@ export default function ExpensesPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Advance Payments Section */}
+                {myBalance.advancePaymentDetails && myBalance.advancePaymentDetails.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+                    <div className="p-4 bg-blue-50 border-b border-blue-200 flex justify-between items-center">
+                      <h4 className="font-semibold text-gray-900">Your Advance Payments</h4>
+                      <span className="text-sm font-medium text-blue-600">
+                        Total: {formatCurrency(myBalance.totalAdvancePayments || 0)}
+                      </span>
+                    </div>
+                    <div className="divide-y divide-gray-200">
+                      {myBalance.advancePaymentDetails.map((payment: any, index: number) => (
+                        <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">{payment.description || 'Advance Payment'}</p>
+                              <p className="text-sm text-gray-600">{new Date(payment.paymentDate).toLocaleDateString()}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-blue-600">{formatCurrency(payment.amount)}</p>
+                              <span className="text-xs text-gray-500">Reduces your balance</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Staff Salary Share Section */}
+                {myBalance.staffSalaryDetails && myBalance.staffSalaryDetails.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+                    <div className="p-4 bg-orange-50 border-b border-orange-200 flex justify-between items-center">
+                      <h4 className="font-semibold text-gray-900">Your Staff Salary Share</h4>
+                      <span className="text-sm font-medium text-orange-600">
+                        Total: {formatCurrency(myBalance.totalStaffSalaryShare || 0)}
+                      </span>
+                    </div>
+                    <div className="divide-y divide-gray-200">
+                      {myBalance.staffSalaryDetails.map((salary: any, index: number) => (
+                        <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium text-gray-900">{salary.staffName}</p>
+                                {salary.staffRole && (
+                                  <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
+                                    {salary.staffRole}
+                                  </span>
+                                )}
+                                <span className={`px-2 py-1 text-xs font-medium rounded ${
+                                  salary.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                                }`}>
+                                  {salary.status}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                Total: {formatCurrency(salary.totalAmount)} • Your share: {formatCurrency(salary.shareAmount)}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-orange-600">{formatCurrency(salary.shareAmount)}</p>
+                              <span className="text-xs text-gray-500">Adds to your balance</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Expense Breakdown */}
                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
