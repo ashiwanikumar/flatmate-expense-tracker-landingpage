@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { accountDeletionAPI, authAPI } from '@/lib/api';
+import { accountDeletionAPI, authAPI, organizationAPI } from '@/lib/api';
 import LayoutWrapper from '@/components/LayoutWrapper';
 
 interface DeletionStatus {
@@ -19,9 +19,36 @@ interface DeletionStatus {
   };
 }
 
+interface Organization {
+  _id: string;
+  name: string;
+  type: string;
+  owner: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  members: Array<{
+    user: {
+      _id: string;
+      name: string;
+      email: string;
+    };
+    role: string;
+    joinedAt: string;
+  }>;
+  settings: {
+    currency: string;
+    timezone: string;
+  };
+  createdAt: string;
+}
+
 export default function AccountSettings() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [userRole, setUserRole] = useState<string>('');
   const [deletionStatus, setDeletionStatus] = useState<DeletionStatus | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletionReason, setDeletionReason] = useState('other');
@@ -29,9 +56,15 @@ export default function AccountSettings() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  // Organization name editing
+  const [isEditingOrgName, setIsEditingOrgName] = useState(false);
+  const [newOrgName, setNewOrgName] = useState('');
+  const [orgUpdateLoading, setOrgUpdateLoading] = useState(false);
+
   useEffect(() => {
     fetchUserData();
     fetchDeletionStatus();
+    fetchOrganization();
   }, []);
 
   const fetchUserData = async () => {
@@ -42,6 +75,30 @@ export default function AccountSettings() {
       console.error('Error fetching user:', error);
       if (error.response?.status === 401) {
         router.push('/auth/login');
+      }
+    }
+  };
+
+  const fetchOrganization = async () => {
+    try {
+      const response = await organizationAPI.getMyOrganization();
+      setOrganization(response.data.data);
+
+      // Get current user's role
+      const currentUser = response.data.data.members.find(
+        (m: any) => m.user._id === response.data.data.owner._id || m.user.email === user?.email
+      );
+      if (currentUser) {
+        setUserRole(currentUser.role);
+      }
+    } catch (error: any) {
+      console.error('Error fetching organization:', error);
+      // Don't show error if user doesn't have an organization
+      if (error.response?.status !== 404) {
+        setMessage({
+          type: 'error',
+          text: 'Failed to load organization information',
+        });
       }
     }
   };
@@ -109,6 +166,56 @@ export default function AccountSettings() {
     }
   };
 
+  const handleStartEditOrgName = () => {
+    setNewOrgName(organization?.name || '');
+    setIsEditingOrgName(true);
+  };
+
+  const handleCancelEditOrgName = () => {
+    setIsEditingOrgName(false);
+    setNewOrgName('');
+  };
+
+  const handleUpdateOrgName = async () => {
+    if (!newOrgName.trim()) {
+      setMessage({
+        type: 'error',
+        text: 'Organization name cannot be empty',
+      });
+      return;
+    }
+
+    if (newOrgName.trim() === organization?.name) {
+      setIsEditingOrgName(false);
+      return;
+    }
+
+    try {
+      setOrgUpdateLoading(true);
+      setMessage({ type: '', text: '' });
+
+      await organizationAPI.updateOrganization({
+        name: newOrgName.trim(),
+      });
+
+      setMessage({
+        type: 'success',
+        text: 'Organization name updated successfully!',
+      });
+      setIsEditingOrgName(false);
+      await fetchOrganization();
+    } catch (error: any) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to update organization name',
+      });
+    } finally {
+      setOrgUpdateLoading(false);
+    }
+  };
+
+  const canEditOrganization = userRole === 'owner' || userRole === 'admin';
+
   return (
     <LayoutWrapper>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-8 px-4">
@@ -116,7 +223,7 @@ export default function AccountSettings() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Account Settings</h1>
-            <p className="text-gray-600">Manage your account preferences and data</p>
+            <p className="text-gray-600">Manage your account and organization preferences</p>
           </div>
 
           {/* Messages */}
@@ -132,10 +239,116 @@ export default function AccountSettings() {
             </div>
           )}
 
+          {/* Organization Info */}
+          {organization && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Organization Information</h2>
+                {canEditOrganization && !isEditingOrgName && (
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                    {userRole === 'owner' ? 'Owner' : 'Admin'}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <span className="text-gray-600">Organization Name:</span>
+                  {isEditingOrgName ? (
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newOrgName}
+                        onChange={(e) => setNewOrgName(e.target.value)}
+                        maxLength={100}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Enter organization name"
+                      />
+                      <button
+                        onClick={handleUpdateOrgName}
+                        disabled={orgUpdateLoading}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {orgUpdateLoading ? 'Saving...' : 'Save'}
+                      </button>
+                      <button
+                        onClick={handleCancelEditOrgName}
+                        disabled={orgUpdateLoading}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-1 flex items-center justify-between">
+                      <span className="ml-2 font-medium">{organization.name}</span>
+                      {canEditOrganization && (
+                        <button
+                          onClick={handleStartEditOrgName}
+                          className="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center gap-1"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-gray-600">Organization Type:</span>
+                  <span className="ml-2 font-medium capitalize">{organization.type}</span>
+                </div>
+
+                <div>
+                  <span className="text-gray-600">Owner:</span>
+                  <span className="ml-2 font-medium">{organization.owner.name}</span>
+                  <span className="ml-1 text-sm text-gray-500">({organization.owner.email})</span>
+                </div>
+
+                <div>
+                  <span className="text-gray-600">Total Members:</span>
+                  <span className="ml-2 font-medium">{organization.members.length}</span>
+                </div>
+
+                <div>
+                  <span className="text-gray-600">Created:</span>
+                  <span className="ml-2 font-medium">
+                    {new Date(organization.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              {!canEditOrganization && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    ℹ️ Only organization owners and admins can edit organization details.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Account Info */}
           {user && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+              <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
               <div className="space-y-3">
                 <div>
                   <span className="text-gray-600">Name:</span>
