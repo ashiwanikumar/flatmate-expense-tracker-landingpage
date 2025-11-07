@@ -56,6 +56,10 @@ export default function InvitationsPage() {
   const [workspaceInviteRole, setWorkspaceInviteRole] = useState<'member' | 'admin'>('member');
   const [workspaceInviteExpiry, setWorkspaceInviteExpiry] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState(false);
+  const [cancelModal, setCancelModal] = useState<{ show: boolean; invitationId: string | null }>({ show: false, invitationId: null });
+  const [resendModal, setResendModal] = useState<{ show: boolean; invitationId: string | null }>({ show: false, invitationId: null });
+  const [resending, setResending] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -159,29 +163,37 @@ export default function InvitationsPage() {
     }
   };
 
-  const handleCancelInvitation = async (id: string) => {
-    if (!confirm('Are you sure you want to cancel this invitation?')) {
-      return;
-    }
+  const handleCancelInvitation = async () => {
+    if (!cancelModal.invitationId) return;
 
     try {
-      await invitationAPI.cancel(id);
+      setCancelling(true);
+      setCancelModal({ show: false, invitationId: null });
+      await invitationAPI.cancel(cancelModal.invitationId);
       toast.success('Invitation cancelled');
       fetchData();
     } catch (err: any) {
       console.error('Failed to cancel invitation:', err);
       toast.error(err.response?.data?.message || 'Failed to cancel invitation');
+    } finally {
+      setCancelling(false);
     }
   };
 
-  const handleResendInvitation = async (id: string) => {
+  const handleResendInvitation = async () => {
+    if (!resendModal.invitationId) return;
+
     try {
-      await invitationAPI.resend(id);
+      setResending(true);
+      setResendModal({ show: false, invitationId: null });
+      await invitationAPI.resend(resendModal.invitationId);
       toast.success('Invitation resent successfully!');
       fetchData();
     } catch (err: any) {
       console.error('Failed to resend invitation:', err);
       toast.error(err.response?.data?.message || 'Failed to resend invitation');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -474,13 +486,13 @@ export default function InvitationsPage() {
                             {invitation.status === 'pending' && (
                               <>
                                 <button
-                                  onClick={() => handleResendInvitation(invitation._id)}
+                                  onClick={() => setResendModal({ show: true, invitationId: invitation._id })}
                                   className="text-blue-600 hover:text-blue-900 mr-3"
                                 >
                                   Resend
                                 </button>
                                 <button
-                                  onClick={() => handleCancelInvitation(invitation._id)}
+                                  onClick={() => setCancelModal({ show: true, invitationId: invitation._id })}
                                   className="text-red-600 hover:text-red-900"
                                 >
                                   Cancel
@@ -499,12 +511,74 @@ export default function InvitationsPage() {
         )}
       </div>
 
-      {/* Loading Modal */}
+      {/* Loading Modals */}
       <LoadingModal
         isOpen={loading}
         title="Loading Team Data"
         subtitle="Fetching team members and invitations..."
       />
+
+      <LoadingModal
+        isOpen={resending}
+        title="Resending Invitation"
+        subtitle="Please wait while we resend the invitation..."
+      />
+
+      <LoadingModal
+        isOpen={cancelling}
+        title="Cancelling Invitation"
+        subtitle="Please wait while we cancel the invitation..."
+      />
+
+      {/* Cancel Confirmation Modal */}
+      {cancelModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Are you sure you want to cancel this invitation?
+            </h3>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setCancelModal({ show: false, invitationId: null })}
+                className="px-6 py-3 bg-blue-700 text-white rounded-full hover:bg-blue-800 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCancelInvitation}
+                className="px-6 py-3 bg-blue-400 text-white rounded-full hover:bg-blue-500 transition-colors font-medium"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Resend Confirmation Modal */}
+      {resendModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Are you sure you want to resend this invitation?
+            </h3>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setResendModal({ show: false, invitationId: null })}
+                className="px-6 py-3 bg-blue-700 text-white rounded-full hover:bg-blue-800 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResendInvitation}
+                className="px-6 py-3 bg-blue-400 text-white rounded-full hover:bg-blue-500 transition-colors font-medium"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Invite Modal */}
       {showModal && (
