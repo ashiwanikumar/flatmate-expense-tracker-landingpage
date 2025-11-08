@@ -28,6 +28,7 @@ export default function ParticipationPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser();
@@ -60,6 +61,7 @@ export default function ParticipationPage() {
       setLoading(true);
       const response = await participationAPI.getAll();
       setUsers(response.data.data.users || []);
+      setIsOwner(response.data.data.isOwner || false);
       setError('');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch users');
@@ -100,6 +102,7 @@ export default function ParticipationPage() {
   };
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
+  const canManageAll = isAdmin || isOwner;
 
   if (loading) {
     return (
@@ -140,7 +143,7 @@ export default function ParticipationPage() {
               <ul className="mt-2 text-sm text-blue-700 list-disc list-inside space-y-1">
                 <li>Only <strong>participating members</strong> will be included in expense splits</li>
                 <li>Members can activate/deactivate their own participation</li>
-                <li>Admins can manage participation for all members</li>
+                <li>Owners and admins can manage participation for all members</li>
                 <li>Inactive members won't appear in available users when creating expenses</li>
               </ul>
             </div>
@@ -179,7 +182,7 @@ export default function ParticipationPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {users.map((user) => {
                   const isParticipating = user.expenseParticipation?.isParticipating ?? true;
-                  const canModify = isAdmin || user._id === currentUser?._id;
+                  const canModify = canManageAll || user._id === currentUser?._id;
 
                   return (
                     <tr key={user._id} className={isParticipating ? '' : 'bg-gray-50'}>
