@@ -58,6 +58,7 @@ export default function StaffSalariesPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSalary, setSelectedSalary] = useState<StaffSalary | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
@@ -281,6 +282,7 @@ export default function StaffSalariesPage() {
   const handleDeleteWithConfirm = (salary: StaffSalary) => {
     setSelectedSalary(salary);
     setDeleteConfirmText('');
+    setShowDeleteModal(true);
   };
 
   const handleDelete = async () => {
@@ -296,6 +298,7 @@ export default function StaffSalariesPage() {
       toast.success('Salary entry deleted successfully');
       setSelectedSalary(null);
       setDeleteConfirmText('');
+      setShowDeleteModal(false);
       fetchSalaries();
       fetchSummary();
     } catch (error: any) {
@@ -1014,7 +1017,7 @@ export default function StaffSalariesPage() {
         )}
 
         {/* Delete Confirmation Modal */}
-        {selectedSalary && !showEditModal && !showReceiptModal && (
+        {showDeleteModal && selectedSalary && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
               <div className="text-center mb-6">
@@ -1055,6 +1058,7 @@ export default function StaffSalariesPage() {
                   onClick={() => {
                     setSelectedSalary(null);
                     setDeleteConfirmText('');
+                    setShowDeleteModal(false);
                   }}
                   className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
                 >
