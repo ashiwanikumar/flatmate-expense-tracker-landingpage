@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { expenseAPI, authAPI } from '@/lib/api';
+import { expenseAPI, authAPI, organizationAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -14,9 +14,19 @@ interface User {
   email: string;
 }
 
+interface Organization {
+  _id: string;
+  name: string;
+  settings: {
+    currency: string;
+    timezone: string;
+  };
+}
+
 export default function AddExpensePage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -25,7 +35,7 @@ export default function AddExpensePage() {
 
   const [formData, setFormData] = useState({
     amount: '',
-    currency: 'AED',
+    currency: '',
     description: '',
     category: 'other',
     expenseDate: new Date().toISOString().split('T')[0],
@@ -38,6 +48,7 @@ export default function AddExpensePage() {
 
   useEffect(() => {
     fetchCurrentUser();
+    fetchOrganization();
   }, []);
 
   useEffect(() => {
@@ -46,12 +57,38 @@ export default function AddExpensePage() {
     }
   }, [formData.expenseDate]);
 
+  useEffect(() => {
+    // Set default currency when organization is loaded
+    if (organization && !formData.currency) {
+      setFormData(prev => ({
+        ...prev,
+        currency: organization.settings.currency || 'AED'
+      }));
+    }
+  }, [organization]);
+
   const fetchCurrentUser = async () => {
     try {
-      const response = await authAPI.getMe();
-      setCurrentUser(response.data.data.user);
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+      } else {
+        const response = await authAPI.getMe();
+        setCurrentUser(response.data.data);
+      }
     } catch (err) {
       console.error('Failed to fetch current user:', err);
+      router.push('/auth/login');
+    }
+  };
+
+  const fetchOrganization = async () => {
+    try {
+      const response = await organizationAPI.getMyOrganization();
+      setOrganization(response.data.data);
+    } catch (err) {
+      console.error('Failed to fetch organization:', err);
     }
   };
 
@@ -173,7 +210,7 @@ export default function AddExpensePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-blue-50/30 flex flex-col">
-      {currentUser && <Header user={currentUser} />}
+      <Header user={currentUser} />
       <NavigationMenu />
       <div className="flex-grow w-full px-6 lg:px-12 xl:px-16 py-6">
         <div className="max-w-7xl mx-auto">
@@ -276,21 +313,25 @@ export default function AddExpensePage() {
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="currency" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="currency" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                       Currency
+                      <span className="text-xs font-normal text-gray-500">(From Settings)</span>
                     </label>
-                    <select
-                      id="currency"
-                      name="currency"
-                      value={formData.currency}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50 text-gray-900 font-semibold transition-all duration-200 hover:border-gray-300"
-                    >
-                      <option value="AED">AED</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="INR">INR</option>
-                    </select>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        id="currency"
+                        value={formData.currency || 'Loading...'}
+                        readOnly
+                        className="w-full px-3 py-2.5 text-sm border-2 border-gray-200 rounded-xl bg-gray-100 text-gray-700 font-semibold cursor-not-allowed"
+                        title="Currency is set in Account Settings"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
