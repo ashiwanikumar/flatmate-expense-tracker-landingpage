@@ -64,17 +64,8 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
       href: '/staff-salaries',
     },
     {
-      label: 'Account Settings',
-      subItems: [
-        {
-          label: 'Activity Logs',
-          href: '/activity-logs',
-        },
-        {
-          label: 'Change Password',
-          href: '/account/change-password',
-        },
-      ],
+      label: 'Activity Logs',
+      href: '/activity-logs',
     },
   ];
 
