@@ -5,6 +5,7 @@ import { expenseAPI, balanceAPI, userAvailabilityAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import LayoutWrapper from '@/components/LayoutWrapper';
 import { toast } from 'react-hot-toast';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface User {
   _id: string;
@@ -59,6 +60,20 @@ interface Expense {
   splitBetween: any[];
   receipt?: any;
 }
+
+// Colors for charts
+const COLORS = {
+  groceries: '#10b981',
+  household: '#3b82f6',
+  food: '#f97316',
+  utilities: '#8b5cf6',
+  transportation: '#06b6d4',
+  entertainment: '#ec4899',
+  other: '#6b7280',
+};
+
+const CATEGORY_COLORS = ['#10b981', '#3b82f6', '#f97316', '#8b5cf6', '#06b6d4', '#ec4899', '#6b7280'];
+const USER_COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f97316', '#ec4899', '#06b6d4'];
 
 export default function ExpensesPage() {
   const router = useRouter();
@@ -157,6 +172,37 @@ export default function ExpensesPage() {
     }
   };
 
+  // Calculate category-based data for pie chart
+  const getCategoryData = () => {
+    const categoryMap = new Map<string, number>();
+
+    expenses.forEach((expense) => {
+      const current = categoryMap.get(expense.category) || 0;
+      categoryMap.set(expense.category, current + expense.amount);
+    });
+
+    return Array.from(categoryMap.entries()).map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value: parseFloat(value.toFixed(2)),
+    }));
+  };
+
+  // Calculate user-based data for pie chart
+  const getUserData = () => {
+    const userMap = new Map<string, number>();
+
+    expenses.forEach((expense) => {
+      const userName = expense.paidBy.name;
+      const current = userMap.get(userName) || 0;
+      userMap.set(userName, current + expense.amount);
+    });
+
+    return Array.from(userMap.entries()).map(([name, value]) => ({
+      name,
+      value: parseFloat(value.toFixed(2)),
+    }));
+  };
+
   const formatCurrency = (amount: number) => {
     return `AED ${amount.toFixed(2)}`;
   };
@@ -176,7 +222,7 @@ export default function ExpensesPage() {
   };
 
   const changeMonth = (direction: 'prev' | 'next') => {
-    setLoading(true); // Show loading when changing months
+    setLoading(true);
     if (direction === 'prev') {
       if (currentMonth === 1) {
         setCurrentMonth(12);
@@ -194,6 +240,9 @@ export default function ExpensesPage() {
     }
   };
 
+  const categoryData = getCategoryData();
+  const userData = getUserData();
+
   if (loading) {
     return (
       <LayoutWrapper user={user}>
@@ -209,7 +258,8 @@ export default function ExpensesPage() {
 
   return (
     <LayoutWrapper user={user}>
-        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      {/* Full width container */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header with Month Selector */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
@@ -248,7 +298,7 @@ export default function ExpensesPage() {
           </div>
         </div>
 
-        {/* Summary Cards */}
+        {/* Summary Cards - Full Width */}
         {monthlyBalances && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border-l-4 border-blue-500">
@@ -262,6 +312,61 @@ export default function ExpensesPage() {
             <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border-l-4 border-orange-500">
               <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Pending Amount</p>
               <p className="text-2xl sm:text-3xl font-bold text-orange-600">{formatCurrency(monthlyBalances.pendingAmount)}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Charts Section - Full Width */}
+        {expenses.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Category-based Pie Chart */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Expenses by Category</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* User-based Pie Chart */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Expenses by Member</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={userData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {userData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={USER_COLORS[index % USER_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}
@@ -308,7 +413,7 @@ export default function ExpensesPage() {
             {activeTab === 'overview' && monthlyBalances && (
               <div>
                 <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Member Balances</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {monthlyBalances.balances.map((balance) => (
                     <div
                       key={balance.user._id}
@@ -326,7 +431,6 @@ export default function ExpensesPage() {
                         <div className={`w-3 h-3 rounded-full flex-shrink-0 ml-2 ${balance.netBalance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
                       </div>
 
-                      {/* Availability Info */}
                       {balance.availability.unavailableDays > 0 && (
                         <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
                           <p className="text-yellow-800">
