@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { mealRatingAPI, dinnerMenuAPI } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NavigationMenu from '@/components/NavigationMenu';
+import toast from 'react-hot-toast';
 
 interface MenuItem {
   name: string;
@@ -27,14 +28,50 @@ interface Menu {
   status: string;
 }
 
-export default function AddMealRatingPage() {
+interface Rating {
+  _id: string;
+  menuId?: {
+    _id: string;
+    date: string;
+    mealType: string;
+    menuItems: MenuItem[];
+    preparedBy: {
+      _id: string;
+      name: string;
+      email: string;
+    };
+  };
+  rating: number;
+  taste?: number;
+  presentation?: number;
+  portion?: number;
+  mealDate: string;
+  mealType: string;
+  dishName?: string;
+  comment?: string;
+  wouldEatAgain?: boolean | null;
+  tags?: string[];
+  isAnonymous: boolean;
+  ratedBy: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export default function EditMealRatingPage() {
   const router = useRouter();
+  const params = useParams();
+  const ratingId = params.id as string;
+
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingRating, setLoadingRating] = useState(true);
   const [loadingMenus, setLoadingMenus] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [menus, setMenus] = useState<Menu[]>([]);
+  const [rating, setRating] = useState<Rating | null>(null);
 
   const [formData, setFormData] = useState({
     menuId: '',
@@ -59,13 +96,45 @@ export default function AddMealRatingPage() {
   }, []);
 
   useEffect(() => {
-    fetchMenus();
-  }, []);
+    if (ratingId) {
+      fetchRating();
+      fetchMenus();
+    }
+  }, [ratingId]);
+
+  const fetchRating = async () => {
+    try {
+      setLoadingRating(true);
+      const response = await mealRatingAPI.getById(ratingId);
+      const ratingData = response.data.data.rating;
+      setRating(ratingData);
+
+      // Pre-populate form
+      setFormData({
+        menuId: ratingData.menuId?._id || '',
+        rating: ratingData.rating || 0,
+        taste: ratingData.taste || 0,
+        presentation: ratingData.presentation || 0,
+        portion: ratingData.portion || 0,
+        mealDate: new Date(ratingData.mealDate).toISOString().split('T')[0],
+        mealType: ratingData.mealType || 'dinner',
+        dishName: ratingData.dishName || '',
+        comment: ratingData.comment || '',
+        wouldEatAgain: ratingData.wouldEatAgain ?? null,
+        tags: ratingData.tags?.join(', ') || '',
+        isAnonymous: ratingData.isAnonymous || false,
+      });
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to fetch rating');
+      toast.error('Failed to load rating');
+    } finally {
+      setLoadingRating(false);
+    }
+  };
 
   const fetchMenus = async () => {
     try {
       setLoadingMenus(true);
-      // Fetch recent menus (last 30 days)
       const response = await dinnerMenuAPI.getAll({
         limit: 50,
         sortBy: 'date',
@@ -150,15 +219,17 @@ export default function AddMealRatingPage() {
         data.tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       }
 
-      await mealRatingAPI.create(data);
-      setSuccess('Meal rating created successfully!');
+      await mealRatingAPI.update(ratingId, data);
+      setSuccess('Meal rating updated successfully!');
+      toast.success('Rating updated successfully!');
 
       // Redirect after 1.5 seconds
       setTimeout(() => {
         router.push('/meal-ratings');
       }, 1500);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create rating');
+      setError(err.response?.data?.message || 'Failed to update rating');
+      toast.error(err.response?.data?.message || 'Failed to update rating');
       setLoading(false);
     }
   };
@@ -192,6 +263,44 @@ export default function AddMealRatingPage() {
 
   const selectedMenu = menus.find(m => m._id === formData.menuId);
 
+  // Check if user can edit this rating
+  const canEdit = user && rating && (user._id === rating.ratedBy._id || user.id === rating.ratedBy._id);
+
+  if (loadingRating) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {user && <Header user={user} />}
+        <NavigationMenu />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-gray-500">Loading rating...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!canEdit) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {user && <Header user={user} />}
+        <NavigationMenu />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+            <p className="text-gray-600 mb-4">You can only edit your own ratings.</p>
+            <button
+              onClick={() => router.push('/meal-ratings')}
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Back to Ratings
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {user && <Header user={user} />}
@@ -206,9 +315,9 @@ export default function AddMealRatingPage() {
             >
               ← Back
             </button>
-            <h1 className="text-3xl font-bold text-gray-900">Rate a Meal</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Edit Meal Rating</h1>
             <p className="mt-2 text-sm text-gray-600">
-              Share your dining experience and rate the meal
+              Update your dining experience and rating
             </p>
           </div>
 
@@ -493,7 +602,7 @@ export default function AddMealRatingPage() {
                       disabled={loading}
                       className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-400 disabled:cursor-not-allowed font-medium"
                     >
-                      {loading ? 'Submitting...' : 'Submit Rating'}
+                      {loading ? 'Updating...' : 'Update Rating'}
                     </button>
                     <button
                       type="button"
