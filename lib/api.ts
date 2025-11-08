@@ -253,4 +253,13 @@ export const accountDeletionAPI = {
   cancelDeletion: () => api.delete('/account/cancel-deletion'),
 };
 
+// Participation API
+export const participationAPI = {
+  getAll: () => api.get('/users/participation'),
+  getMyParticipation: () => api.get('/users/participation/me'),
+  updateParticipation: (userId: string, isParticipating: boolean) =>
+    api.put(`/users/participation/${userId}`, { isParticipating }),
+  getParticipatingUsers: () => api.get('/users/participation/active'),
+};
+
 export default api;
