@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
+import NotificationModal from '@/components/NotificationModal';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +14,12 @@ export default function LoginPage() {
     password: '',
   });
   const [loading, setLoading] = useState(false);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'error' as 'error' | 'success' | 'warning' | 'info',
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -36,10 +43,47 @@ export default function LoginPage() {
       router.push('/expenses');
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error(error.response?.data?.message || 'Login failed. Please try again.');
+
+      const errorMessage = error.response?.data?.message || 'Login failed. Please try again.';
+      let title = 'Login Failed';
+      let message = errorMessage;
+
+      // Check for specific error types
+      if (errorMessage.toLowerCase().includes('user not found') ||
+          errorMessage.toLowerCase().includes('invalid credentials')) {
+        // Check if it's specifically a "user not found" scenario
+        if (error.response?.status === 401) {
+          // We can't differentiate between wrong password and user not found from backend
+          // as it returns "Invalid credentials" for both for security reasons
+          // But we can check the logged message pattern
+          title = 'Authentication Error';
+          message = 'Invalid email or password. Please check your credentials and try again.';
+        }
+      } else if (errorMessage.toLowerCase().includes('account') &&
+                 errorMessage.toLowerCase().includes('deactivated')) {
+        title = 'Account Deactivated';
+        message = errorMessage;
+      } else if (errorMessage.toLowerCase().includes('blocked')) {
+        title = 'Account Blocked';
+        message = errorMessage;
+      }
+
+      setModalState({
+        isOpen: true,
+        title,
+        message,
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const closeModal = () => {
+    setModalState({
+      ...modalState,
+      isOpen: false,
+    });
   };
 
   return (
@@ -198,6 +242,17 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      {/* Notification Modal */}
+      <NotificationModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        title={modalState.title}
+        message={modalState.message}
+        type={modalState.type}
+        autoClose={true}
+        autoCloseDelay={5000}
+      />
     </div>
   );
 }
