@@ -63,10 +63,6 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
       label: 'Staff Salaries',
       href: '/staff-salaries',
     },
-    {
-      label: 'Activity Logs',
-      href: '/activity-logs',
-    },
   ];
 
   // Close dropdown when clicking outside (desktop only)
