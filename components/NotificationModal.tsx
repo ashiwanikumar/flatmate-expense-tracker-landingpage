@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface NotificationModalProps {
   isOpen: boolean;
@@ -21,6 +22,13 @@ export default function NotificationModal({
   autoClose = true,
   autoCloseDelay = 5000,
 }: NotificationModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   useEffect(() => {
     if (isOpen && autoClose) {
       const timer = setTimeout(() => {
@@ -31,7 +39,20 @@ export default function NotificationModal({
     }
   }, [isOpen, autoClose, autoCloseDelay, onClose]);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    // Prevent body scroll when modal is open
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const getTypeStyles = () => {
     switch (type) {
@@ -118,17 +139,17 @@ export default function NotificationModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black bg-opacity-50 backdrop-blur-sm" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
       <div
-        className={`relative w-full max-w-md rounded-lg border-2 ${styles.border} ${styles.bg} shadow-xl transform transition-all`}
+        className={`relative w-full max-w-md mx-auto rounded-lg border-2 ${styles.border} ${styles.bg} shadow-2xl transform transition-all animate-fadeIn`}
       >
-        <div className="p-6">
-          <div className="flex items-start gap-4">
+        <div className="p-4 sm:p-6">
+          <div className="flex items-start gap-3 sm:gap-4">
             <div className={`flex-shrink-0 ${styles.icon}`}>{getIcon()}</div>
-            <div className="flex-1">
-              <h3 className={`text-lg font-semibold mb-1 ${styles.title}`}>{title}</h3>
-              <p className={`text-sm ${styles.message}`}>{message}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className={`text-base sm:text-lg font-semibold mb-1 ${styles.title}`}>{title}</h3>
+              <p className={`text-sm ${styles.message} break-words`}>{message}</p>
             </div>
             <button
               onClick={onClose}
@@ -161,7 +182,7 @@ export default function NotificationModal({
           )}
         </div>
       </div>
-      <style jsx>{`
+      <style jsx global>{`
         @keyframes shrink {
           from {
             width: 100%;
@@ -170,7 +191,22 @@ export default function NotificationModal({
             width: 0%;
           }
         }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
       `}</style>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
