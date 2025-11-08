@@ -53,7 +53,7 @@ export default function InvitationsPage() {
   const [invitationLink, setInvitationLink] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('');
   const [workspaceInviteLink, setWorkspaceInviteLink] = useState<string | null>(null);
-  const [workspaceInviteRole, setWorkspaceInviteRole] = useState<'member' | 'admin'>('member');
+  const [workspaceInviteRole, setWorkspaceInviteRole] = useState<'member' | 'admin' | 'cook'>('member');
   const [workspaceInviteExpiry, setWorkspaceInviteExpiry] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState(false);
   const [cancelModal, setCancelModal] = useState<{ show: boolean; invitationId: string | null }>({ show: false, invitationId: null });
@@ -244,6 +244,7 @@ export default function InvitationsPage() {
       owner: 'bg-purple-100 text-purple-800',
       admin: 'bg-blue-100 text-blue-800',
       member: 'bg-gray-100 text-gray-800',
+      cook: 'bg-orange-100 text-orange-800',
     };
     return colors[role] || colors.member;
   };
@@ -297,11 +298,12 @@ export default function InvitationsPage() {
                         </label>
                         <select
                           value={workspaceInviteRole}
-                          onChange={(e) => setWorkspaceInviteRole(e.target.value as 'member' | 'admin')}
+                          onChange={(e) => setWorkspaceInviteRole(e.target.value as 'member' | 'admin' | 'cook')}
                           className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         >
                           <option value="member">Member - Can use all features but cannot invite or delete</option>
                           <option value="admin">Admin - Can invite users and manage workspace</option>
+                          <option value="cook">Cook - Can manage menus, view ratings, upload food photos</option>
                         </select>
                       </div>
 
@@ -749,11 +751,16 @@ export default function InvitationsPage() {
                   >
                     <option value="member">Member</option>
                     <option value="admin">Admin</option>
+                    <option value="cook">Cook</option>
                   </select>
                   <p className="mt-2 text-xs text-gray-500">
                     {inviteRole === 'admin' ? (
                       <span className="text-purple-600 font-medium">
                         Admin: Can invite users, manage members, and access all features
+                      </span>
+                    ) : inviteRole === 'cook' ? (
+                      <span className="text-orange-600 font-medium">
+                        Cook: Can manage menus, view meal ratings, upload food photos (cannot delete)
                       </span>
                     ) : (
                       <span className="text-gray-600">

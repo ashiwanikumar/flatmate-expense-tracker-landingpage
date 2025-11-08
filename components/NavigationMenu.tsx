@@ -13,6 +13,7 @@ interface NavItem {
   label: string;
   href?: string;
   subItems?: SubMenuItem[];
+  roles?: string[]; // Allowed roles for this nav item
 }
 
 interface NavigationMenuProps {
@@ -24,46 +25,77 @@ interface NavigationMenuProps {
 export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobileMenuClose }: NavigationMenuProps) {
   const pathname = usePathname() || currentPath || '';
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('member');
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const navItems: NavItem[] = [
+  // Get user's organization role from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      // Use organizationRole if available, otherwise default to 'member'
+      setUserRole(user.organizationRole || 'member');
+    }
+  }, []);
+
+  const allNavItems: NavItem[] = [
     {
       label: 'Expenses',
       href: '/expenses',
+      roles: ['owner', 'admin', 'member'], // Cook cannot see expenses
     },
     {
       label: 'Participation',
       href: '/participation',
+      roles: ['owner', 'admin', 'member'], // Cook cannot see participation
     },
     {
       label: 'Availability',
       href: '/user-availability',
+      roles: ['owner', 'admin', 'member'], // Cook cannot see availability
     },
     {
       label: 'Meal Ratings',
       href: '/meal-ratings',
+      roles: ['owner', 'admin', 'member', 'cook'], // Cook can see (view only)
     },
     {
       label: 'Menus',
       href: '/menus',
+      roles: ['owner', 'admin', 'member', 'cook'], // Cook can see and manage
     },
     {
       label: 'Food Photos',
       href: '/food-photos',
+      roles: ['owner', 'admin', 'member', 'cook'], // Cook can see and upload
     },
     {
       label: 'Invitations',
       href: '/invitations',
+      roles: ['owner', 'admin', 'member'], // Members can see invitations
     },
     {
       label: 'Advance Payments',
       href: '/advance-payments',
+      roles: ['owner', 'admin', 'member'], // Members can see advance payments
     },
     {
       label: 'Staff Salaries',
       href: '/staff-salaries',
+      roles: ['owner', 'admin', 'member'], // Members can see staff salaries
+    },
+    {
+      label: 'Activity Logs',
+      href: '/activity-logs',
+      roles: ['owner', 'admin', 'cook'], // Cook can see activity logs
     },
   ];
+
+  // Filter nav items based on user role
+  const navItems = allNavItems.filter((item) => {
+    if (!item.roles) return true; // If no roles specified, show to everyone
+    return item.roles.includes(userRole);
+  });
 
   // Close dropdown when clicking outside (desktop only)
   useEffect(() => {

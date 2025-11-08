@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authAPI } from '@/lib/api';
+import { authAPI, organizationAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import NotificationModal from '@/components/NotificationModal';
 
@@ -35,9 +35,31 @@ export default function LoginPage() {
     try {
       const response = await authAPI.login(formData);
 
-      // Save token and user data
+      // Save token first
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+      // Fetch organization to get user's organization role
+      try {
+        const orgResponse = await organizationAPI.getMyOrganization();
+        const organization = orgResponse.data.data;
+        const currentUserId = response.data.user._id;
+
+        // Find current user in organization members to get their role
+        const memberData = organization.members.find((m: any) => m.user._id === currentUserId);
+        const organizationRole = memberData?.role || 'member';
+
+        // Add organizationRole to user object
+        const userWithOrgRole = {
+          ...response.data.user,
+          organizationRole
+        };
+
+        localStorage.setItem('user', JSON.stringify(userWithOrgRole));
+      } catch (orgError) {
+        // If organization fetch fails, store user without organizationRole
+        console.error('Failed to fetch organization role:', orgError);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
 
       toast.success('Login successful!');
 

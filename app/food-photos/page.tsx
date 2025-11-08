@@ -596,12 +596,15 @@ export default function FoodPhotosPage() {
                   >
                     ❤️ {selectedPhoto.likesCount} Likes
                   </button>
-                  <button
-                    onClick={() => initiateDelete(selectedPhoto._id)}
-                    className="ml-auto text-red-600 hover:text-red-700 text-xs sm:text-sm font-medium"
-                  >
-                    Delete
-                  </button>
+                  {/* Hide delete button for cook role */}
+                  {user?.organizationRole !== 'cook' && (
+                    <button
+                      onClick={() => initiateDelete(selectedPhoto._id)}
+                      className="ml-auto text-red-600 hover:text-red-700 text-xs sm:text-sm font-medium"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
 
                 {/* Comments */}

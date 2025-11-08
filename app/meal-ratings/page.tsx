@@ -176,15 +176,18 @@ export default function MealRatingsPage() {
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meal Ratings</h1>
               <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
-                Rate your meals and track your dining experience
+                {user?.organizationRole === 'cook' ? 'View meal ratings and feedback' : 'Rate your meals and track your dining experience'}
               </p>
             </div>
-            <button
-              onClick={() => router.push('/meal-ratings/add')}
-              className="px-4 py-2 text-sm sm:text-base bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors self-start sm:self-auto whitespace-nowrap"
-            >
-              + Rate a Meal
-            </button>
+            {/* Hide "Rate a Meal" button for cook role */}
+            {user?.organizationRole !== 'cook' && (
+              <button
+                onClick={() => router.push('/meal-ratings/add')}
+                className="px-4 py-2 text-sm sm:text-base bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors self-start sm:self-auto whitespace-nowrap"
+              >
+                + Rate a Meal
+              </button>
+            )}
           </div>
         </div>
 
@@ -397,21 +400,23 @@ export default function MealRatingsPage() {
                     </div>
                   )}
 
-                  {/* Actions */}
-                  <div className="flex justify-end gap-2 pt-3 sm:pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => router.push(`/meal-ratings/edit/${rating._id}`)}
-                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(rating._id)}
-                      className="text-xs sm:text-sm text-red-600 hover:text-red-800"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {/* Actions - Hide for cook role (view only) */}
+                  {user?.organizationRole !== 'cook' && (
+                    <div className="flex justify-end gap-2 pt-3 sm:pt-4 border-t border-gray-200">
+                      <button
+                        onClick={() => router.push(`/meal-ratings/edit/${rating._id}`)}
+                        className="text-xs sm:text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(rating._id)}
+                        className="text-xs sm:text-sm text-red-600 hover:text-red-800"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
