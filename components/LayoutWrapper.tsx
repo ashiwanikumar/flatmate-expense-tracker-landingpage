@@ -24,13 +24,13 @@ export default function LayoutWrapper({ user, children, requireAuth = true }: La
   };
 
   const layoutContent = (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col overflow-x-hidden">
       <Header user={user} onMenuToggle={toggleMobileMenu} />
       <NavigationMenu
         isMobileMenuOpen={isMobileMenuOpen}
         onMobileMenuClose={closeMobileMenu}
       />
-      <div className="flex-grow">
+      <div className="flex-grow overflow-x-hidden">
         {children}
       </div>
       <Footer />

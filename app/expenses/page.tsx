@@ -258,115 +258,137 @@ export default function ExpensesPage() {
 
   return (
     <LayoutWrapper user={user}>
-      {/* Full width container */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      {/* Full width container with overflow prevention */}
+      <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8 overflow-x-hidden max-w-full">
         {/* Header with Month Selector */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Expense Dashboard</h1>
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Expense Dashboard</h1>
             <button
               onClick={() => router.push('/expenses/add')}
-              className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all self-start sm:self-auto whitespace-nowrap"
+              className="w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all whitespace-nowrap"
             >
               + Add Expense
             </button>
           </div>
 
-          {/* Month Selector */}
-          <div className="flex items-center gap-2 sm:gap-4 bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+          {/* Month Selector - Improved mobile */}
+          <div className="flex items-center gap-3 sm:gap-4 bg-white rounded-lg p-2.5 sm:p-3 md:p-4 shadow-sm">
             <button
               onClick={() => changeMonth('prev')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition"
+              className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0"
+              aria-label="Previous month"
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <div className="flex-1 text-center">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+            <div className="flex-1 text-center min-w-0">
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 truncate">
                 {getMonthName(currentMonth)} {currentYear}
               </h2>
             </div>
             <button
               onClick={() => changeMonth('next')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition"
+              className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0"
+              aria-label="Next month"
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </div>
         </div>
 
-        {/* Summary Cards - Full Width */}
+        {/* Summary Cards - Optimized for mobile */}
         {monthlyBalances && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border-l-4 border-blue-500">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-blue-500">
               <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Expenses</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900">{formatCurrency(monthlyBalances.totalExpenses)}</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{formatCurrency(monthlyBalances.totalExpenses)}</p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border-l-4 border-green-500">
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-green-500">
               <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Settled Amount</p>
-              <p className="text-2xl sm:text-3xl font-bold text-green-600">{formatCurrency(monthlyBalances.settledAmount)}</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">{formatCurrency(monthlyBalances.settledAmount)}</p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border-l-4 border-orange-500">
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-orange-500">
               <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Pending Amount</p>
-              <p className="text-2xl sm:text-3xl font-bold text-orange-600">{formatCurrency(monthlyBalances.pendingAmount)}</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600">{formatCurrency(monthlyBalances.pendingAmount)}</p>
             </div>
           </div>
         )}
 
-        {/* Charts Section - Full Width */}
+        {/* Charts Section - Mobile optimized */}
         {expenses.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-7 md:mb-8 overflow-hidden">
             {/* Category-based Pie Chart */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Expenses by Category</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 overflow-hidden">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Expenses by Category</h3>
+              <div className="w-full max-w-full overflow-hidden" style={{ height: '280px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={false}
+                      outerRadius={typeof window !== 'undefined' && window.innerWidth < 640 ? 60 : 85}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => formatCurrency(Number(value))}
+                      contentStyle={{ fontSize: '12px' }}
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
+                      iconSize={8}
+                      layout="horizontal"
+                      align="center"
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
             {/* User-based Pie Chart */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Expenses by Member</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={userData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {userData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={USER_COLORS[index % USER_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 overflow-hidden">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Expenses by Member</h3>
+              <div className="w-full max-w-full overflow-hidden" style={{ height: '280px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                    <Pie
+                      data={userData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={false}
+                      outerRadius={typeof window !== 'undefined' && window.innerWidth < 640 ? 60 : 85}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {userData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={USER_COLORS[index % USER_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => formatCurrency(Number(value))}
+                      contentStyle={{ fontSize: '12px' }}
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
+                      iconSize={8}
+                      layout="horizontal"
+                      align="center"
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         )}
@@ -412,46 +434,46 @@ export default function ExpensesPage() {
             {/* Overview Tab */}
             {activeTab === 'overview' && monthlyBalances && (
               <div>
-                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Member Balances</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6">Member Balances</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {monthlyBalances.balances.map((balance) => (
                     <div
                       key={balance.user._id}
-                      className={`rounded-lg p-4 sm:p-6 border-2 transition-all hover:shadow-md ${
+                      className={`rounded-lg p-3 sm:p-4 md:p-5 border-2 transition-all hover:shadow-md ${
                         balance.netBalance >= 0
                           ? 'bg-green-50 border-green-200'
                           : 'bg-red-50 border-red-200'
                       }`}
                     >
-                      <div className="flex items-start justify-between mb-3 sm:mb-4">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 truncate">{balance.user.name}</h4>
-                          <p className="text-xs sm:text-sm text-gray-600 truncate">{balance.user.email}</p>
+                      <div className="flex items-start justify-between mb-2.5 sm:mb-3">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <h4 className="text-sm sm:text-base font-bold text-gray-900 truncate leading-tight">{balance.user.name}</h4>
+                          <p className="text-xs text-gray-600 truncate mt-0.5">{balance.user.email}</p>
                         </div>
-                        <div className={`w-3 h-3 rounded-full flex-shrink-0 ml-2 ${balance.netBalance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${balance.netBalance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
                       </div>
 
                       {balance.availability.unavailableDays > 0 && (
-                        <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                          <p className="text-yellow-800">
+                        <div className="mb-2.5 p-1.5 sm:p-2 bg-yellow-50 border border-yellow-200 rounded">
+                          <p className="text-xs leading-tight text-yellow-800">
                             Present: {balance.availability.availableDays}/{balance.availability.totalDays} days
                           </p>
                         </div>
                       )}
 
-                      <div className="space-y-2 text-xs sm:text-sm">
-                        <div className="flex justify-between">
+                      <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                        <div className="flex justify-between items-center">
                           <span className="text-gray-600">Paid:</span>
-                          <span className="font-semibold text-gray-900">{formatCurrency(balance.totalPaid)}</span>
+                          <span className="font-semibold text-gray-900 text-right">{formatCurrency(balance.totalPaid)}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-center">
                           <span className="text-gray-600">Owes:</span>
-                          <span className="font-semibold text-gray-900">{formatCurrency(balance.totalOwed)}</span>
+                          <span className="font-semibold text-gray-900 text-right">{formatCurrency(balance.totalOwed)}</span>
                         </div>
-                        <div className="pt-2 border-t border-gray-300">
-                          <div className="flex justify-between items-center">
-                            <span className="font-semibold text-gray-900">Net Balance:</span>
-                            <span className={`text-base sm:text-lg font-bold ${
+                        <div className="pt-1.5 sm:pt-2 border-t border-gray-300">
+                          <div className="flex justify-between items-center gap-2">
+                            <span className="font-semibold text-gray-900 text-xs sm:text-sm">Net:</span>
+                            <span className={`text-sm sm:text-base md:text-lg font-bold text-right ${
                               balance.netBalance >= 0 ? 'text-green-600' : 'text-red-600'
                             }`}>
                               {balance.netBalance >= 0 ? '+' : ''}{formatCurrency(balance.netBalance)}
@@ -460,13 +482,13 @@ export default function ExpensesPage() {
                         </div>
                       </div>
 
-                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
+                      <div className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-gray-200">
                         {balance.netBalance >= 0 ? (
-                          <p className="text-xs sm:text-sm font-medium text-green-700">
+                          <p className="text-xs sm:text-sm font-medium text-green-700 leading-tight">
                             To Receive: {formatCurrency(balance.summary.toReceive)}
                           </p>
                         ) : (
-                          <p className="text-xs sm:text-sm font-medium text-red-700">
+                          <p className="text-xs sm:text-sm font-medium text-red-700 leading-tight">
                             To Pay: {formatCurrency(balance.summary.toPay)}
                           </p>
                         )}
@@ -476,11 +498,11 @@ export default function ExpensesPage() {
                 </div>
 
                 {/* Expense List */}
-                <div className="mt-6 sm:mt-8">
-                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-4">All Expenses This Month</h3>
+                <div className="mt-5 sm:mt-6 md:mt-8">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4">All Expenses This Month</h3>
                   {expenses.length === 0 ? (
-                    <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-lg border border-gray-200">
-                      <h4 className="text-base sm:text-lg lg:text-xl font-medium text-gray-700 mb-2">No expenses yet</h4>
+                    <div className="text-center py-8 sm:py-10 md:py-12 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2">No expenses yet</h4>
                       <p className="text-sm text-gray-600">Add your first expense for this month</p>
                     </div>
                   ) : (
@@ -562,15 +584,15 @@ export default function ExpensesPage() {
                       {/* Mobile Card View */}
                       <div className="md:hidden divide-y divide-gray-200">
                         {expenses.map((expense) => (
-                          <div key={expense._id} className="p-4">
-                            <div className="flex items-start justify-between mb-3">
+                          <div key={expense._id} className="p-3 sm:p-4">
+                            <div className="flex items-start justify-between gap-2 mb-2.5">
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-gray-900">{expense.description}</p>
+                                <p className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2">{expense.description}</p>
                                 <p className="text-xs text-gray-600 mt-1">
                                   {new Date(expense.expenseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                 </p>
                               </div>
-                              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap flex-shrink-0 ${
                                 expense.category === 'groceries' ? 'bg-green-100 text-green-800' :
                                 expense.category === 'household' ? 'bg-blue-100 text-blue-800' :
                                 expense.category === 'food' ? 'bg-orange-100 text-orange-800' :
@@ -580,23 +602,23 @@ export default function ExpensesPage() {
                                 {expense.category}
                               </span>
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                              <div className="flex justify-between items-center mb-2">
+                            <div className="bg-gray-50 rounded-lg p-2.5 mb-2.5">
+                              <div className="flex justify-between items-center mb-1.5">
                                 <span className="text-xs text-gray-600">Amount:</span>
-                                <span className="text-lg font-bold text-gray-900">{formatCurrency(expense.amount)}</span>
+                                <span className="text-base sm:text-lg font-bold text-gray-900">{formatCurrency(expense.amount)}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs mb-1">
+                                <span className="text-gray-600">Paid by:</span>
+                                <span className="font-medium text-gray-900 truncate ml-2">{expense.paidBy.name}</span>
                               </div>
                               <div className="flex justify-between items-center text-xs">
-                                <span className="text-gray-600">Paid by:</span>
-                                <span className="font-medium text-gray-900">{expense.paidBy.name}</span>
-                              </div>
-                              <div className="flex justify-between items-center text-xs mt-1">
                                 <span className="text-gray-600">Split:</span>
                                 <span className="text-gray-900">{expense.splitBetween.length} members</span>
                               </div>
                             </div>
                             <button
                               onClick={() => router.push(`/expenses/${expense._id}`)}
-                              className="w-full px-3 py-2 text-xs font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                              className="w-full px-3 py-2 text-xs sm:text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors active:bg-purple-200"
                             >
                               View Details
                             </button>
@@ -608,16 +630,16 @@ export default function ExpensesPage() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="mt-5 sm:mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     onClick={() => router.push('/user-availability')}
-                    className="p-3 sm:p-4 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                    className="w-full p-3 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all active:scale-95"
                   >
                     Manage Availability
                   </button>
                   <button
                     onClick={() => router.push('/expenses/add')}
-                    className="p-3 sm:p-4 text-sm sm:text-base bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                    className="w-full p-3 text-sm sm:text-base bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all active:scale-95"
                   >
                     Add New Expense
                   </button>
@@ -628,56 +650,59 @@ export default function ExpensesPage() {
             {/* Settlements Tab */}
             {activeTab === 'settlements' && (
               <div>
-                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Settlement Suggestions</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6">Settlement Suggestions</h3>
                 {settlements.length === 0 ? (
-                  <div className="text-center py-8 sm:py-12 bg-green-50 rounded-lg border border-green-200">
-                    <h4 className="text-base sm:text-lg lg:text-xl font-bold text-green-800 mb-2">All Settled!</h4>
+                  <div className="text-center py-8 sm:py-10 md:py-12 bg-green-50 rounded-lg border border-green-200">
+                    <h4 className="text-base sm:text-lg font-bold text-green-800 mb-2">All Settled!</h4>
                     <p className="text-sm text-green-700">No pending settlements for this month.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3 sm:space-y-4">
+                  <div className="space-y-3">
                     {settlements.map((settlement, index) => (
                       <div
                         key={index}
-                        className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-4 sm:p-6 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow gap-4"
+                        className="flex flex-col p-3 sm:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
                       >
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 flex-1">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-base sm:text-lg font-semibold text-red-700">{settlement.from.name.charAt(0)}</span>
+                        <div className="flex flex-col gap-3">
+                          {/* From User */}
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-sm sm:text-base font-semibold text-red-700">{settlement.from.name.charAt(0)}</span>
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-sm sm:text-base font-semibold text-gray-900 truncate">{settlement.from.name}</p>
-                              <p className="text-xs sm:text-sm text-gray-600 truncate">{settlement.from.email}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-gray-900 truncate leading-tight">{settlement.from.name}</p>
+                              <p className="text-xs text-gray-600 truncate">{settlement.from.email}</p>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-center gap-2 my-2 sm:my-0">
-                            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          {/* Amount with Arrow */}
+                          <div className="flex items-center justify-center gap-2 py-2">
+                            <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                             </svg>
-                            <div className="px-3 sm:px-4 py-2 bg-purple-100 rounded-lg">
-                              <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-900">{formatCurrency(settlement.amount)}</p>
+                            <div className="px-3 py-1.5 bg-purple-100 rounded-lg">
+                              <p className="text-base sm:text-lg font-bold text-purple-900">{formatCurrency(settlement.amount)}</p>
                             </div>
-                            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                             </svg>
                           </div>
 
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-base sm:text-lg font-semibold text-green-700">{settlement.to.name.charAt(0)}</span>
+                          {/* To User */}
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-sm sm:text-base font-semibold text-green-700">{settlement.to.name.charAt(0)}</span>
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-sm sm:text-base font-semibold text-gray-900 truncate">{settlement.to.name}</p>
-                              <p className="text-xs sm:text-sm text-gray-600 truncate">{settlement.to.email}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-gray-900 truncate leading-tight">{settlement.to.name}</p>
+                              <p className="text-xs text-gray-600 truncate">{settlement.to.email}</p>
                             </div>
                           </div>
                         </div>
 
                         <button
                           onClick={() => toast.success('Payment tracking feature coming soon!')}
-                          className="w-full sm:w-auto sm:ml-4 px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                          className="w-full mt-3 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 transition-colors font-medium"
                         >
                           Mark as Paid
                         </button>
@@ -686,9 +711,9 @@ export default function ExpensesPage() {
                   </div>
                 )}
 
-                <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="text-sm sm:text-base font-semibold text-blue-900 mb-2">Pro Tip</h4>
-                  <p className="text-xs sm:text-sm text-blue-800">
+                <div className="mt-4 sm:mt-5 md:mt-6 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="text-sm font-semibold text-blue-900 mb-1.5">Pro Tip</h4>
+                  <p className="text-xs sm:text-sm text-blue-800 leading-relaxed">
                     These settlements minimize the number of transactions needed to balance everyone's accounts.
                     Simply follow the suggestions above to settle all debts efficiently!
                   </p>
