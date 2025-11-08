@@ -13,6 +13,7 @@ interface User {
   name: string;
   email: string;
   role: string;
+  organizationRole?: string;
   expenseParticipation?: {
     isParticipating: boolean;
     lastUpdated?: string;
@@ -75,6 +76,13 @@ export default function ParticipationPage() {
     try {
       setUpdating(userId);
       const newStatus = !currentStatus;
+
+      // Additional frontend check for owner deactivation
+      if (isOwner && userId === currentUser?._id && !newStatus) {
+        toast.error('Organization owner cannot deactivate their own participation');
+        setUpdating(null);
+        return;
+      }
 
       await participationAPI.updateParticipation(userId, newStatus);
 
@@ -183,6 +191,8 @@ export default function ParticipationPage() {
                 {users.map((user) => {
                   const isParticipating = user.expenseParticipation?.isParticipating ?? true;
                   const canModify = canManageAll || user._id === currentUser?._id;
+                  const isCurrentUserOwner = isOwner && user._id === currentUser?._id;
+                  const canDeactivateSelf = !isCurrentUserOwner; // Owner cannot deactivate themselves
 
                   return (
                     <tr key={user._id} className={isParticipating ? '' : 'bg-gray-50'}>
@@ -196,11 +206,13 @@ export default function ParticipationPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.role === 'admin' || user.role === 'super_admin'
+                          user.organizationRole === 'owner'
                             ? 'bg-purple-100 text-purple-800'
+                            : user.organizationRole === 'admin'
+                            ? 'bg-blue-100 text-blue-800'
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {user.role}
+                          {user.organizationRole || user.role}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -219,17 +231,23 @@ export default function ParticipationPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         {canModify ? (
-                          <button
-                            onClick={() => handleToggleParticipation(user._id, isParticipating)}
-                            disabled={updating === user._id}
-                            className={`px-3 py-1 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                              isParticipating
-                                ? 'bg-red-600 text-white hover:bg-red-700'
-                                : 'bg-green-600 text-white hover:bg-green-700'
-                            }`}
-                          >
-                            {updating === user._id ? 'Updating...' : (isParticipating ? 'Deactivate' : 'Activate')}
-                          </button>
+                          isCurrentUserOwner && isParticipating ? (
+                            <span className="text-gray-400 text-xs" title="Owner must remain participating">
+                              Owner (Always Active)
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleToggleParticipation(user._id, isParticipating)}
+                              disabled={updating === user._id}
+                              className={`px-3 py-1 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                                isParticipating
+                                  ? 'bg-red-600 text-white hover:bg-red-700'
+                                  : 'bg-green-600 text-white hover:bg-green-700'
+                              }`}
+                            >
+                              {updating === user._id ? 'Updating...' : (isParticipating ? 'Deactivate' : 'Activate')}
+                            </button>
+                          )
                         ) : (
                           <span className="text-gray-400 text-xs">No permission</span>
                         )}
