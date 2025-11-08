@@ -56,9 +56,12 @@ export default function AccountSettings() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Organization name editing
+  // Organization editing
   const [isEditingOrgName, setIsEditingOrgName] = useState(false);
   const [newOrgName, setNewOrgName] = useState('');
+  const [isEditingSettings, setIsEditingSettings] = useState(false);
+  const [newCurrency, setNewCurrency] = useState('');
+  const [newTimezone, setNewTimezone] = useState('');
   const [orgUpdateLoading, setOrgUpdateLoading] = useState(false);
 
   // Countdown timer state
@@ -255,6 +258,62 @@ export default function AccountSettings() {
     }
   };
 
+  const handleStartEditSettings = () => {
+    setNewCurrency(organization?.settings?.currency || 'USD');
+    setNewTimezone(organization?.settings?.timezone || 'UTC');
+    setIsEditingSettings(true);
+  };
+
+  const handleCancelEditSettings = () => {
+    setIsEditingSettings(false);
+    setNewCurrency('');
+    setNewTimezone('');
+  };
+
+  const handleUpdateSettings = async () => {
+    if (!newCurrency || !newTimezone) {
+      setMessage({
+        type: 'error',
+        text: 'Currency and timezone are required',
+      });
+      return;
+    }
+
+    if (
+      newCurrency === organization?.settings?.currency &&
+      newTimezone === organization?.settings?.timezone
+    ) {
+      setIsEditingSettings(false);
+      return;
+    }
+
+    try {
+      setOrgUpdateLoading(true);
+      setMessage({ type: '', text: '' });
+
+      await organizationAPI.updateOrganization({
+        settings: {
+          currency: newCurrency,
+          timezone: newTimezone,
+        },
+      });
+
+      setMessage({
+        type: 'success',
+        text: 'Organization settings updated successfully!',
+      });
+      setIsEditingSettings(false);
+      await fetchOrganization();
+    } catch (error: any) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to update organization settings',
+      });
+    } finally {
+      setOrgUpdateLoading(false);
+    }
+  };
+
   const canEditOrganization = userRole === 'owner' || userRole === 'admin';
 
   return (
@@ -353,6 +412,306 @@ export default function AccountSettings() {
                 <div>
                   <span className="text-gray-600 text-xs sm:text-sm">Organization Type:</span>
                   <span className="ml-2 font-medium text-gray-900 capitalize text-sm sm:text-base">{organization.type}</span>
+                </div>
+
+                {/* Currency & Timezone Settings */}
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-900 text-sm font-semibold">Organization Settings</span>
+                    {canEditOrganization && !isEditingSettings && (
+                      <button
+                        onClick={handleStartEditSettings}
+                        className="text-purple-600 hover:text-purple-700 text-xs sm:text-sm font-medium flex items-center gap-1"
+                      >
+                        <svg
+                          className="w-3 h-3 sm:w-4 sm:h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {isEditingSettings ? (
+                    <div className="space-y-3 mt-3">
+                      {/* Currency */}
+                      <div>
+                        <label className="block text-xs sm:text-sm text-gray-600 mb-1">Currency</label>
+                        <select
+                          value={newCurrency}
+                          onChange={(e) => setNewCurrency(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                        >
+                          <optgroup label="Popular Currencies">
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                          </optgroup>
+                          <optgroup label="Americas">
+                            <option value="ARS">ARS - Argentine Peso</option>
+                            <option value="BRL">BRL - Brazilian Real</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="CLP">CLP - Chilean Peso</option>
+                            <option value="COP">COP - Colombian Peso</option>
+                            <option value="MXN">MXN - Mexican Peso</option>
+                            <option value="PEN">PEN - Peruvian Sol</option>
+                            <option value="USD">USD - US Dollar</option>
+                          </optgroup>
+                          <optgroup label="Europe">
+                            <option value="CHF">CHF - Swiss Franc</option>
+                            <option value="CZK">CZK - Czech Koruna</option>
+                            <option value="DKK">DKK - Danish Krone</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="HUF">HUF - Hungarian Forint</option>
+                            <option value="NOK">NOK - Norwegian Krone</option>
+                            <option value="PLN">PLN - Polish Zloty</option>
+                            <option value="RON">RON - Romanian Leu</option>
+                            <option value="RUB">RUB - Russian Ruble</option>
+                            <option value="SEK">SEK - Swedish Krona</option>
+                            <option value="TRY">TRY - Turkish Lira</option>
+                            <option value="UAH">UAH - Ukrainian Hryvnia</option>
+                          </optgroup>
+                          <optgroup label="Asia">
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="BDT">BDT - Bangladeshi Taka</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                            <option value="HKD">HKD - Hong Kong Dollar</option>
+                            <option value="IDR">IDR - Indonesian Rupiah</option>
+                            <option value="ILS">ILS - Israeli Shekel</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="KRW">KRW - South Korean Won</option>
+                            <option value="KWD">KWD - Kuwaiti Dinar</option>
+                            <option value="MYR">MYR - Malaysian Ringgit</option>
+                            <option value="PHP">PHP - Philippine Peso</option>
+                            <option value="PKR">PKR - Pakistani Rupee</option>
+                            <option value="QAR">QAR - Qatari Riyal</option>
+                            <option value="SAR">SAR - Saudi Riyal</option>
+                            <option value="SGD">SGD - Singapore Dollar</option>
+                            <option value="THB">THB - Thai Baht</option>
+                            <option value="TWD">TWD - Taiwan Dollar</option>
+                            <option value="VND">VND - Vietnamese Dong</option>
+                          </optgroup>
+                          <optgroup label="Oceania">
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="NZD">NZD - New Zealand Dollar</option>
+                          </optgroup>
+                          <optgroup label="Africa">
+                            <option value="EGP">EGP - Egyptian Pound</option>
+                            <option value="KES">KES - Kenyan Shilling</option>
+                            <option value="MAD">MAD - Moroccan Dirham</option>
+                            <option value="NGN">NGN - Nigerian Naira</option>
+                            <option value="ZAR">ZAR - South African Rand</option>
+                          </optgroup>
+                          <optgroup label="Middle East">
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="BHD">BHD - Bahraini Dinar</option>
+                            <option value="IQD">IQD - Iraqi Dinar</option>
+                            <option value="JOD">JOD - Jordanian Dinar</option>
+                            <option value="KWD">KWD - Kuwaiti Dinar</option>
+                            <option value="LBP">LBP - Lebanese Pound</option>
+                            <option value="OMR">OMR - Omani Rial</option>
+                            <option value="QAR">QAR - Qatari Riyal</option>
+                            <option value="SAR">SAR - Saudi Riyal</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      {/* Timezone */}
+                      <div>
+                        <label className="block text-xs sm:text-sm text-gray-600 mb-1">Timezone</label>
+                        <select
+                          value={newTimezone}
+                          onChange={(e) => setNewTimezone(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                        >
+                          <option value="UTC">UTC - Coordinated Universal Time</option>
+
+                          <optgroup label="Americas - North">
+                            <option value="America/New_York">America/New_York - Eastern Time (US & Canada)</option>
+                            <option value="America/Chicago">America/Chicago - Central Time (US & Canada)</option>
+                            <option value="America/Denver">America/Denver - Mountain Time (US & Canada)</option>
+                            <option value="America/Los_Angeles">America/Los_Angeles - Pacific Time (US & Canada)</option>
+                            <option value="America/Anchorage">America/Anchorage - Alaska Time</option>
+                            <option value="Pacific/Honolulu">Pacific/Honolulu - Hawaii Time</option>
+                            <option value="America/Toronto">America/Toronto - Eastern Time (Canada)</option>
+                            <option value="America/Vancouver">America/Vancouver - Pacific Time (Canada)</option>
+                            <option value="America/Mexico_City">America/Mexico_City - Mexico City</option>
+                          </optgroup>
+
+                          <optgroup label="Americas - South">
+                            <option value="America/Sao_Paulo">America/Sao_Paulo - Brazil Time</option>
+                            <option value="America/Argentina/Buenos_Aires">America/Argentina/Buenos_Aires - Argentina</option>
+                            <option value="America/Santiago">America/Santiago - Chile</option>
+                            <option value="America/Bogota">America/Bogota - Colombia</option>
+                            <option value="America/Lima">America/Lima - Peru</option>
+                            <option value="America/Caracas">America/Caracas - Venezuela</option>
+                          </optgroup>
+
+                          <optgroup label="Europe - Western">
+                            <option value="Europe/London">Europe/London - GMT (UK)</option>
+                            <option value="Europe/Dublin">Europe/Dublin - Ireland</option>
+                            <option value="Europe/Lisbon">Europe/Lisbon - Portugal</option>
+                            <option value="Atlantic/Reykjavik">Atlantic/Reykjavik - Iceland</option>
+                          </optgroup>
+
+                          <optgroup label="Europe - Central">
+                            <option value="Europe/Paris">Europe/Paris - Central European Time</option>
+                            <option value="Europe/Berlin">Europe/Berlin - Germany</option>
+                            <option value="Europe/Rome">Europe/Rome - Italy</option>
+                            <option value="Europe/Madrid">Europe/Madrid - Spain</option>
+                            <option value="Europe/Amsterdam">Europe/Amsterdam - Netherlands</option>
+                            <option value="Europe/Brussels">Europe/Brussels - Belgium</option>
+                            <option value="Europe/Vienna">Europe/Vienna - Austria</option>
+                            <option value="Europe/Zurich">Europe/Zurich - Switzerland</option>
+                            <option value="Europe/Prague">Europe/Prague - Czech Republic</option>
+                            <option value="Europe/Warsaw">Europe/Warsaw - Poland</option>
+                          </optgroup>
+
+                          <optgroup label="Europe - Eastern">
+                            <option value="Europe/Athens">Europe/Athens - Greece</option>
+                            <option value="Europe/Helsinki">Europe/Helsinki - Finland</option>
+                            <option value="Europe/Istanbul">Europe/Istanbul - Turkey</option>
+                            <option value="Europe/Kiev">Europe/Kiev - Ukraine</option>
+                            <option value="Europe/Moscow">Europe/Moscow - Russia (Moscow)</option>
+                            <option value="Europe/Bucharest">Europe/Bucharest - Romania</option>
+                          </optgroup>
+
+                          <optgroup label="Europe - Northern">
+                            <option value="Europe/Stockholm">Europe/Stockholm - Sweden</option>
+                            <option value="Europe/Copenhagen">Europe/Copenhagen - Denmark</option>
+                            <option value="Europe/Oslo">Europe/Oslo - Norway</option>
+                          </optgroup>
+
+                          <optgroup label="Asia - Middle East">
+                            <option value="Asia/Dubai">Asia/Dubai - UAE</option>
+                            <option value="Asia/Riyadh">Asia/Riyadh - Saudi Arabia</option>
+                            <option value="Asia/Qatar">Asia/Qatar - Qatar</option>
+                            <option value="Asia/Kuwait">Asia/Kuwait - Kuwait</option>
+                            <option value="Asia/Bahrain">Asia/Bahrain - Bahrain</option>
+                            <option value="Asia/Muscat">Asia/Muscat - Oman</option>
+                            <option value="Asia/Jerusalem">Asia/Jerusalem - Israel</option>
+                            <option value="Asia/Beirut">Asia/Beirut - Lebanon</option>
+                            <option value="Asia/Tehran">Asia/Tehran - Iran</option>
+                          </optgroup>
+
+                          <optgroup label="Asia - South">
+                            <option value="Asia/Kolkata">Asia/Kolkata - India</option>
+                            <option value="Asia/Karachi">Asia/Karachi - Pakistan</option>
+                            <option value="Asia/Dhaka">Asia/Dhaka - Bangladesh</option>
+                            <option value="Asia/Colombo">Asia/Colombo - Sri Lanka</option>
+                            <option value="Asia/Kathmandu">Asia/Kathmandu - Nepal</option>
+                          </optgroup>
+
+                          <optgroup label="Asia - Southeast">
+                            <option value="Asia/Singapore">Asia/Singapore - Singapore</option>
+                            <option value="Asia/Bangkok">Asia/Bangkok - Thailand</option>
+                            <option value="Asia/Jakarta">Asia/Jakarta - Indonesia (Jakarta)</option>
+                            <option value="Asia/Manila">Asia/Manila - Philippines</option>
+                            <option value="Asia/Kuala_Lumpur">Asia/Kuala_Lumpur - Malaysia</option>
+                            <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh - Vietnam</option>
+                            <option value="Asia/Yangon">Asia/Yangon - Myanmar</option>
+                          </optgroup>
+
+                          <optgroup label="Asia - East">
+                            <option value="Asia/Shanghai">Asia/Shanghai - China</option>
+                            <option value="Asia/Hong_Kong">Asia/Hong_Kong - Hong Kong</option>
+                            <option value="Asia/Taipei">Asia/Taipei - Taiwan</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo - Japan</option>
+                            <option value="Asia/Seoul">Asia/Seoul - South Korea</option>
+                          </optgroup>
+
+                          <optgroup label="Asia - Central">
+                            <option value="Asia/Almaty">Asia/Almaty - Kazakhstan</option>
+                            <option value="Asia/Tashkent">Asia/Tashkent - Uzbekistan</option>
+                          </optgroup>
+
+                          <optgroup label="Oceania">
+                            <option value="Australia/Sydney">Australia/Sydney - Eastern Australia</option>
+                            <option value="Australia/Melbourne">Australia/Melbourne - Victoria</option>
+                            <option value="Australia/Brisbane">Australia/Brisbane - Queensland</option>
+                            <option value="Australia/Perth">Australia/Perth - Western Australia</option>
+                            <option value="Australia/Adelaide">Australia/Adelaide - South Australia</option>
+                            <option value="Pacific/Auckland">Pacific/Auckland - New Zealand</option>
+                            <option value="Pacific/Fiji">Pacific/Fiji - Fiji</option>
+                          </optgroup>
+
+                          <optgroup label="Africa - North">
+                            <option value="Africa/Cairo">Africa/Cairo - Egypt</option>
+                            <option value="Africa/Algiers">Africa/Algiers - Algeria</option>
+                            <option value="Africa/Casablanca">Africa/Casablanca - Morocco</option>
+                            <option value="Africa/Tunis">Africa/Tunis - Tunisia</option>
+                          </optgroup>
+
+                          <optgroup label="Africa - Sub-Saharan">
+                            <option value="Africa/Johannesburg">Africa/Johannesburg - South Africa</option>
+                            <option value="Africa/Nairobi">Africa/Nairobi - Kenya</option>
+                            <option value="Africa/Lagos">Africa/Lagos - Nigeria</option>
+                            <option value="Africa/Accra">Africa/Accra - Ghana</option>
+                            <option value="Africa/Addis_Ababa">Africa/Addis_Ababa - Ethiopia</option>
+                          </optgroup>
+
+                          <optgroup label="Atlantic">
+                            <option value="Atlantic/Azores">Atlantic/Azores - Azores</option>
+                            <option value="Atlantic/Cape_Verde">Atlantic/Cape_Verde - Cape Verde</option>
+                          </optgroup>
+
+                          <optgroup label="Pacific">
+                            <option value="Pacific/Guam">Pacific/Guam - Guam</option>
+                            <option value="Pacific/Pago_Pago">Pacific/Pago_Pago - American Samoa</option>
+                            <option value="Pacific/Tahiti">Pacific/Tahiti - Tahiti</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={handleUpdateSettings}
+                          disabled={orgUpdateLoading}
+                          className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {orgUpdateLoading ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={handleCancelEditSettings}
+                          disabled={orgUpdateLoading}
+                          className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 mt-2">
+                      <div>
+                        <span className="text-gray-600 text-xs sm:text-sm">Currency:</span>
+                        <span className="ml-2 font-medium text-gray-900 text-sm sm:text-base">
+                          {organization.settings?.currency || 'USD'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600 text-xs sm:text-sm">Timezone:</span>
+                        <span className="ml-2 font-medium text-gray-900 text-sm sm:text-base">
+                          {organization.settings?.timezone || 'UTC'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="break-words">
