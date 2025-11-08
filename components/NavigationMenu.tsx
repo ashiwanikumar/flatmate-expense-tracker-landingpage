@@ -32,6 +32,10 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
       href: '/expenses',
     },
     {
+      label: 'Participation',
+      href: '/participation',
+    },
+    {
       label: 'Availability',
       href: '/user-availability',
     },
