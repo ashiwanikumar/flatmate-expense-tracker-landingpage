@@ -40,7 +40,11 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
       toast.success('Login successful!');
-      router.push('/expenses');
+
+      // Redirect to intended page or default to /expenses
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/expenses';
+      sessionStorage.removeItem('redirectAfterLogin');
+      router.push(redirectPath);
     } catch (error: any) {
       console.error('Login error:', error);
 
