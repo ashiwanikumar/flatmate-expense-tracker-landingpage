@@ -26,7 +26,6 @@ interface Expense {
   receipt?: {
     s3Key?: string;
     originalName: string;
-    cloudFrontUrl?: string;
     s3Url?: string;
     mimetype?: string;
     size?: number;
@@ -110,7 +109,7 @@ export default function EditExpensePage() {
       // Set existing receipt
       if (expenseData.receipt) {
         setExistingReceipt(expenseData.receipt);
-        const receiptUrl = expenseData.receipt.s3Url || expenseData.receipt.cloudFrontUrl || expenseData.receiptUrl;
+        const receiptUrl = expenseData.receipt.s3Url || expenseData.receiptUrl;
         if (receiptUrl) {
           setReceiptPreview(receiptUrl);
           setReceiptFileType(expenseData.receipt.mimetype?.startsWith('image/') ? 'image' : 'pdf');

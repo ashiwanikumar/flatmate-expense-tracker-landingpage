@@ -32,7 +32,6 @@ interface Expense {
   receipt?: {
     s3Key?: string;
     originalName: string;
-    cloudFrontUrl?: string;
     s3Url?: string;
     mimetype?: string;
     size?: number;
@@ -128,8 +127,8 @@ export default function ExpenseDetailPage() {
 
   const getReceiptImageUrl = () => {
     if (!expense?.receipt) return null;
-    // Priority: S3 URL -> CloudFront URL -> receiptUrl
-    return expense.receipt.s3Url || expense.receipt.cloudFrontUrl || expense.receiptUrl;
+    // Use S3 URL or fallback to receiptUrl
+    return expense.receipt.s3Url || expense.receiptUrl;
   };
 
   const handleDelete = async () => {
