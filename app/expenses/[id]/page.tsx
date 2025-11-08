@@ -211,15 +211,15 @@ export default function ExpenseDetailPage() {
           >
             ← Back to Expenses
           </button>
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{expense.description}</h1>
-              <p className="mt-2 text-sm text-gray-600">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 break-words">{expense.description}</h1>
+              <p className="mt-2 text-xs sm:text-sm text-gray-600">
                 Created by {expense.createdBy.name} on {formatDateTime(expense.createdAt)}
               </p>
             </div>
             {canModify && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-shrink-0">
                 <button
                   onClick={() => router.push(`/expenses/edit/${expense._id}`)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -433,7 +433,7 @@ export default function ExpenseDetailPage() {
                     Are you sure you want to delete this expense? This action cannot be undone.
                   </p>
                   <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                    <p className="text-sm font-medium text-gray-900">{expense.description}</p>
+                    <p className="text-sm font-medium text-gray-900 break-words">{expense.description}</p>
                     <p className="text-sm text-gray-600">AED {expense.amount.toFixed(2)}</p>
                   </div>
                   <div className="mb-4">

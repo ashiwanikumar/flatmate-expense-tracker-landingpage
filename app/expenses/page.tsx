@@ -300,18 +300,18 @@ export default function ExpensesPage() {
           </div>
         </div>
 
-        {/* Summary Cards - Optimized for mobile */}
+        {/* Summary Cards - Centered on mobile */}
         {monthlyBalances && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-blue-500">
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-blue-500 text-center sm:text-left">
               <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Expenses</p>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{formatCurrency(monthlyBalances.totalExpenses)}</p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-green-500">
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-green-500 text-center sm:text-left">
               <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Settled Amount</p>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">{formatCurrency(monthlyBalances.settledAmount)}</p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-orange-500">
+            <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 border-l-4 border-orange-500 text-center sm:text-left">
               <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Pending Amount</p>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600">{formatCurrency(monthlyBalances.pendingAmount)}</p>
             </div>
