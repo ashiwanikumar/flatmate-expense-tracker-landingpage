@@ -78,9 +78,12 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
     },
   ];
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (desktop only)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Only handle click outside for desktop (window width >= 1024px)
+      if (window.innerWidth < 1024) return;
+
       const clickedOutside = Object.values(dropdownRefs.current).every(
         (ref) => ref && !ref.contains(event.target as Node)
       );
@@ -92,6 +95,13 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Reset dropdown when mobile menu closes
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      setOpenDropdown(null);
+    }
+  }, [isMobileMenuOpen]);
 
   const toggleDropdown = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
@@ -310,7 +320,10 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
                           <Link
                             key={subItem.href}
                             href={subItem.href}
-                            onClick={onMobileMenuClose}
+                            onClick={() => {
+                              setOpenDropdown(null);
+                              onMobileMenuClose?.();
+                            }}
                             className={`block pl-12 pr-6 py-3 text-sm transition-all duration-200 ${
                               isActive(subItem.href)
                                 ? 'text-purple-600 font-semibold bg-purple-50'
