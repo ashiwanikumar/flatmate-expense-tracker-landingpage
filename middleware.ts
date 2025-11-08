@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 
 // Define public routes that don't require authentication
 const publicRoutes = [
+  '/', // Home page
   '/auth/login',
   '/auth/signup',
   '/auth/forgot-password',
@@ -11,9 +12,11 @@ const publicRoutes = [
   '/privacy-policy',
   '/terms-of-service',
   '/join', // Public join pages
+  '/invitations', // Invitations page (may have mixed access)
 ];
 
 // Define routes that should redirect to /expenses if already logged in
+// (users who are logged in should not access these auth pages)
 const authOnlyRoutes = ['/auth/login', '/auth/signup'];
 
 export function middleware(request: NextRequest) {
@@ -31,7 +34,12 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if the route is public
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+  const isPublicRoute = publicRoutes.some((route) => {
+    if (route === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(route);
+  });
 
   // Get token from cookies or check localStorage (client-side will handle localStorage)
   const token = request.cookies.get('token')?.value;
