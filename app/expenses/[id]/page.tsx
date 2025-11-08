@@ -58,6 +58,9 @@ export default function ExpenseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -129,6 +132,39 @@ export default function ExpenseDetailPage() {
     return expense.receipt.s3Url || expense.receipt.cloudFrontUrl || expense.receiptUrl;
   };
 
+  const handleDelete = async () => {
+    // Verify confirmation text
+    if (deleteConfirmText.toUpperCase() !== 'DELETE') {
+      alert('Please type DELETE to confirm');
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await expenseAPI.delete(expenseId);
+      // Redirect to expenses list after successful delete
+      router.push('/expenses');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete expense');
+      setDeleting(false);
+      setShowDeleteModal(false);
+      setDeleteConfirmText('');
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteConfirmText('');
+  };
+
+  // Check if current user can edit/delete
+  const canModify = currentUser && expense && (
+    currentUser.role === 'admin' ||
+    currentUser.role === 'super_admin' ||
+    expense.createdBy._id === currentUser._id ||
+    expense.createdBy._id === currentUser.id
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -183,14 +219,22 @@ export default function ExpenseDetailPage() {
                 Created by {expense.createdBy.name} on {formatDateTime(expense.createdAt)}
               </p>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => router.push(`/expenses/edit/${expense._id}`)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Edit
-              </button>
-            </div>
+            {canModify && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => router.push(`/expenses/edit/${expense._id}`)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -371,6 +415,66 @@ export default function ExpenseDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Delete Expense
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Are you sure you want to delete this expense? This action cannot be undone.
+                  </p>
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p className="text-sm font-medium text-gray-900">{expense.description}</p>
+                    <p className="text-sm text-gray-600">AED {expense.amount.toFixed(2)}</p>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Type <span className="font-bold text-red-600">DELETE</span> to confirm:
+                    </label>
+                    <input
+                      type="text"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="DELETE"
+                      disabled={deleting}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      autoFocus
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      For security, you must type "DELETE" (case-insensitive) to proceed
+                    </p>
+                  </div>
+                  <div className="flex gap-3 justify-end">
+                    <button
+                      onClick={handleCloseDeleteModal}
+                      disabled={deleting}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleting || deleteConfirmText.toUpperCase() !== 'DELETE'}
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deleting ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <Footer />
     </div>
