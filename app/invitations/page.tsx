@@ -86,16 +86,18 @@ export default function InvitationsPage() {
       // Extract members from organization response
       const organization = orgRes.data.data;
       if (organization && organization.members) {
-        // Map members to include all fields properly
-        const membersData = organization.members.map((m: any) => ({
-          _id: m.user._id,
-          name: m.user.name,
-          email: m.user.email,
-          mobile: m.user.mobile,
-          role: m.role,
-          joinedAt: m.joinedAt,
-          invitedBy: m.invitedBy
-        }));
+        // Map members to include all fields properly, filter out null users
+        const membersData = organization.members
+          .filter((m: any) => m.user !== null && m.user !== undefined)
+          .map((m: any) => ({
+            _id: m.user._id,
+            name: m.user.name,
+            email: m.user.email,
+            mobile: m.user.mobile,
+            role: m.role,
+            joinedAt: m.joinedAt,
+            invitedBy: m.invitedBy
+          }));
         setMembers(membersData);
 
         // Find current user's role from members

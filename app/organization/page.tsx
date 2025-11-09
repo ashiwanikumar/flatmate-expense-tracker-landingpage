@@ -157,7 +157,7 @@ export default function OrganizationPage() {
 
   const getUserRole = () => {
     if (!organization || !currentUser) return null;
-    const member = organization.members.find((m) => m.user._id === currentUser.id);
+    const member = organization.members.find((m) => m.user && m.user._id === currentUser.id);
     return member?.role || null;
   };
 
@@ -261,7 +261,7 @@ export default function OrganizationPage() {
             <h2 className="text-xl font-bold text-gray-900">Members</h2>
           </div>
           <div className="divide-y divide-gray-200">
-            {organization.members.map((member) => (
+            {organization.members.filter((m) => m.user !== null && m.user !== undefined).map((member) => (
               <div key={member.user._id} className="px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">

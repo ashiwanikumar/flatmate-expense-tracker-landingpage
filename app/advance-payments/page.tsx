@@ -80,9 +80,9 @@ export default function AdvancePaymentsPage() {
         const org = orgRes.data.data;
         setMembers(org.members || []);
 
-        // Find user's role
+        // Find user's role (filter out null users)
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-        const userMember = org.members?.find((m: Member) => m.user._id === storedUser.id);
+        const userMember = org.members?.find((m: Member) => m.user && m.user._id === storedUser.id);
         setUserRole(userMember?.role || '');
       }
     } catch (error: any) {
@@ -262,7 +262,7 @@ export default function AdvancePaymentsPage() {
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="all">All Members</option>
-                {members.map((member) => (
+                {members.filter((m) => m.user !== null && m.user !== undefined).map((member) => (
                   <option key={member.user._id} value={member.user._id}>
                     {member.user.name}
                   </option>
@@ -436,7 +436,7 @@ export default function AdvancePaymentsPage() {
                       className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
                       required
                     >
-                      {members.map((member) => (
+                      {members.filter((m) => m.user !== null && m.user !== undefined).map((member) => (
                         <option key={member.user._id} value={member.user._id}>
                           {member.user.name}
                         </option>

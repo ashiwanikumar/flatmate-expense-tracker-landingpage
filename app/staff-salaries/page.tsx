@@ -115,9 +115,9 @@ export default function StaffSalariesPage() {
       const response = await organizationAPI.getMyOrganization();
       const organization = response.data.data;
 
-      // Find current user in members array
+      // Find current user in members array (filter out null users)
       const currentMember = organization.members.find(
-        (m: any) => m.user._id === storedUser._id || m.user.email === storedUser.email
+        (m: any) => m.user && (m.user._id === storedUser._id || m.user.email === storedUser.email)
       );
 
       if (currentMember) {

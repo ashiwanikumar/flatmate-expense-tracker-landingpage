@@ -45,7 +45,8 @@ export default function LoginPage() {
         const currentUserId = response.data.user._id;
 
         // Find current user in organization members to get their role
-        const memberData = organization.members.find((m: any) => m.user._id === currentUserId);
+        // Filter out null users (deleted users) before searching
+        const memberData = organization.members.find((m: any) => m.user && m.user._id === currentUserId);
         const organizationRole = memberData?.role || 'member';
 
         // Add organizationRole to user object
@@ -85,22 +86,21 @@ export default function LoginPage() {
       let message = errorMessage;
 
       // Check for specific error types
-      if (errorMessage.toLowerCase().includes('user not found') ||
-          errorMessage.toLowerCase().includes('invalid credentials')) {
-        // Check if it's specifically a "user not found" scenario
-        if (error.response?.status === 401) {
-          // We can't differentiate between wrong password and user not found from backend
-          // as it returns "Invalid credentials" for both for security reasons
-          // But we can check the logged message pattern
-          title = 'Authentication Error';
-          message = 'Invalid email or password. Please check your credentials and try again.';
-        }
+      if (errorMessage.toLowerCase().includes('user not found')) {
+        title = 'User Not Found';
+        message = 'No account exists with this email address. Please check your email or sign up for a new account.';
+      } else if (errorMessage.toLowerCase().includes('invalid credentials')) {
+        title = 'Invalid Credentials';
+        message = 'Invalid email or password. Please check your credentials and try again.';
       } else if (errorMessage.toLowerCase().includes('account') &&
                  errorMessage.toLowerCase().includes('deactivated')) {
         title = 'Account Deactivated';
         message = errorMessage;
       } else if (errorMessage.toLowerCase().includes('blocked')) {
         title = 'Account Blocked';
+        message = errorMessage;
+      } else if (errorMessage.toLowerCase().includes('not verified')) {
+        title = 'Email Not Verified';
         message = errorMessage;
       }
 

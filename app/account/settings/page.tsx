@@ -128,9 +128,9 @@ export default function AccountSettings() {
       const response = await organizationAPI.getMyOrganization();
       setOrganization(response.data.data);
 
-      // Get current user's role
+      // Get current user's role (filter out null users)
       const currentUser = response.data.data.members.find(
-        (m: any) => m.user._id === response.data.data.owner._id || m.user.email === user?.email
+        (m: any) => m.user && (m.user._id === response.data.data.owner._id || m.user.email === user?.email)
       );
       if (currentUser) {
         setUserRole(currentUser.role);
