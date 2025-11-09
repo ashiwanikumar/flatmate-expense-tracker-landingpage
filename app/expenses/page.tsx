@@ -91,9 +91,15 @@ export default function ExpensesPage() {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const userData = JSON.parse(storedUser);
+      setUser(userData);
+
+      // Redirect cook users to menus page
+      if (userData.organizationRole === 'cook') {
+        router.push('/menus');
+      }
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (user) {
@@ -104,13 +110,21 @@ export default function ExpensesPage() {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      await Promise.all([
-        fetchMonthlyBalances(),
-        fetchSettlements(),
-        fetchMyBalance(),
-        fetchAvailabilityStatus(),
-        fetchExpenses()
-      ]);
+
+      // Skip balance API calls for cook users (they don't have access)
+      if (user?.organizationRole === 'cook') {
+        await Promise.all([
+          fetchExpenses()
+        ]);
+      } else {
+        await Promise.all([
+          fetchMonthlyBalances(),
+          fetchSettlements(),
+          fetchMyBalance(),
+          fetchAvailabilityStatus(),
+          fetchExpenses()
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load dashboard data');
