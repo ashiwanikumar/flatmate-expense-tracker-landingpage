@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { authAPI } from '@/lib/api';
 
 interface HeaderProps {
   user: any;
@@ -32,11 +33,27 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
     };
   }, [isDropdownOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call backend logout to clear cookies
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Continue with logout even if API call fails
+    }
+
+    // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+
+    // Clear cookies on client side as well (backup)
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = 'user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
     toast.success('Logged out successfully');
-    router.push('/');
+
+    // Force a full page reload to ensure all state is cleared
+    window.location.href = '/';
   };
 
   return (

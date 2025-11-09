@@ -60,6 +60,8 @@ export default function InvitationsPage() {
   const [resendModal, setResendModal] = useState<{ show: boolean; invitationId: string | null }>({ show: false, invitationId: null });
   const [resending, setResending] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [removeMemberModal, setRemoveMemberModal] = useState<{ show: boolean; memberId: string | null; memberName: string }>({ show: false, memberId: null, memberName: '' });
+  const [removingMember, setRemovingMember] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -194,6 +196,23 @@ export default function InvitationsPage() {
       toast.error(err.response?.data?.message || 'Failed to resend invitation');
     } finally {
       setResending(false);
+    }
+  };
+
+  const handleRemoveMember = async () => {
+    if (!removeMemberModal.memberId) return;
+
+    try {
+      setRemovingMember(true);
+      setRemoveMemberModal({ show: false, memberId: null, memberName: '' });
+      await organizationAPI.removeMember(removeMemberModal.memberId);
+      toast.success('Member removed successfully!');
+      fetchData();
+    } catch (err: any) {
+      console.error('Failed to remove member:', err);
+      toast.error(err.response?.data?.message || 'Failed to remove member');
+    } finally {
+      setRemovingMember(false);
     }
   };
 
@@ -395,71 +414,110 @@ export default function InvitationsPage() {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Joined Date
                           </th>
+                          {(userRole === 'owner' || userRole === 'admin') && (
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Actions
+                            </th>
+                          )}
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {members.map((member) => (
-                          <tr key={member._id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
-                                  <span className="text-purple-600 font-semibold">
-                                    {member.name.charAt(0).toUpperCase()}
-                                  </span>
+                        {members.map((member) => {
+                          const isCurrentUser = user && (member._id === user._id || member._id === user.id);
+                          const canRemove = (userRole === 'owner' || userRole === 'admin') && member.role !== 'owner' && !isCurrentUser;
+
+                          return (
+                            <tr key={member._id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <span className="text-purple-600 font-semibold">
+                                      {member.name.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-medium text-gray-900">{member.name}</div>
+                                  </div>
                                 </div>
-                                <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">{member.name}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {member.email}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getRoleBadgeColor(member.role)}`}>
-                                {member.role}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                              {member.invitedBy ? member.invitedBy.name : <span className="text-gray-400 italic">Founder</span>}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {formatDate(member.joinedAt)}
-                            </td>
-                          </tr>
-                        ))}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {member.email}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getRoleBadgeColor(member.role)}`}>
+                                  {member.role}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                {member.invitedBy ? member.invitedBy.name : <span className="text-gray-400 italic">Founder</span>}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {formatDate(member.joinedAt)}
+                              </td>
+                              {(userRole === 'owner' || userRole === 'admin') && (
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                  {canRemove ? (
+                                    <button
+                                      onClick={() => setRemoveMemberModal({ show: true, memberId: member._id, memberName: member.name })}
+                                      className="text-red-600 hover:text-red-900"
+                                    >
+                                      Remove
+                                    </button>
+                                  ) : (
+                                    <span className="text-gray-400">-</span>
+                                  )}
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
 
                   {/* Mobile Card View */}
                   <div className="md:hidden divide-y divide-gray-200">
-                    {members.map((member) => (
-                      <div key={member._id} className="p-4 hover:bg-gray-50">
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
-                            <span className="text-purple-600 font-semibold text-lg">
-                              {member.name.charAt(0).toUpperCase()}
+                    {members.map((member) => {
+                      const isCurrentUser = user && (member._id === user._id || member._id === user.id);
+                      const canRemove = (userRole === 'owner' || userRole === 'admin') && member.role !== 'owner' && !isCurrentUser;
+
+                      return (
+                        <div key={member._id} className="p-4 hover:bg-gray-50">
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                              <span className="text-purple-600 font-semibold text-lg">
+                                {member.name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">{member.name}</p>
+                              <p className="text-xs text-gray-600 truncate">{member.email}</p>
+                            </div>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getRoleBadgeColor(member.role)}`}>
+                              {member.role}
                             </span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">{member.name}</p>
-                            <p className="text-xs text-gray-600 truncate">{member.email}</p>
+                          <div className="space-y-1 text-xs">
+                            <p className="text-gray-600">
+                              <span className="font-medium">Invited By:</span> {member.invitedBy ? member.invitedBy.name : <span className="italic">Founder</span>}
+                            </p>
+                            <p className="text-gray-600">
+                              <span className="font-medium">Joined:</span> {formatDate(member.joinedAt)}
+                            </p>
                           </div>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getRoleBadgeColor(member.role)}`}>
-                            {member.role}
-                          </span>
+                          {canRemove && (
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <button
+                                onClick={() => setRemoveMemberModal({ show: true, memberId: member._id, memberName: member.name })}
+                                className="w-full px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                              >
+                                Remove Member
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <div className="space-y-1 text-xs">
-                          <p className="text-gray-600">
-                            <span className="font-medium">Invited By:</span> {member.invitedBy ? member.invitedBy.name : <span className="italic">Founder</span>}
-                          </p>
-                          <p className="text-gray-600">
-                            <span className="font-medium">Joined:</span> {formatDate(member.joinedAt)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               )}
@@ -615,6 +673,12 @@ export default function InvitationsPage() {
         subtitle="Please wait while we cancel the invitation..."
       />
 
+      <LoadingModal
+        isOpen={removingMember}
+        title="Removing Member"
+        subtitle="Please wait while we remove the member..."
+      />
+
       {/* Cancel Confirmation Modal */}
       {cancelModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -659,6 +723,34 @@ export default function InvitationsPage() {
                 className="px-6 py-3 bg-blue-400 text-white rounded-full hover:bg-blue-500 transition-colors font-medium"
               >
                 OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Member Confirmation Modal */}
+      {removeMemberModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Remove {removeMemberModal.memberName}?
+            </h3>
+            <p className="text-gray-300 mb-6">
+              This member will be removed from your organization and will lose access to all shared data. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setRemoveMemberModal({ show: false, memberId: null, memberName: '' })}
+                className="px-6 py-3 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemoveMember}
+                className="px-6 py-3 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors font-medium"
+              >
+                Remove
               </button>
             </div>
           </div>

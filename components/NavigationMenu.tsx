@@ -33,8 +33,13 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const user = JSON.parse(storedUser);
-      // Use organizationRole if available, otherwise default to 'member'
-      setUserRole(user.organizationRole || 'member');
+      // Check if user has special role (cook) in User model, otherwise use organizationRole
+      if (user.role === 'cook') {
+        setUserRole('cook');
+      } else {
+        // Use organizationRole if available, otherwise default to 'member'
+        setUserRole(user.organizationRole || 'member');
+      }
     }
   }, []);
 
@@ -72,22 +77,22 @@ export default function NavigationMenu({ currentPath, isMobileMenuOpen, onMobile
     {
       label: 'Invitations',
       href: '/invitations',
-      roles: ['owner', 'admin', 'member'], // Members can see invitations
+      roles: ['owner', 'admin', 'member'], // All regular users can see invitations
     },
     {
       label: 'Advance Payments',
       href: '/advance-payments',
-      roles: ['owner', 'admin', 'member'], // Members can see advance payments
+      roles: ['owner', 'admin', 'member'], // All regular users can see advance payments
     },
     {
       label: 'Staff Salaries',
       href: '/staff-salaries',
-      roles: ['owner', 'admin', 'member'], // Members can see staff salaries
+      roles: ['owner', 'admin', 'member'], // All regular users can see staff salaries
     },
     {
       label: 'Activity Logs',
       href: '/activity-logs',
-      roles: ['owner', 'admin', 'cook'], // Cook can see activity logs
+      roles: ['owner', 'admin', 'member', 'cook'], // All users including cook can see activity logs
     },
   ];
 
