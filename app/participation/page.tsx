@@ -109,7 +109,7 @@ export default function ParticipationPage() {
     }
   };
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
+  const isAdmin = currentUser?.organizationRole === 'admin' || currentUser?.organizationRole === 'super_admin';
   const canManageAll = isAdmin || isOwner;
 
   if (loading) {
