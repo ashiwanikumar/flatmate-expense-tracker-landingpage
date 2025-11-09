@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.7",
     "axios": "^1.6.0",
     "chart.js": "^4.4.0",
     "date-fns": "^4.1.0",
