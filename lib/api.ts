@@ -272,4 +272,20 @@ export const notificationAPI = {
   delete: (id: string) => api.delete(`/notifications/${id}`),
 };
 
+// PDF API
+export const pdfAPI = {
+  downloadMyBalanceReceipt: (year: number, month: number) =>
+    api.get(`/pdf/receipt/my-balance/${year}/${month}`, {
+      responseType: 'blob'
+    }),
+  downloadAllMembersReceipt: (year: number, month: number) =>
+    api.get(`/pdf/receipt/all-members/${year}/${month}`, {
+      responseType: 'blob'
+    }),
+  downloadUserReceipt: (userId: string, year: number, month: number) =>
+    api.get(`/pdf/receipt/user/${userId}/${year}/${month}`, {
+      responseType: 'blob'
+    }),
+};
+
 export default api;

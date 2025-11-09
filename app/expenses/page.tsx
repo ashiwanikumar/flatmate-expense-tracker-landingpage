@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { expenseAPI, balanceAPI, userAvailabilityAPI } from '@/lib/api';
+import { expenseAPI, balanceAPI, userAvailabilityAPI, pdfAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import LayoutWrapper from '@/components/LayoutWrapper';
 import { toast } from 'react-hot-toast';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { downloadPdfBlob, generateUserReceiptFilename, generateAllMembersReceiptFilename } from '@/lib/pdfUtils';
 
 interface User {
   _id: string;
@@ -87,6 +88,7 @@ export default function ExpensesPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [availabilityStatus, setAvailabilityStatus] = useState<any[]>([]);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -254,6 +256,37 @@ export default function ExpensesPage() {
     }
   };
 
+  // PDF Download handlers
+  const handleDownloadMyReceipt = async () => {
+    try {
+      setDownloadingPdf(true);
+      const response = await pdfAPI.downloadMyBalanceReceipt(currentYear, currentMonth);
+      const filename = generateUserReceiptFilename(user?.name || 'User', currentMonth, currentYear);
+      downloadPdfBlob(response.data, filename);
+      toast.success('Receipt downloaded successfully!');
+    } catch (error: any) {
+      console.error('Error downloading receipt:', error);
+      toast.error(error.response?.data?.message || 'Failed to download receipt');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
+  const handleDownloadAllMembersReceipt = async () => {
+    try {
+      setDownloadingPdf(true);
+      const response = await pdfAPI.downloadAllMembersReceipt(currentYear, currentMonth);
+      const filename = generateAllMembersReceiptFilename(currentMonth, currentYear);
+      downloadPdfBlob(response.data, filename);
+      toast.success('All members receipt downloaded successfully!');
+    } catch (error: any) {
+      console.error('Error downloading all members receipt:', error);
+      toast.error(error.response?.data?.message || 'Failed to download receipt');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
   const categoryData = getCategoryData();
   const userData = getUserData();
 
@@ -278,12 +311,35 @@ export default function ExpensesPage() {
         <div className="mb-4 sm:mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Expense Dashboard</h1>
-            <button
-              onClick={() => router.push('/expenses/add')}
-              className="w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all whitespace-nowrap"
-            >
-              + Add Expense
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              {(user?.organizationRole === 'admin' || user?.organizationRole === 'super_admin') && (
+                <button
+                  onClick={handleDownloadAllMembersReceipt}
+                  disabled={downloadingPdf}
+                  className="w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 text-sm sm:text-base bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {downloadingPdf ? (
+                    <>
+                      <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></div>
+                      <span>Downloading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Download All Members Receipt</span>
+                    </>
+                  )}
+                </button>
+              )}
+              <button
+                onClick={() => router.push('/expenses/add')}
+                className="w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all whitespace-nowrap"
+              >
+                + Add Expense
+              </button>
+            </div>
           </div>
 
           {/* Month Selector - Improved mobile */}
@@ -738,7 +794,28 @@ export default function ExpensesPage() {
             {/* My Balance Tab */}
             {activeTab === 'mybalance' && myBalance && (
               <div>
-                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Your Balance for {getMonthName(currentMonth)}</h3>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6">
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Your Balance for {getMonthName(currentMonth)}</h3>
+                  <button
+                    onClick={handleDownloadMyReceipt}
+                    disabled={downloadingPdf}
+                    className="w-full sm:w-auto px-4 py-2.5 text-sm bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {downloadingPdf ? (
+                      <>
+                        <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></div>
+                        <span>Downloading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Download My Receipt</span>
+                      </>
+                    )}
+                  </button>
+                </div>
 
                 {/* Availability Card */}
                 <div className="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
