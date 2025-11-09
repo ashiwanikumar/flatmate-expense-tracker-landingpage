@@ -89,6 +89,7 @@ export default function ExpensesPage() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [availabilityStatus, setAvailabilityStatus] = useState<any[]>([]);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -504,8 +505,43 @@ export default function ExpensesPage() {
             {/* Overview Tab */}
             {activeTab === 'overview' && monthlyBalances && (
               <div>
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6">Member Balances</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3 sm:mb-4 md:mb-6">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Member Balances</h3>
+
+                  {/* View Toggle */}
+                  <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode('card')}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+                        viewMode === 'card'
+                          ? 'bg-white text-purple-600 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                      </svg>
+                      <span className="hidden sm:inline">Card View</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+                        viewMode === 'list'
+                          ? 'bg-white text-purple-600 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                      </svg>
+                      <span className="hidden sm:inline">List View</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Card View */}
+                {viewMode === 'card' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {monthlyBalances.balances.map((balance) => (
                     <div
                       key={balance.user._id}
@@ -566,6 +602,196 @@ export default function ExpensesPage() {
                     </div>
                   ))}
                 </div>
+                )}
+
+                {/* List View */}
+                {viewMode === 'list' && (
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Member
+                            </th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Availability
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Paid
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Owes
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Advance
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Staff Salary
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Net Balance
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {monthlyBalances.balances.map((balance) => (
+                            <tr key={balance.user._id} className={`hover:bg-gray-50 transition-colors ${
+                              balance.netBalance >= 0 ? 'bg-green-50/30' : 'bg-red-50/30'
+                            }`}>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                    balance.netBalance >= 0 ? 'bg-green-100' : 'bg-red-100'
+                                  }`}>
+                                    <span className={`text-sm font-bold ${
+                                      balance.netBalance >= 0 ? 'text-green-700' : 'text-red-700'
+                                    }`}>
+                                      {balance.user.name.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-bold text-gray-900">{balance.user.name}</div>
+                                    <div className="text-xs text-gray-600">{balance.user.email}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <div className="flex flex-col items-center">
+                                  <span className="text-sm font-semibold text-gray-900">
+                                    {balance.availability.availableDays}/{balance.availability.totalDays}
+                                  </span>
+                                  {balance.availability.unavailableDays > 0 && (
+                                    <span className="mt-1 px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">
+                                      {balance.availability.unavailableDays} away
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
+                                {formatCurrency(balance.totalPaid)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
+                                {formatCurrency(balance.totalOwed)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-blue-600">
+                                +{formatCurrency(balance.totalAdvancePayments || 0)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-orange-600">
+                                -{formatCurrency(balance.totalStaffSalaryShare || 0)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right">
+                                <span className={`text-base font-bold ${
+                                  balance.netBalance >= 0 ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                  {balance.netBalance >= 0 ? '+' : ''}{formatCurrency(balance.netBalance)}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right">
+                                {balance.netBalance >= 0 ? (
+                                  <span className="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    To Receive: {formatCurrency(balance.summary.toReceive)}
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    To Pay: {formatCurrency(balance.summary.toPay)}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile List View */}
+                    <div className="md:hidden divide-y divide-gray-200">
+                      {monthlyBalances.balances.map((balance) => (
+                        <div key={balance.user._id} className={`p-4 ${
+                          balance.netBalance >= 0 ? 'bg-green-50/50' : 'bg-red-50/50'
+                        }`}>
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                balance.netBalance >= 0 ? 'bg-green-100' : 'bg-red-100'
+                              }`}>
+                                <span className={`text-base font-bold ${
+                                  balance.netBalance >= 0 ? 'text-green-700' : 'text-red-700'
+                                }`}>
+                                  {balance.user.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-sm font-bold text-gray-900 truncate">{balance.user.name}</h4>
+                                <p className="text-xs text-gray-600 truncate">{balance.user.email}</p>
+                                {balance.availability.unavailableDays > 0 && (
+                                  <span className="mt-1 inline-block px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">
+                                    {balance.availability.availableDays}/{balance.availability.totalDays} days
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-white rounded-lg p-3 space-y-2">
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">Paid:</span>
+                              <span className="font-semibold text-gray-900">{formatCurrency(balance.totalPaid)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">Owes:</span>
+                              <span className="font-semibold text-gray-900">{formatCurrency(balance.totalOwed)}</span>
+                            </div>
+                            {(balance.totalAdvancePayments > 0 || balance.totalStaffSalaryShare > 0) && (
+                              <>
+                                {balance.totalAdvancePayments > 0 && (
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-600">Advance:</span>
+                                    <span className="font-semibold text-blue-600">+{formatCurrency(balance.totalAdvancePayments)}</span>
+                                  </div>
+                                )}
+                                {balance.totalStaffSalaryShare > 0 && (
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-600">Staff Salary:</span>
+                                    <span className="font-semibold text-orange-600">-{formatCurrency(balance.totalStaffSalaryShare)}</span>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                            <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
+                              <span className="text-sm font-bold text-gray-900">Net Balance:</span>
+                              <span className={`text-lg font-bold ${
+                                balance.netBalance >= 0 ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {balance.netBalance >= 0 ? '+' : ''}{formatCurrency(balance.netBalance)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-3">
+                            {balance.netBalance >= 0 ? (
+                              <div className="px-3 py-2 rounded-lg bg-green-100 text-center">
+                                <span className="text-xs font-medium text-green-800">
+                                  To Receive: {formatCurrency(balance.summary.toReceive)}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="px-3 py-2 rounded-lg bg-red-100 text-center">
+                                <span className="text-xs font-medium text-red-800">
+                                  To Pay: {formatCurrency(balance.summary.toPay)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Expense List */}
                 <div className="mt-5 sm:mt-6 md:mt-8">
