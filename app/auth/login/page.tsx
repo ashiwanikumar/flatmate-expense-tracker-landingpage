@@ -63,8 +63,18 @@ export default function LoginPage() {
 
       toast.success('Login successful!');
 
-      // Redirect to intended page or default to /expenses
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/expenses';
+      // Check if there's a stored redirect path
+      let redirectPath = sessionStorage.getItem('redirectAfterLogin');
+
+      // If no stored redirect, determine default based on role
+      if (!redirectPath) {
+        const userWithOrgRole = JSON.parse(localStorage.getItem('user') || '{}');
+        const organizationRole = userWithOrgRole.organizationRole;
+
+        // Cook users default to /menus, all others to /expenses
+        redirectPath = organizationRole === 'cook' ? '/menus' : '/expenses';
+      }
+
       sessionStorage.removeItem('redirectAfterLogin');
       router.push(redirectPath);
     } catch (error: any) {
