@@ -74,13 +74,13 @@ export default function ActivityLogsPage() {
     const colors: any = {
       'login': 'bg-green-100 text-green-800',
       'logout': 'bg-gray-100 text-gray-800',
-      'campaign_created': 'bg-blue-100 text-blue-800',
-      'campaign_cancelled': 'bg-red-100 text-red-800',
-      'campaign_paused': 'bg-yellow-100 text-yellow-800',
-      'campaign_resumed': 'bg-green-100 text-green-800',
-      'campaign_rescheduled': 'bg-purple-100 text-purple-800',
-      'csv_uploaded': 'bg-indigo-100 text-indigo-800',
-      'company_account_created': 'bg-teal-100 text-teal-800',
+      'expense_added': 'bg-blue-100 text-blue-800',
+      'expense_deleted': 'bg-red-100 text-red-800',
+      'expense_updated': 'bg-yellow-100 text-yellow-800',
+      'payment_made': 'bg-green-100 text-green-800',
+      'expense_rescheduled': 'bg-purple-100 text-purple-800',
+      'data_imported': 'bg-indigo-100 text-indigo-800',
+      'organization_created': 'bg-teal-100 text-teal-800',
     };
     return colors[action] || 'bg-gray-100 text-gray-800';
   };
@@ -89,13 +89,13 @@ export default function ActivityLogsPage() {
     const icons: any = {
       'login': '🔓',
       'logout': '🔒',
-      'campaign_created': '🚀',
-      'campaign_cancelled': '❌',
-      'campaign_paused': '⏸️',
-      'campaign_resumed': '▶️',
-      'campaign_rescheduled': '📅',
-      'csv_uploaded': '📄',
-      'company_account_created': '🏢',
+      'expense_added': '💰',
+      'expense_deleted': '❌',
+      'expense_updated': '✏️',
+      'payment_made': '💸',
+      'expense_rescheduled': '📅',
+      'data_imported': '📄',
+      'organization_created': '🏢',
     };
     return icons[action] || '📋';
   };

@@ -9,7 +9,7 @@ export default function PrivacyPolicyPage() {
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition">
             <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Campaign Manager
+              Flatmate Expense Tracker
             </h1>
           </Link>
         </div>
@@ -25,9 +25,9 @@ export default function PrivacyPolicyPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Introduction</h2>
             <p className="text-gray-700 leading-relaxed">
-              Welcome to Campaign Manager. We are committed to protecting your personal information and your right to privacy.
+              Welcome to Flatmate Expense Tracker. We are committed to protecting your personal information and your right to privacy.
               This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our
-              email campaign management service.
+              shared expense management service.
             </p>
           </section>
 
@@ -38,9 +38,9 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
               <li>Account information (name, email address, password)</li>
-              <li>Company account details and API credentials</li>
-              <li>CSV files containing email lists for campaign management</li>
-              <li>Campaign configuration and scheduling data</li>
+              <li>Organization details and member information</li>
+              <li>Expense records, receipts, and payment data</li>
+              <li>Availability and participation information</li>
               <li>Usage data and analytics</li>
             </ul>
           </section>
@@ -52,7 +52,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
               <li>Provide, maintain, and improve our services</li>
-              <li>Process and manage your email campaigns</li>
+              <li>Process and manage expense tracking and settlements</li>
               <li>Send you technical notices and support messages</li>
               <li>Monitor and analyze usage patterns and trends</li>
               <li>Detect, prevent, and address technical issues</li>

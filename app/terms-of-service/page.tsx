@@ -9,7 +9,7 @@ export default function TermsOfServicePage() {
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition">
             <img src="/img/logo/netraga_logo.png" alt="Netraga Logo" className="h-12 w-12" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Campaign Manager
+              Flatmate Expense Tracker
             </h1>
           </Link>
         </div>
@@ -25,7 +25,7 @@ export default function TermsOfServicePage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
             <p className="text-gray-700 leading-relaxed">
-              By accessing and using Campaign Manager, you accept and agree to be bound by the terms and provision of this
+              By accessing and using Flatmate Expense Tracker, you accept and agree to be bound by the terms and provision of this
               agreement. If you do not agree to these Terms of Service, please do not use our service.
             </p>
           </section>
@@ -33,9 +33,9 @@ export default function TermsOfServicePage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Description of Service</h2>
             <p className="text-gray-700 leading-relaxed">
-              Campaign Manager is an email campaign management platform that allows users to upload email lists, schedule
-              campaigns, and track campaign performance. We provide tools for automating and managing email marketing
-              campaigns through integration with various email service providers.
+              Flatmate Expense Tracker is a shared expense management platform that allows flatmates to track expenses,
+              split bills, manage payments, and view balances. We provide tools for automating expense calculations,
+              managing availability, and tracking staff salaries for shared living spaces.
             </p>
           </section>
 
@@ -59,23 +59,23 @@ export default function TermsOfServicePage() {
               You agree NOT to use the service to:
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li>Send spam or unsolicited emails</li>
+              <li>Submit fraudulent or misleading expense information</li>
               <li>Violate any applicable laws or regulations</li>
               <li>Infringe on intellectual property rights</li>
               <li>Transmit malicious code or viruses</li>
-              <li>Harass, abuse, or harm others</li>
+              <li>Harass, abuse, or harm other flatmates</li>
               <li>Impersonate any person or entity</li>
-              <li>Collect user data without consent</li>
+              <li>Access other users' data without permission</li>
               <li>Interfere with the service's operation</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Email List Compliance</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Data Accuracy and Responsibility</h2>
             <p className="text-gray-700 leading-relaxed">
-              You must ensure that all email addresses in your uploaded lists have provided explicit consent to receive
-              communications from you. You are solely responsible for compliance with anti-spam laws including CAN-SPAM,
-              GDPR, and other applicable regulations.
+              You must ensure that all expense information you submit is accurate and truthful. You are solely responsible
+              for the accuracy of expense records, receipts, and payment information you provide. Misrepresentation of
+              expenses or financial data may result in account termination.
             </p>
           </section>
 
@@ -90,7 +90,7 @@ export default function TermsOfServicePage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. User Content</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              You retain all rights to your content (email lists, campaign data, etc.). By using our service, you grant us a
+              You retain all rights to your content (expense records, receipts, payment data, etc.). By using our service, you grant us a
               limited license to:
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
@@ -111,7 +111,7 @@ export default function TermsOfServicePage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Limitation of Liability</h2>
             <p className="text-gray-700 leading-relaxed">
-              To the maximum extent permitted by law, Campaign Manager and Netraga shall not be liable for any indirect,
+              To the maximum extent permitted by law, Flatmate Expense Tracker and Netraga shall not be liable for any indirect,
               incidental, special, consequential, or punitive damages, including loss of profits, data, or other intangible
               losses resulting from your use of the service.
             </p>
@@ -120,7 +120,7 @@ export default function TermsOfServicePage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Indemnification</h2>
             <p className="text-gray-700 leading-relaxed">
-              You agree to indemnify and hold harmless Campaign Manager and Netraga from any claims, damages, losses,
+              You agree to indemnify and hold harmless Flatmate Expense Tracker and Netraga from any claims, damages, losses,
               liabilities, and expenses arising from your use of the service or violation of these terms.
             </p>
           </section>

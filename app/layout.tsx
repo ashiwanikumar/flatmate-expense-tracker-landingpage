@@ -6,8 +6,8 @@ import { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Campaign Manager - Email Campaign Automation',
-  description: 'Automate your email campaigns with ease',
+  title: 'Flatmate Expense Tracker - Shared Expense Management',
+  description: 'Track and manage shared expenses with your flatmates effortlessly',
 };
 
 export default function RootLayout({
