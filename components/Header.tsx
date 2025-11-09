@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { authAPI } from '@/lib/api';
+import NotificationBell from './NotificationBell';
 
 interface HeaderProps {
   user: any;
@@ -94,6 +95,9 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* Notification Bell */}
+              <NotificationBell />
+
               {/* User Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button

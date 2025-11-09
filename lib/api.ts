@@ -262,4 +262,14 @@ export const participationAPI = {
   getParticipatingUsers: () => api.get('/users/participation/active'),
 };
 
+// Notification API
+export const notificationAPI = {
+  getAll: (params?: { isRead?: boolean; limit?: number; skip?: number; type?: string }) =>
+    api.get('/notifications', { params }),
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  markAsRead: (id: string) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/read-all'),
+  delete: (id: string) => api.delete(`/notifications/${id}`),
+};
+
 export default api;
