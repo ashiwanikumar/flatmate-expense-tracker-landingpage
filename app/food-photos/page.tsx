@@ -5,6 +5,7 @@ import { foodPhotoAPI, dinnerMenuAPI } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import FileViewer from '@/components/FileViewer';
 
 interface Photo {
   url: string;
@@ -54,6 +55,11 @@ export default function FoodPhotosPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
+
+  // File viewer state
+  const [showFileViewer, setShowFileViewer] = useState(false);
+  const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string>('');
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
@@ -304,6 +310,12 @@ export default function FoodPhotosPage() {
     // Otherwise, prepend API base URL (for old local files)
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     return apiUrl?.replace('/api/v1', '') + url;
+  };
+
+  const handleViewFile = (url: string, filename: string) => {
+    setSelectedFileUrl(getImageUrl(url));
+    setSelectedFileName(filename);
+    setShowFileViewer(true);
   };
 
   return (
@@ -560,12 +572,19 @@ export default function FoodPhotosPage() {
                 {/* Photos */}
                 <div className={`grid ${selectedPhoto.photos.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-2 mb-4`}>
                   {selectedPhoto.photos.map((photo, idx) => (
-                    <img
-                      key={idx}
-                      src={getImageUrl(photo.url)}
-                      alt={`Photo ${idx + 1}`}
-                      className="w-full rounded-lg"
-                    />
+                    <div key={idx} className="relative group">
+                      <img
+                        src={getImageUrl(photo.url)}
+                        alt={`Photo ${idx + 1}`}
+                        className="w-full rounded-lg cursor-pointer transition-opacity hover:opacity-90"
+                        onClick={() => handleViewFile(photo.url, photo.filename)}
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all rounded-lg flex items-center justify-center pointer-events-none">
+                        <div className="bg-white bg-opacity-0 group-hover:bg-opacity-90 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                          🔍 Click to enlarge
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
 
@@ -654,6 +673,20 @@ export default function FoodPhotosPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* File Viewer Modal */}
+        {selectedFileUrl && (
+          <FileViewer
+            fileUrl={selectedFileUrl}
+            fileName={selectedFileName}
+            isOpen={showFileViewer}
+            onClose={() => {
+              setShowFileViewer(false);
+              setSelectedFileUrl(null);
+              setSelectedFileName('');
+            }}
+          />
         )}
       </div>
     </LayoutWrapper>

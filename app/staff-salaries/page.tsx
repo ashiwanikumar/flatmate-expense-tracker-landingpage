@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { staffSalaryAPI, organizationAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import FileViewer from '@/components/FileViewer';
 
 interface User {
   _id: string;
@@ -1070,40 +1071,16 @@ export default function StaffSalariesPage() {
         )}
 
         {/* Receipt View Modal */}
-        {showReceiptModal && selectedSalary && selectedSalary.receipt && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-              <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-4 flex justify-between items-center">
-                <h3 className="text-xl font-bold">Receipt - {selectedSalary.staffName}</h3>
-                <button
-                  onClick={() => {
-                    setShowReceiptModal(false);
-                    setSelectedSalary(null);
-                  }}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex-1 overflow-auto p-6 bg-gray-50">
-                <img
-                  src={selectedSalary.receipt}
-                  alt="Receipt"
-                  className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<div class="text-center py-12"><p class="text-gray-500">Unable to load receipt image</p><a href="' + selectedSalary.receipt + '" target="_blank" class="text-purple-600 underline mt-2 inline-block">Open in new tab</a></div>';
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+        {selectedSalary && selectedSalary.receipt && (
+          <FileViewer
+            fileUrl={selectedSalary.receipt}
+            fileName={`Receipt-${selectedSalary.staffName}`}
+            isOpen={showReceiptModal}
+            onClose={() => {
+              setShowReceiptModal(false);
+              setSelectedSalary(null);
+            }}
+          />
         )}
       </div>
     </LayoutWrapper>

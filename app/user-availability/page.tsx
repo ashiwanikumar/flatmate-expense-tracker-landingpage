@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { userAvailabilityAPI } from '@/lib/api';
+import { userAvailabilityAPI, organizationAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import LayoutWrapper from '@/components/LayoutWrapper';
 import { toast } from 'react-hot-toast';
@@ -10,6 +10,12 @@ interface User {
   _id: string;
   name: string;
   email: string;
+}
+
+interface Member {
+  _id: string;
+  user: User;
+  role: string;
 }
 
 interface Availability {
@@ -39,6 +45,7 @@ export default function UserAvailabilityPage() {
   const [user, setUser] = useState<any>(null);
   const [availabilities, setAvailabilities] = useState<Availability[]>([]);
   const [currentStatus, setCurrentStatus] = useState<AvailabilityStatus[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -54,7 +61,6 @@ export default function UserAvailabilityPage() {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      setFormData(prev => ({ ...prev, userId: parsedUser._id }));
     }
   }, []);
 
@@ -69,7 +75,8 @@ export default function UserAvailabilityPage() {
       setLoading(true);
       await Promise.all([
         fetchAvailabilities(),
-        fetchCurrentStatus()
+        fetchCurrentStatus(),
+        fetchMembers()
       ]);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -96,8 +103,23 @@ export default function UserAvailabilityPage() {
     }
   };
 
+  const fetchMembers = async () => {
+    try {
+      const response = await organizationAPI.getMembers();
+      setMembers(response.data.data.members || []);
+    } catch (error: any) {
+      console.error('Error fetching members:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate userId
+    if (!formData.userId) {
+      toast.error('Please select a member');
+      return;
+    }
 
     // Validate dates
     const start = new Date(formData.startDate);
@@ -142,7 +164,7 @@ export default function UserAvailabilityPage() {
 
   const resetForm = () => {
     setFormData({
-      userId: user?._id || '',
+      userId: '',
       startDate: '',
       endDate: '',
       reason: ''
@@ -543,9 +565,41 @@ export default function UserAvailabilityPage() {
       {/* Add Absence Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 shadow-2xl">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Mark Absence Period</h2>
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              {/* Member Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Select Member <span className="text-red-500">*</span>
+                </label>
+                <p className="text-xs text-gray-600 mb-3">Choose who will be away</p>
+                <div className="border-2 border-gray-200 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                  {members.filter(member => member.user).map((member) => (
+                    <button
+                      key={member.user._id}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, userId: member.user._id })}
+                      className={`w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
+                        formData.userId === member.user._id
+                          ? 'bg-purple-50 border-l-4 border-l-purple-600'
+                          : ''
+                      }`}
+                    >
+                      <div>
+                        <div className="text-sm font-semibold text-gray-900">{member.user.name}</div>
+                        <div className="text-xs text-gray-600">{member.user.email}</div>
+                      </div>
+                      {formData.userId === member.user._id && (
+                        <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Start Date <span className="text-red-500">*</span>

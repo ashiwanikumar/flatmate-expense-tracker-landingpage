@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { advancePaymentAPI, organizationAPI } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import FileViewer from '@/components/FileViewer';
 
 interface AdvancePayment {
   _id: string;
@@ -42,6 +43,10 @@ export default function AdvancePaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // File viewer state
+  const [showFileViewer, setShowFileViewer] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<{ url: string; name: string } | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -165,6 +170,11 @@ export default function AdvancePaymentsPage() {
       console.error('Error deleting payment:', error);
       toast.error(error.response?.data?.message || 'Failed to delete payment');
     }
+  };
+
+  const handleViewFile = (url: string, name?: string) => {
+    setSelectedFile({ url, name: name || 'Receipt' });
+    setShowFileViewer(true);
   };
 
   const resetForm = () => {
@@ -337,14 +347,12 @@ export default function AdvancePaymentsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           {payment.receipt ? (
-                            <a
-                              href={payment.receipt}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-purple-600 hover:text-purple-900"
+                            <button
+                              onClick={() => handleViewFile(payment.receipt!, `Receipt-${payment.user.name}`)}
+                              className="text-purple-600 hover:text-purple-900 font-medium"
                             >
                               View
-                            </a>
+                            </button>
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
@@ -391,14 +399,12 @@ export default function AdvancePaymentsPage() {
                     )}
                     <div className="flex gap-2">
                       {payment.receipt && (
-                        <a
-                          href={payment.receipt}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => handleViewFile(payment.receipt!, `Receipt-${payment.user.name}`)}
                           className="flex-1 px-3 py-2 text-xs font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-center"
                         >
                           View Receipt
-                        </a>
+                        </button>
                       )}
                       {(payment.user._id === user?.id || canAddForOthers) && (
                         <button
@@ -524,6 +530,19 @@ export default function AdvancePaymentsPage() {
               </form>
             </div>
           </div>
+        )}
+
+        {/* File Viewer Modal */}
+        {selectedFile && (
+          <FileViewer
+            fileUrl={selectedFile.url}
+            fileName={selectedFile.name}
+            isOpen={showFileViewer}
+            onClose={() => {
+              setShowFileViewer(false);
+              setSelectedFile(null);
+            }}
+          />
         )}
       </div>
     </LayoutWrapper>
