@@ -27,6 +27,7 @@ interface Availability {
   status: string;
   durationDays: number;
   createdAt: string;
+  updatedAt?: string;
 }
 
 interface AvailabilityStatus {
@@ -98,9 +99,9 @@ export default function UserAvailabilityPage() {
       
       // Update user's organizationRole in localStorage if not set
       if (user && !user.organizationRole && orgData.members) {
-        const userId = user._id || user.id;
+        const userId = (user as any)._id || (user as any).id || '';
         const userMember = orgData.members.find((m: any) => {
-          const memberUserId = m.user?._id || m.user?.id || '';
+          const memberUserId = m.user?._id || '';
           return String(memberUserId) === String(userId);
         });
         
@@ -308,7 +309,7 @@ export default function UserAvailabilityPage() {
   const isAdminOrOwner = () => {
     if (!user) return false;
     
-    const userId = String(user._id || user.id || '');
+    const userId = String((user as any)._id || (user as any).id || '');
     if (!userId) return false;
     
     // Check organizationRole from user object first (faster)
@@ -331,7 +332,7 @@ export default function UserAvailabilityPage() {
     // Check role from members state (most reliable)
     if (members && members.length > 0) {
       const userMember = members.find((m: Member) => {
-        const memberUserId = String(m.user?._id || m.user?.id || '');
+        const memberUserId = String(m.user?._id || '');
         return memberUserId === userId;
       });
       if (userMember && (userMember.role === 'admin' || userMember.role === 'owner')) {
@@ -343,7 +344,7 @@ export default function UserAvailabilityPage() {
     if (organization && organization.members && Array.isArray(organization.members)) {
       const userMember = organization.members.find((m: any) => {
         const memberUserId = String(
-          m.user?._id || m.user?.id || (typeof m.user === 'string' ? m.user : '') || ''
+          m.user?._id || (typeof m.user === 'string' ? m.user : '') || ''
         );
         return memberUserId === userId;
       });
@@ -905,7 +906,7 @@ export default function UserAvailabilityPage() {
                               setFormData({ ...formData, userId: member.user._id });
                             }
                           }}
-                          disabled={editingAvailability}
+                          disabled={!!editingAvailability}
                           className={`w-full flex items-center justify-between p-3 text-left transition-colors border-b border-gray-100 last:border-b-0 ${
                             editingAvailability
                               ? 'bg-gray-50 cursor-not-allowed'
