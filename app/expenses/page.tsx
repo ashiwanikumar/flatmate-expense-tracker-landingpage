@@ -208,24 +208,33 @@ export default function ExpensesPage() {
       const expensesData = response.data.data;
       
       // Handle both paginated and non-paginated responses
+      let expensesArray: any[] = [];
       if (expensesData.expenses) {
-        setExpenses(expensesData.expenses || []);
+        expensesArray = expensesData.expenses || [];
+        setExpenses(expensesArray);
       } else if (Array.isArray(expensesData)) {
-        setExpenses(expensesData);
+        expensesArray = expensesData;
+        setExpenses(expensesArray);
       }
       
       // Set pagination metadata if available
       if (expensesData.pagination) {
-        setExpensesTotal(expensesData.pagination.total || expensesData.expenses?.length || 0);
-        setExpensesTotalPages(expensesData.pagination.totalPages || Math.ceil((expensesData.expenses?.length || 0) / expensesPageSize));
+        // API returns pagination metadata
+        setExpensesTotal(expensesData.pagination.total || expensesArray.length);
+        setExpensesTotalPages(expensesData.pagination.pages || expensesData.pagination.totalPages || Math.ceil((expensesData.pagination.total || expensesArray.length) / expensesPageSize));
       } else if (expensesData.total !== undefined) {
+        // API returns total count directly
         setExpensesTotal(expensesData.total);
         setExpensesTotalPages(Math.ceil(expensesData.total / expensesPageSize));
       } else {
         // Fallback: calculate from current expenses array
-        const expensesArray = expensesData.expenses || expensesData;
-        setExpensesTotal(expensesArray.length);
-        setExpensesTotalPages(Math.ceil(expensesArray.length / expensesPageSize));
+        // If API doesn't support pagination, we'll show all expenses
+        const totalFromArray = expensesArray.length;
+        setExpensesTotal(totalFromArray);
+        // Calculate pages based on array length
+        // Always set to at least 1 page if there are expenses
+        const calculatedPages = totalFromArray > 0 ? Math.max(1, Math.ceil(totalFromArray / expensesPageSize)) : 0;
+        setExpensesTotalPages(calculatedPages);
       }
     } catch (error: any) {
       console.error('Error fetching expenses:', error);
@@ -996,67 +1005,77 @@ export default function ExpensesPage() {
                   )}
 
                   {/* Pagination Controls */}
-                  {expensesTotalPages > 1 && (
-                    <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm p-4">
+                  {expenses.length > 0 && (
+                    <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
                       <div className="text-sm text-gray-600">
-                        Page {expensesPage} of {expensesTotalPages}
+                        {expensesTotalPages > 0 ? (
+                          <>Page {expensesPage} of {expensesTotalPages}</>
+                        ) : (
+                          <>Showing {expenses.length} expense{expenses.length !== 1 ? 's' : ''}</>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleExpensesPageChange(expensesPage - 1)}
-                          disabled={expensesPage === 1 || expensesLoading}
-                          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                            expensesPage === 1 || expensesLoading
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
-                          }`}
-                        >
-                          Previous
-                        </button>
-                        
-                        {/* Page Numbers */}
-                        <div className="flex items-center gap-1">
-                          {Array.from({ length: Math.min(5, expensesTotalPages) }, (_, i) => {
-                            let pageNum;
-                            if (expensesTotalPages <= 5) {
-                              pageNum = i + 1;
-                            } else if (expensesPage <= 3) {
-                              pageNum = i + 1;
-                            } else if (expensesPage >= expensesTotalPages - 2) {
-                              pageNum = expensesTotalPages - 4 + i;
-                            } else {
-                              pageNum = expensesPage - 2 + i;
-                            }
-                            
-                            return (
-                              <button
-                                key={pageNum}
-                                onClick={() => handleExpensesPageChange(pageNum)}
-                                disabled={expensesLoading}
-                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                  expensesPage === pageNum
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                } ${expensesLoading ? 'cursor-not-allowed opacity-50' : ''}`}
-                              >
-                                {pageNum}
-                              </button>
-                            );
-                          })}
-                        </div>
+                      {expensesTotalPages > 1 ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleExpensesPageChange(expensesPage - 1)}
+                            disabled={expensesPage === 1 || expensesLoading}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                              expensesPage === 1 || expensesLoading
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
+                            }`}
+                          >
+                            Previous
+                          </button>
+                          
+                          {/* Page Numbers */}
+                          <div className="flex items-center gap-1">
+                            {Array.from({ length: Math.min(5, expensesTotalPages) }, (_, i) => {
+                              let pageNum;
+                              if (expensesTotalPages <= 5) {
+                                pageNum = i + 1;
+                              } else if (expensesPage <= 3) {
+                                pageNum = i + 1;
+                              } else if (expensesPage >= expensesTotalPages - 2) {
+                                pageNum = expensesTotalPages - 4 + i;
+                              } else {
+                                pageNum = expensesPage - 2 + i;
+                              }
+                              
+                              return (
+                                <button
+                                  key={pageNum}
+                                  onClick={() => handleExpensesPageChange(pageNum)}
+                                  disabled={expensesLoading}
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                    expensesPage === pageNum
+                                      ? 'bg-purple-600 text-white'
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  } ${expensesLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            })}
+                          </div>
 
-                        <button
-                          onClick={() => handleExpensesPageChange(expensesPage + 1)}
-                          disabled={expensesPage === expensesTotalPages || expensesLoading}
-                          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                            expensesPage === expensesTotalPages || expensesLoading
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
-                          }`}
-                        >
-                          Next
-                        </button>
-                      </div>
+                          <button
+                            onClick={() => handleExpensesPageChange(expensesPage + 1)}
+                            disabled={expensesPage === expensesTotalPages || expensesLoading}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                              expensesPage === expensesTotalPages || expensesLoading
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
+                            }`}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      ) : expensesTotal > expensesPageSize ? (
+                        <div className="text-sm text-gray-500 italic">
+                          All expenses displayed ({expensesTotal} total)
+                        </div>
+                      ) : null}
                     </div>
                   )}
                 </div>
