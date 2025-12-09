@@ -188,17 +188,27 @@ export default function UserAvailabilityPage() {
 
   // Check if user is admin or owner
   const isAdminOrOwner = () => {
-    if (!user || !organization) return false;
+    if (!user) return false;
     
-    // Check organizationRole from user object
+    // Check organizationRole from user object first (faster)
     if (user.organizationRole === 'admin' || user.organizationRole === 'owner' || user.organizationRole === 'super_admin') {
       return true;
     }
     
-    // Check role from members list
-    const userMember = organization.members?.find((m: Member) => m.user._id === user._id);
-    if (userMember && (userMember.role === 'admin' || userMember.role === 'owner')) {
-      return true;
+    // If organization is loaded, check role from members list
+    if (organization && organization.members) {
+      const userMember = organization.members.find((m: Member) => m.user && m.user._id === user._id);
+      if (userMember && (userMember.role === 'admin' || userMember.role === 'owner')) {
+        return true;
+      }
+    }
+    
+    // Fallback: check members state directly if organization not loaded yet
+    if (members && members.length > 0) {
+      const userMember = members.find((m: Member) => m.user && m.user._id === user._id);
+      if (userMember && (userMember.role === 'admin' || userMember.role === 'owner')) {
+        return true;
+      }
     }
     
     return false;
@@ -206,11 +216,14 @@ export default function UserAvailabilityPage() {
 
   // Get filtered members based on permissions
   const getFilteredMembers = () => {
-    if (!members || !user) return [];
+    if (!members || members.length === 0) return [];
+    if (!user) return [];
     
-    if (isAdminOrOwner()) {
+    const isAdmin = isAdminOrOwner();
+    
+    if (isAdmin) {
       // Admin/Owner can see all members
-      return members.filter(member => member.user);
+      return members.filter(member => member.user && member.user._id);
     } else {
       // Regular members can only see themselves
       return members.filter(member => member.user && member.user._id === user._id);
@@ -231,7 +244,11 @@ export default function UserAvailabilityPage() {
     });
   };
 
-  const handleOpenModal = () => {
+  const handleOpenModal = async () => {
+    // Ensure members are loaded before opening modal
+    if (members.length === 0) {
+      await fetchMembers();
+    }
     resetForm(); // Set default userId based on permissions
     setShowModal(true);
   };
@@ -656,41 +673,84 @@ export default function UserAvailabilityPage() {
                 </p>
                 {isAdminOrOwner() ? (
                   <div className="border-2 border-gray-200 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
-                    {getFilteredMembers().map((member) => (
-                      <button
-                        key={member.user._id}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, userId: member.user._id })}
-                        className={`w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
-                          formData.userId === member.user._id
-                            ? 'bg-purple-50 border-l-4 border-l-purple-600'
-                            : ''
-                        }`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <div className="text-sm font-semibold text-gray-900 truncate">{member.user.name}</div>
-                            {member.role && (
-                              <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                                member.role === 'owner' 
-                                  ? 'bg-purple-100 text-purple-800'
-                                  : member.role === 'admin'
-                                  ? 'bg-blue-100 text-blue-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {member.role}
-                              </span>
-                            )}
+                    {getFilteredMembers().length > 0 ? (
+                      getFilteredMembers().map((member) => (
+                        <button
+                          key={member.user._id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, userId: member.user._id })}
+                          className={`w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
+                            formData.userId === member.user._id
+                              ? 'bg-purple-50 border-l-4 border-l-purple-600'
+                              : ''
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <div className="text-sm font-semibold text-gray-900 truncate">{member.user.name}</div>
+                              {member.role && (
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                                  member.role === 'owner' 
+                                    ? 'bg-purple-100 text-purple-800'
+                                    : member.role === 'admin'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {member.role}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-600 truncate">{member.user.email}</div>
                           </div>
-                          <div className="text-xs text-gray-600 truncate">{member.user.email}</div>
-                        </div>
-                        {formData.userId === member.user._id && (
-                          <svg className="w-6 h-6 text-purple-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
+                          {formData.userId === member.user._id && (
+                            <svg className="w-6 h-6 text-purple-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                      ))
+                    ) : members.length > 0 ? (
+                      // Fallback: show all members if filtering failed
+                      members.filter(m => m.user && m.user._id).map((member) => (
+                        <button
+                          key={member.user._id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, userId: member.user._id })}
+                          className={`w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
+                            formData.userId === member.user._id
+                              ? 'bg-purple-50 border-l-4 border-l-purple-600'
+                              : ''
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <div className="text-sm font-semibold text-gray-900 truncate">{member.user.name}</div>
+                              {member.role && (
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                                  member.role === 'owner' 
+                                    ? 'bg-purple-100 text-purple-800'
+                                    : member.role === 'admin'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {member.role}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-600 truncate">{member.user.email}</div>
+                          </div>
+                          {formData.userId === member.user._id && (
+                            <svg className="w-6 h-6 text-purple-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-sm text-gray-500">
+                        {loading ? 'Loading members...' : 'No members available'}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
@@ -704,8 +764,26 @@ export default function UserAvailabilityPage() {
                           You
                         </div>
                       </div>
+                    ) : members.length > 0 && user ? (
+                      // Fallback: try to find user in members list
+                      (() => {
+                        const userMember = members.find(m => m.user && m.user._id === user._id);
+                        return userMember ? (
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">{userMember.user.name}</div>
+                              <div className="text-xs text-gray-600">{userMember.user.email}</div>
+                            </div>
+                            <div className="px-3 py-1 bg-purple-100 text-purple-800 rounded-lg text-xs font-medium">
+                              You
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-600">No member found</p>
+                        );
+                      })()
                     ) : (
-                      <p className="text-sm text-gray-600">No member found</p>
+                      <p className="text-sm text-gray-600">{loading ? 'Loading members...' : 'No member found'}</p>
                     )}
                   </div>
                 )}
