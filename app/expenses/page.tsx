@@ -7,6 +7,7 @@ import LayoutWrapper from '@/components/LayoutWrapper';
 import { toast } from 'react-hot-toast';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { downloadPdfBlob, generateUserReceiptFilename, generateAllMembersReceiptFilename } from '@/lib/pdfUtils';
+import * as XLSX from 'xlsx';
 
 interface User {
   _id: string;
@@ -89,6 +90,7 @@ export default function ExpensesPage() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [availabilityStatus, setAvailabilityStatus] = useState<any[]>([]);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
   // Pagination state
   const [expensesPage, setExpensesPage] = useState(1);
@@ -361,6 +363,245 @@ export default function ExpensesPage() {
     }
   };
 
+  const handleExportToExcel = async () => {
+    try {
+      setExportingExcel(true);
+      toast.loading('Preparing Excel export...', { id: 'excel-export' });
+
+      // Fetch ALL expenses for the month (not paginated)
+      const startOfMonth = new Date(currentYear, currentMonth - 1, 1).toISOString();
+      const endOfMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59).toISOString();
+
+      const response = await expenseAPI.getAll({
+        startDate: startOfMonth,
+        endDate: endOfMonth,
+        sortBy: 'expenseDate',
+        sortOrder: 'asc',
+        page: 1,
+        limit: 10000 // Large limit to get all expenses
+      });
+
+      const expensesData = response.data.data;
+      const allExpenses = expensesData.expenses || (Array.isArray(expensesData) ? expensesData : []);
+
+      // Get month name
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const monthName = monthNames[currentMonth - 1];
+
+      // Create workbook
+      const workbook = XLSX.utils.book_new();
+
+      // ===== SHEET 1: All Expenses =====
+      const expensesSheetData = [
+        ['Date', 'Description', 'Category', 'Paid By', 'Amount', 'Currency', 'Split Members', 'Per Person Share', 'Notes']
+      ];
+
+      allExpenses.forEach((expense: any) => {
+        const expenseDate = new Date(expense.expenseDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+        const paidByName = expense.paidBy?.name || 'Unknown';
+        const paidByEmail = expense.paidBy?.email || '';
+        const splitCount = expense.splitBetween?.length || 0;
+        const perPersonShare = splitCount > 0 ? (expense.amount / splitCount).toFixed(2) : expense.amount.toFixed(2);
+        const splitMembers = expense.splitBetween?.map((s: any) => s.user?.name || 'Unknown').join(', ') || 'N/A';
+
+        expensesSheetData.push([
+          expenseDate,
+          expense.description || '',
+          expense.category || '',
+          `${paidByName}${paidByEmail ? ` (${paidByEmail})` : ''}`,
+          expense.amount || 0,
+          expense.currency || 'AED',
+          splitMembers,
+          perPersonShare,
+          expense.notes || ''
+        ]);
+      });
+
+      const expensesSheet = XLSX.utils.aoa_to_sheet(expensesSheetData);
+      XLSX.utils.book_append_sheet(workbook, expensesSheet, 'All Expenses');
+
+      // ===== SHEET 2: Person-wise Summary =====
+      const personSummary: { [key: string]: { name: string; email: string; totalPaid: number; totalOwed: number; netBalance: number; expenseCount: number } } = {};
+
+      allExpenses.forEach((expense: any) => {
+        const paidById = expense.paidBy?._id || expense.paidBy?.id || '';
+        const paidByName = expense.paidBy?.name || 'Unknown';
+        const paidByEmail = expense.paidBy?.email || '';
+
+        // Track paid amounts
+        if (!personSummary[paidById]) {
+          personSummary[paidById] = {
+            name: paidByName,
+            email: paidByEmail,
+            totalPaid: 0,
+            totalOwed: 0,
+            netBalance: 0,
+            expenseCount: 0
+          };
+        }
+        personSummary[paidById].totalPaid += expense.amount || 0;
+        personSummary[paidById].expenseCount += 1;
+
+        // Track owed amounts (split between)
+        const splitCount = expense.splitBetween?.length || 0;
+        const perPersonShare = splitCount > 0 ? expense.amount / splitCount : 0;
+
+        expense.splitBetween?.forEach((split: any) => {
+          const userId = split.user?._id || split.user?.id || '';
+          const userName = split.user?.name || 'Unknown';
+          const userEmail = split.user?.email || '';
+
+          if (!personSummary[userId]) {
+            personSummary[userId] = {
+              name: userName,
+              email: userEmail,
+              totalPaid: 0,
+              totalOwed: 0,
+              netBalance: 0,
+              expenseCount: 0
+            };
+          }
+          personSummary[userId].totalOwed += perPersonShare;
+        });
+      });
+
+      // Calculate net balance for each person
+      Object.keys(personSummary).forEach(userId => {
+        personSummary[userId].netBalance = personSummary[userId].totalPaid - personSummary[userId].totalOwed;
+      });
+
+      const personSummaryData = [
+        ['Name', 'Email', 'Total Paid', 'Total Owed', 'Net Balance', 'Expense Count']
+      ];
+
+      Object.values(personSummary).forEach(person => {
+        personSummaryData.push([
+          person.name,
+          person.email,
+          person.totalPaid.toFixed(2),
+          person.totalOwed.toFixed(2),
+          person.netBalance.toFixed(2),
+          person.expenseCount.toString()
+        ]);
+      });
+
+      // Add totals row
+      const totalPaid = Object.values(personSummary).reduce((sum, p) => sum + p.totalPaid, 0);
+      const totalOwed = Object.values(personSummary).reduce((sum, p) => sum + p.totalOwed, 0);
+      const totalExpenses = allExpenses.length;
+      personSummaryData.push([
+        'TOTAL',
+        '',
+        totalPaid.toFixed(2),
+        totalOwed.toFixed(2),
+        (totalPaid - totalOwed).toFixed(2),
+        totalExpenses.toString()
+      ]);
+
+      const personSheet = XLSX.utils.aoa_to_sheet(personSummaryData);
+      XLSX.utils.book_append_sheet(workbook, personSheet, 'Person-wise Summary');
+
+      // ===== SHEET 3: Category-wise Summary =====
+      const categorySummary: { [key: string]: { total: number; count: number; avgAmount: number } } = {};
+
+      allExpenses.forEach((expense: any) => {
+        const category = expense.category || 'Uncategorized';
+        if (!categorySummary[category]) {
+          categorySummary[category] = { total: 0, count: 0, avgAmount: 0 };
+        }
+        categorySummary[category].total += expense.amount || 0;
+        categorySummary[category].count += 1;
+      });
+
+      // Calculate averages
+      Object.keys(categorySummary).forEach(category => {
+        categorySummary[category].avgAmount = categorySummary[category].total / categorySummary[category].count;
+      });
+
+      const categorySummaryData = [
+        ['Category', 'Total Amount', 'Expense Count', 'Average Amount', 'Percentage']
+      ];
+
+      const grandTotal = Object.values(categorySummary).reduce((sum, c) => sum + c.total, 0);
+
+      Object.entries(categorySummary)
+        .sort((a, b) => b[1].total - a[1].total)
+        .forEach(([category, data]) => {
+          const percentage = grandTotal > 0 ? ((data.total / grandTotal) * 100).toFixed(2) : '0.00';
+          categorySummaryData.push([
+            category,
+            data.total.toFixed(2),
+            data.count.toString(),
+            data.avgAmount.toFixed(2),
+            `${percentage}%`
+          ]);
+        });
+
+      categorySummaryData.push([
+        'TOTAL',
+        grandTotal.toFixed(2),
+        allExpenses.length.toString(),
+        allExpenses.length > 0 ? (grandTotal / allExpenses.length).toFixed(2) : '0.00',
+        '100.00%'
+      ]);
+
+      const categorySheet = XLSX.utils.aoa_to_sheet(categorySummaryData);
+      XLSX.utils.book_append_sheet(workbook, categorySheet, 'Category Summary');
+
+      // ===== SHEET 4: Calculations & Totals =====
+      const calculationsData = [
+        ['Expense Report Calculations'],
+        [],
+        ['Report Period', `${monthName} ${currentYear}`],
+        ['Generated On', new Date().toLocaleString('en-US')],
+        [],
+        ['SUMMARY'],
+        ['Total Expenses', allExpenses.length.toString()],
+        ['Total Amount', grandTotal.toFixed(2)],
+        ['Average Expense Amount', (grandTotal / allExpenses.length).toFixed(2)],
+        [],
+        ['PERSON-WISE TOTALS'],
+        ['Total Paid by All', totalPaid.toFixed(2)],
+        ['Total Owed by All', totalOwed.toFixed(2)],
+        ['Net Difference', (totalPaid - totalOwed).toFixed(2)],
+        [],
+        ['CATEGORY BREAKDOWN'],
+      ];
+
+      Object.entries(categorySummary)
+        .sort((a, b) => b[1].total - a[1].total)
+        .forEach(([category, data]) => {
+          calculationsData.push([category, `${data.total.toFixed(2)} (${data.count} expenses)`]);
+        });
+
+      calculationsData.push(
+        [],
+        ['SETTLEMENTS'],
+        ['Note: Use the Person-wise Summary sheet to see who owes whom.']
+      );
+
+      const calculationsSheet = XLSX.utils.aoa_to_sheet(calculationsData);
+      XLSX.utils.book_append_sheet(workbook, calculationsSheet, 'Calculations');
+
+      // Generate filename
+      const filename = `Expense_Report_${monthName}_${currentYear}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      // Write file
+      XLSX.writeFile(workbook, filename);
+
+      toast.success('Excel report exported successfully!', { id: 'excel-export' });
+    } catch (error: any) {
+      console.error('Error exporting to Excel:', error);
+      toast.error('Failed to export Excel report', { id: 'excel-export' });
+    } finally {
+      setExportingExcel(false);
+    }
+  };
+
   const categoryData = getCategoryData();
   const userData = getUserData();
 
@@ -386,6 +627,27 @@ export default function ExpensesPage() {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Expense Dashboard</h1>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              {/* Export to Excel Button */}
+              <button
+                onClick={handleExportToExcel}
+                disabled={exportingExcel || expensesTotal === 0}
+                className="w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 text-sm sm:text-base bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {exportingExcel ? (
+                  <>
+                    <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></div>
+                    <span>Exporting...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Export to Excel</span>
+                  </>
+                )}
+              </button>
+              
               {(user?.organizationRole === 'admin' || user?.organizationRole === 'super_admin') && (
                 <button
                   onClick={handleDownloadAllMembersReceipt}
