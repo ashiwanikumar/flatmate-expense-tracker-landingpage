@@ -90,6 +90,12 @@ export default function ExpensesPage() {
   const [availabilityStatus, setAvailabilityStatus] = useState<any[]>([]);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+  // Pagination state
+  const [expensesPage, setExpensesPage] = useState(1);
+  const [expensesPageSize] = useState(20); // Items per page
+  const [expensesTotal, setExpensesTotal] = useState(0);
+  const [expensesTotalPages, setExpensesTotalPages] = useState(0);
+  const [expensesLoading, setExpensesLoading] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -110,23 +116,35 @@ export default function ExpensesPage() {
     }
   }, [user, currentMonth, currentYear]);
 
+  // Reset expenses page when month/year changes
+  useEffect(() => {
+    setExpensesPage(1);
+  }, [currentMonth, currentYear]);
+
+  // Fetch expenses when page changes or when user/month/year changes
+  useEffect(() => {
+    if (user && expensesPage > 0) {
+      fetchExpenses(expensesPage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expensesPage, user, currentMonth, currentYear]);
+
   const fetchAllData = async () => {
     try {
       setLoading(true);
 
       // Skip balance API calls for cook users (they don't have access)
       if (user?.organizationRole === 'cook') {
-        await Promise.all([
-          fetchExpenses()
-        ]);
+        // Expenses will be fetched by useEffect when expensesPage is set
+        await Promise.resolve();
       } else {
         await Promise.all([
           fetchMonthlyBalances(),
           fetchSettlements(),
           fetchMyBalance(),
-          fetchAvailabilityStatus(),
-          fetchExpenses()
+          fetchAvailabilityStatus()
         ]);
+        // Expenses will be fetched by useEffect when expensesPage is set
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -172,8 +190,9 @@ export default function ExpensesPage() {
     }
   };
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = async (page: number = expensesPage) => {
     try {
+      setExpensesLoading(true);
       const startOfMonth = new Date(currentYear, currentMonth - 1, 1).toISOString();
       const endOfMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59).toISOString();
 
@@ -181,11 +200,38 @@ export default function ExpensesPage() {
         startDate: startOfMonth,
         endDate: endOfMonth,
         sortBy: 'expenseDate',
-        sortOrder: 'desc'
+        sortOrder: 'desc',
+        page: page,
+        limit: expensesPageSize
       });
-      setExpenses(response.data.data.expenses || []);
+      
+      const expensesData = response.data.data;
+      
+      // Handle both paginated and non-paginated responses
+      if (expensesData.expenses) {
+        setExpenses(expensesData.expenses || []);
+      } else if (Array.isArray(expensesData)) {
+        setExpenses(expensesData);
+      }
+      
+      // Set pagination metadata if available
+      if (expensesData.pagination) {
+        setExpensesTotal(expensesData.pagination.total || expensesData.expenses?.length || 0);
+        setExpensesTotalPages(expensesData.pagination.totalPages || Math.ceil((expensesData.expenses?.length || 0) / expensesPageSize));
+      } else if (expensesData.total !== undefined) {
+        setExpensesTotal(expensesData.total);
+        setExpensesTotalPages(Math.ceil(expensesData.total / expensesPageSize));
+      } else {
+        // Fallback: calculate from current expenses array
+        const expensesArray = expensesData.expenses || expensesData;
+        setExpensesTotal(expensesArray.length);
+        setExpensesTotalPages(Math.ceil(expensesArray.length / expensesPageSize));
+      }
     } catch (error: any) {
       console.error('Error fetching expenses:', error);
+      toast.error('Failed to load expenses');
+    } finally {
+      setExpensesLoading(false);
     }
   };
 
@@ -253,6 +299,19 @@ export default function ExpensesPage() {
         setCurrentYear(currentYear + 1);
       } else {
         setCurrentMonth(currentMonth + 1);
+      }
+    }
+  };
+
+  // Pagination handlers
+  const handleExpensesPageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= expensesTotalPages) {
+      setExpensesPage(newPage);
+      fetchExpenses(newPage);
+      // Scroll to top of expenses section
+      const expensesSection = document.getElementById('expenses-section');
+      if (expensesSection) {
+        expensesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   };
@@ -794,9 +853,21 @@ export default function ExpensesPage() {
                 )}
 
                 {/* Expense List */}
-                <div className="mt-5 sm:mt-6 md:mt-8">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4">All Expenses This Month</h3>
-                  {expenses.length === 0 ? (
+                <div id="expenses-section" className="mt-5 sm:mt-6 md:mt-8">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3 sm:mb-4">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">All Expenses This Month</h3>
+                    {expensesTotal > 0 && (
+                      <p className="text-sm text-gray-600">
+                        Showing {((expensesPage - 1) * expensesPageSize) + 1} - {Math.min(expensesPage * expensesPageSize, expensesTotal)} of {expensesTotal} expenses
+                      </p>
+                    )}
+                  </div>
+                  {expensesLoading ? (
+                    <div className="text-center py-8 sm:py-10 md:py-12 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent mb-4"></div>
+                      <p className="text-sm text-gray-600">Loading expenses...</p>
+                    </div>
+                  ) : expenses.length === 0 ? (
                     <div className="text-center py-8 sm:py-10 md:py-12 bg-gray-50 rounded-lg border border-gray-200">
                       <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2">No expenses yet</h4>
                       <p className="text-sm text-gray-600">Add your first expense for this month</p>
@@ -920,6 +991,71 @@ export default function ExpensesPage() {
                             </button>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pagination Controls */}
+                  {expensesTotalPages > 1 && (
+                    <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm p-4">
+                      <div className="text-sm text-gray-600">
+                        Page {expensesPage} of {expensesTotalPages}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleExpensesPageChange(expensesPage - 1)}
+                          disabled={expensesPage === 1 || expensesLoading}
+                          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                            expensesPage === 1 || expensesLoading
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
+                          }`}
+                        >
+                          Previous
+                        </button>
+                        
+                        {/* Page Numbers */}
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: Math.min(5, expensesTotalPages) }, (_, i) => {
+                            let pageNum;
+                            if (expensesTotalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (expensesPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (expensesPage >= expensesTotalPages - 2) {
+                              pageNum = expensesTotalPages - 4 + i;
+                            } else {
+                              pageNum = expensesPage - 2 + i;
+                            }
+                            
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => handleExpensesPageChange(pageNum)}
+                                disabled={expensesLoading}
+                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                  expensesPage === pageNum
+                                    ? 'bg-purple-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                } ${expensesLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          onClick={() => handleExpensesPageChange(expensesPage + 1)}
+                          disabled={expensesPage === expensesTotalPages || expensesLoading}
+                          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                            expensesPage === expensesTotalPages || expensesLoading
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
+                          }`}
+                        >
+                          Next
+                        </button>
                       </div>
                     </div>
                   )}
