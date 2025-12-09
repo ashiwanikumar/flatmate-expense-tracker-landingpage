@@ -92,7 +92,7 @@ export default function ExpensesPage() {
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
   // Pagination state
   const [expensesPage, setExpensesPage] = useState(1);
-  const [expensesPageSize] = useState(20); // Items per page
+  const [expensesPageSize, setExpensesPageSize] = useState(30); // Items per page (default 30)
   const [expensesTotal, setExpensesTotal] = useState(0);
   const [expensesTotalPages, setExpensesTotalPages] = useState(0);
   const [expensesLoading, setExpensesLoading] = useState(false);
@@ -121,13 +121,18 @@ export default function ExpensesPage() {
     setExpensesPage(1);
   }, [currentMonth, currentYear]);
 
-  // Fetch expenses when page changes or when user/month/year changes
+  // Reset to page 1 when page size changes
+  useEffect(() => {
+    setExpensesPage(1);
+  }, [expensesPageSize]);
+
+  // Fetch expenses when page changes or when user/month/year/pageSize changes
   useEffect(() => {
     if (user && expensesPage > 0) {
       fetchExpenses(expensesPage);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expensesPage, user, currentMonth, currentYear]);
+  }, [expensesPage, expensesPageSize, user, currentMonth, currentYear]);
 
   const fetchAllData = async () => {
     try {
@@ -865,11 +870,31 @@ export default function ExpensesPage() {
                 <div id="expenses-section" className="mt-5 sm:mt-6 md:mt-8">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3 sm:mb-4">
                     <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">All Expenses This Month</h3>
-                    {expensesTotal > 0 && (
-                      <p className="text-sm text-gray-600">
-                        Showing {((expensesPage - 1) * expensesPageSize) + 1} - {Math.min(expensesPage * expensesPageSize, expensesTotal)} of {expensesTotal} expenses
-                      </p>
-                    )}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      {/* Page Size Selector */}
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600 whitespace-nowrap">Per page:</label>
+                        <select
+                          value={expensesPageSize}
+                          onChange={(e) => {
+                            const newSize = parseInt(e.target.value);
+                            setExpensesPageSize(newSize);
+                            setExpensesPage(1); // Reset to first page
+                          }}
+                          className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                        >
+                          <option value={30}>30</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                          <option value={150}>150</option>
+                        </select>
+                      </div>
+                      {expensesTotal > 0 && (
+                        <p className="text-sm text-gray-600">
+                          Showing {((expensesPage - 1) * expensesPageSize) + 1} - {Math.min(expensesPage * expensesPageSize, expensesTotal)} of {expensesTotal} expenses
+                        </p>
+                      )}
+                    </div>
                   </div>
                   {expensesLoading ? (
                     <div className="text-center py-8 sm:py-10 md:py-12 bg-gray-50 rounded-lg border border-gray-200">
