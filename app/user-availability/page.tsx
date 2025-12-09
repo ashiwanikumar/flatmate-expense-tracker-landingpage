@@ -58,6 +58,7 @@ export default function UserAvailabilityPage() {
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
   const [organization, setOrganization] = useState<any>(null);
   const [viewingAvailability, setViewingAvailability] = useState<Availability | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -92,7 +93,26 @@ export default function UserAvailabilityPage() {
   const fetchOrganization = async () => {
     try {
       const response = await organizationAPI.getMyOrganization();
-      setOrganization(response.data.data);
+      const orgData = response.data.data;
+      setOrganization(orgData);
+      
+      // Update user's organizationRole in localStorage if not set
+      if (user && !user.organizationRole && orgData.members) {
+        const userId = user._id || user.id;
+        const userMember = orgData.members.find((m: any) => {
+          const memberUserId = m.user?._id || m.user?.id || '';
+          return String(memberUserId) === String(userId);
+        });
+        
+        if (userMember && userMember.role) {
+          const updatedUser = {
+            ...user,
+            organizationRole: userMember.role
+          };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          setUser(updatedUser);
+        }
+      }
     } catch (error: any) {
       console.error('Error fetching organization:', error);
     }
@@ -120,7 +140,6 @@ export default function UserAvailabilityPage() {
     try {
       const response = await organizationAPI.getMembers();
       const membersData = response.data.data.members || response.data.data || [];
-      console.log('Fetched members:', membersData.length, membersData);
       setMembers(membersData);
     } catch (error: any) {
       console.error('Error fetching members:', error);
@@ -130,6 +149,11 @@ export default function UserAvailabilityPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent double submission
+    if (isSubmitting) {
+      return;
+    }
 
     // Validate userId
     if (!formData.userId) {
@@ -153,6 +177,7 @@ export default function UserAvailabilityPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       if (editingAvailability) {
         // Update existing record
@@ -169,6 +194,8 @@ export default function UserAvailabilityPage() {
     } catch (error: any) {
       console.error('Error saving availability:', error);
       toast.error(error.response?.data?.message || `Failed to ${editingAvailability ? 'update' : 'mark'} absence`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -177,7 +204,11 @@ export default function UserAvailabilityPage() {
     // Admin/Owner can edit any record
     if (isAdminOrOwner()) return true;
     // Regular members can only edit their own records
-    return availability.userId._id === user._id;
+    if (!availability.userId) return false;
+    const userId = typeof availability.userId === 'string' 
+      ? availability.userId 
+      : availability.userId._id;
+    return userId === user._id;
   };
 
   const canDeleteAvailability = (availability: Availability) => {
@@ -185,7 +216,11 @@ export default function UserAvailabilityPage() {
     // Admin/Owner can delete any record
     if (isAdminOrOwner()) return true;
     // Regular members can only delete their own records
-    return availability.userId._id === user._id;
+    if (!availability.userId) return false;
+    const userId = typeof availability.userId === 'string' 
+      ? availability.userId 
+      : availability.userId._id;
+    return userId === user._id;
   };
 
   const handleEdit = (availability: Availability) => {
@@ -194,9 +229,19 @@ export default function UserAvailabilityPage() {
       return;
     }
 
+    // Get userId - handle both object and string formats
+    const userId = typeof availability.userId === 'string' 
+      ? availability.userId 
+      : availability.userId?._id || '';
+
+    if (!userId) {
+      toast.error('Unable to determine user for this record');
+      return;
+    }
+
     // Set form data with existing availability data
     setFormData({
-      userId: availability.userId._id,
+      userId: userId,
       startDate: availability.startDate.split('T')[0], // Convert ISO date to YYYY-MM-DD
       endDate: availability.endDate.split('T')[0],
       reason: availability.reason || ''
@@ -225,8 +270,33 @@ export default function UserAvailabilityPage() {
 
   const handleView = async (id: string) => {
     try {
+      // First try to find the availability in the existing list (which has populated userId)
+      const existingAvailability = availabilities.find(a => a._id === id);
+      if (existingAvailability) {
+        setViewingAvailability(existingAvailability);
+        return;
+      }
+
+      // If not found, fetch from API
       const response = await userAvailabilityAPI.getById(id);
       const availability = response.data.data;
+      
+      // If userId is not populated, try to find user from members list
+      if (availability && !availability.userId?.name && availability.userId) {
+        const userId = typeof availability.userId === 'string' 
+          ? availability.userId 
+          : availability.userId._id || availability.userId;
+        
+        const member = members.find(m => m.user._id === userId);
+        if (member) {
+          availability.userId = {
+            _id: member.user._id,
+            name: member.user.name,
+            email: member.user.email
+          };
+        }
+      }
+      
       setViewingAvailability(availability);
     } catch (error: any) {
       console.error('Error fetching availability details:', error);
@@ -238,22 +308,45 @@ export default function UserAvailabilityPage() {
   const isAdminOrOwner = () => {
     if (!user) return false;
     
+    const userId = String(user._id || user.id || '');
+    if (!userId) return false;
+    
     // Check organizationRole from user object first (faster)
     if (user.organizationRole === 'admin' || user.organizationRole === 'owner' || user.organizationRole === 'super_admin') {
       return true;
     }
     
+    // Check if user is the organization owner
+    if (organization && organization.owner) {
+      const ownerId = String(
+        typeof organization.owner === 'string' 
+          ? organization.owner 
+          : organization.owner._id || organization.owner.id || ''
+      );
+      if (ownerId && ownerId === userId) {
+        return true;
+      }
+    }
+    
     // Check role from members state (most reliable)
     if (members && members.length > 0) {
-      const userMember = members.find((m: Member) => m.user && m.user._id === user._id);
+      const userMember = members.find((m: Member) => {
+        const memberUserId = String(m.user?._id || m.user?.id || '');
+        return memberUserId === userId;
+      });
       if (userMember && (userMember.role === 'admin' || userMember.role === 'owner')) {
         return true;
       }
     }
     
     // If organization is loaded, check role from organization members list
-    if (organization && organization.members) {
-      const userMember = organization.members.find((m: Member) => m.user && m.user._id === user._id);
+    if (organization && organization.members && Array.isArray(organization.members)) {
+      const userMember = organization.members.find((m: any) => {
+        const memberUserId = String(
+          m.user?._id || m.user?.id || (typeof m.user === 'string' ? m.user : '') || ''
+        );
+        return memberUserId === userId;
+      });
       if (userMember && (userMember.role === 'admin' || userMember.role === 'owner')) {
         return true;
       }
@@ -301,12 +394,10 @@ export default function UserAvailabilityPage() {
   const handleOpenModal = async () => {
     // Ensure members are loaded before opening modal
     if (members.length === 0) {
-      console.log('No members in state, fetching...');
       await fetchMembers();
       // Wait a bit for state to update
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    console.log('Opening modal with members:', members.length);
     resetForm(); // Set default userId based on permissions
     setShowModal(true);
   };
@@ -756,8 +847,14 @@ export default function UserAvailabilityPage() {
                 onClick={() => {
                   setShowModal(false);
                   resetForm();
+                  setIsSubmitting(false);
                 }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isSubmitting}
+                className={`text-gray-400 transition-colors ${
+                  isSubmitting 
+                    ? 'cursor-not-allowed opacity-50' 
+                    : 'hover:text-gray-600'
+                }`}
                 aria-label="Close"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -904,17 +1001,35 @@ export default function UserAvailabilityPage() {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-base shadow-md hover:shadow-lg"
+                  disabled={isSubmitting}
+                  className={`flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg transition-colors font-semibold text-base shadow-md hover:shadow-lg ${
+                    isSubmitting 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'hover:bg-purple-700'
+                  }`}
                 >
-                  {editingAvailability ? 'Update Absence' : 'Save Absence'}
+                  {isSubmitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></div>
+                      {editingAvailability ? 'Updating...' : 'Saving...'}
+                    </span>
+                  ) : (
+                    editingAvailability ? 'Update Absence' : 'Save Absence'
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setShowModal(false);
                     resetForm();
+                    setIsSubmitting(false);
                   }}
-                  className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-base"
+                  disabled={isSubmitting}
+                  className={`flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg transition-colors font-semibold text-base ${
+                    isSubmitting 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'hover:bg-gray-300'
+                  }`}
                 >
                   Cancel
                 </button>
@@ -945,8 +1060,22 @@ export default function UserAvailabilityPage() {
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Member</label>
                 <div className="mt-1">
-                  <p className="text-sm font-semibold text-gray-900">{viewingAvailability.userId.name}</p>
-                  <p className="text-xs text-gray-600">{viewingAvailability.userId.email}</p>
+                  {viewingAvailability.userId ? (
+                    <>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {typeof viewingAvailability.userId === 'object' 
+                          ? viewingAvailability.userId.name 
+                          : 'Loading...'}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {typeof viewingAvailability.userId === 'object' 
+                          ? viewingAvailability.userId.email 
+                          : ''}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-500">Loading member details...</p>
+                  )}
                 </div>
               </div>
               
@@ -1001,21 +1130,49 @@ export default function UserAvailabilityPage() {
               </div>
             </div>
             
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-wrap gap-3">
+              {/* Edit Button */}
               {canEditAvailability(viewingAvailability) && (
                 <button
                   onClick={() => {
                     handleEdit(viewingAvailability);
                     setViewingAvailability(null);
                   }}
-                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm"
+                  className="flex-1 min-w-[120px] px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm flex items-center justify-center gap-2"
                 >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
                   Edit
                 </button>
               )}
+              
+              {/* Delete Button */}
+              {canDeleteAvailability(viewingAvailability) && (
+                <button
+                  onClick={() => {
+                    if (confirm('Are you sure you want to delete this absence record?')) {
+                      handleDelete(viewingAvailability._id, viewingAvailability);
+                      setViewingAvailability(null);
+                    }
+                  }}
+                  className="flex-1 min-w-[120px] px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete
+                </button>
+              )}
+              
+              {/* Close Button */}
               <button
                 onClick={() => setViewingAvailability(null)}
-                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                className={`px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm ${
+                  (canEditAvailability(viewingAvailability) || canDeleteAvailability(viewingAvailability)) 
+                    ? 'min-w-[120px]' 
+                    : 'flex-1'
+                }`}
               >
                 Close
               </button>
